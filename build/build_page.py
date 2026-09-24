@@ -142,7 +142,10 @@ def main():
     out = tpl.replace("__PAYLOAD__", json.dumps(payload))
     if "__PAYLOAD__" in out:
         sys.exit("template placeholder not replaced")
-    (R / "index.html").write_text(out)
+    # publish ONLY the site: the pipeline, data and docs must not go live
+    site = R / "site"
+    site.mkdir(exist_ok=True)
+    (site / "index.html").write_text(out)
     print(f"index.html written: {len(out)} bytes, {len(page_rows)} release rows")
 
 if __name__ == "__main__":
