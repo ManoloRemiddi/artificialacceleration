@@ -61,6 +61,8 @@ def http_get(url, headers=None, timeout=40):
         return r.read().decode("utf-8", "ignore")
 
 # ---------- source A: official API ----------
+# The API's field names are snake_case (release_date, model_creator) with scores nested
+# under "evaluations" — different from the page's embedded camelCase JSON. Do not swap them.
 # NOTE: the API speaks snake_case and nests scores under "evaluations";
 # the page's embedded JSON-LD uses camelCase. They are NOT interchangeable.
 def fetch_api(key):
