@@ -97,29 +97,9 @@
   .labcard-top .logo svg,.labcard-top .logo img{width:24px;height:24px}
   .lab .nm{font-size:14px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lab.off{opacity:.3}
-  /* markers: crisp, no glow. hierarchy by size, ringed for contrast. */
-  .dot{position:absolute;top:50%;width:7px;height:7px;border-radius:50%;
-       transform:translate(-50%,-50%);background:var(--c);
-       box-shadow:0 0 0 1.5px var(--bg);z-index:4;
-       transition:transform 140ms cubic-bezier(.2,.7,.3,1), box-shadow 140ms ease-out}
-  .dot.scored{width:10px;height:10px;box-shadow:0 0 0 1.5px var(--bg),inset 0 0 0 1.5px rgba(255,255,255,.85)}
-  @media (prefers-reduced-motion: reduce){
-    *, *::before, *::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
-  }
-  .dot:hover{transform:translate(-50%,-50%) scale(1.45);z-index:70;
-             box-shadow:0 0 0 1.5px var(--bg),0 0 0 4px color-mix(in srgb,var(--c) 35%,transparent)}
-  /* the cadence rail: shows each lab's release rhythm behind its markers */
-  .rail{position:absolute;height:1px;top:50%;transform:translateY(-.5px);
-        background:linear-gradient(90deg,transparent,var(--c) 6%,var(--c) 94%,transparent);
-        opacity:.30;z-index:2;pointer-events:none}
-  /* highlight and context: focus one lab, everything else recedes */
-  .lanes.focusing .lane{opacity:.32;transition:opacity 140ms ease-out}
-  .lanes.focusing .lane.is-focus{opacity:1}
-  .lanes.focusing .lane .dot{transition:transform 140ms,opacity 140ms}
-  .chart.focusing .pdot,.chart.focusing .pline{transition:opacity 160ms ease-out,stroke-width 160ms ease-out}
-  .chart.focusing .dimmed{opacity:.14;stroke-width:1.1}
-  .chart.focusing .bar{transition:fill-opacity 160ms ease-out}
-  .chart.focusing rect.bar.dimmed{fill-opacity:.20}
+  .dot{position:absolute;top:50%;width:8px;height:8px;border-radius:2px;transform:translate(-50%,-50%) rotate(45deg);
+       background:var(--c);box-shadow:0 0 0 2px var(--bg),0 0 9px -1px var(--c);z-index:3}
+  .dot.scored{width:11.5px;height:11.5px;box-shadow:0 0 0 2px var(--bg),0 0 12px 0 var(--c)}
   .dot.alert{background:var(--ink);box-shadow:0 0 0 2px var(--alert),0 0 12px 0 var(--alert)}
   /* idle tooltips are display:none so they cannot occupy layout or widen the page.
      The entrance animates opacity ONLY, so JS stays free to set the transform. */
@@ -176,12 +156,8 @@
   .axl{fill:var(--faint);font-family:var(--mono);font-size:10px}
   .axl.d{fill:var(--dim)}
   text.mlab{font-family:var(--mono);font-size:9.5px;fill:var(--dim)}
-  .bar{opacity:.95}
-  .pline{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;
-         stroke-dasharray:1;animation:drawline 560ms cubic-bezier(.25,.6,.3,1) both}
-  @keyframes drawline{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
-  .bar{transform-box:fill-box;transform-origin:bottom;animation:growbar 340ms cubic-bezier(.25,.6,.3,1) both}
-  @keyframes growbar{from{transform:scaleY(.02)}to{transform:scaleY(1)}}
+  .bar{opacity:.92}
+  .pline{fill:none;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
   .pdot{stroke:#0b0d14;stroke-width:1.4}
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:2px}
   .lg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dim)}
@@ -393,7 +369,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* ---------------- state ---------------- */
-const S = { win: 12, mode: "rel", labs: new Set(DATA.labs.map(l => l.id)), focus: null };
+const S = { win: 12, mode: "rel", labs: new Set(DATA.labs.map(l => l.id)) };
 let W = 1400, LABW = 112, CH = 470;
 const fitChart = () => {
   const svg = document.getElementById('chart');
@@ -451,26 +427,6 @@ function windowBounds() {
 }
 const xFor = t => LABW + ((t - windowBounds()[0]) / (windowBounds()[1] - windowBounds()[0])) * (W - LABW - 8);
 
-function setFocus(id) {
-  if (S.focus === id) return;
-  S.focus = id;
-  const lanes = document.getElementById("lanes");
-  const chart = document.getElementById("chart");
-  if (lanes) {
-    lanes.classList.toggle("focusing", !!id);
-    lanes.querySelectorAll(".lane").forEach(l => l.classList.toggle("is-focus", l.dataset.lab === id));
-  }
-  if (chart) chart.classList.toggle("focusing", !!id);
-  paintChartFocus();
-}
-function paintChartFocus() {
-  const chart = document.getElementById("chart");
-  if (!chart) return;
-  chart.querySelectorAll("[data-lab]").forEach(el => {
-    el.classList.toggle("dimmed", !!S.focus && el.dataset.lab !== S.focus);
-  });
-}
-
 /* ---------------- control bar ---------------- */
 (function buildChips() {
   const host = document.getElementById("chips");
@@ -479,10 +435,6 @@ function paintChartFocus() {
     const b = document.createElement("button");
     b.className = "chip"; b.dataset.lab = l.id; b.setAttribute("aria-pressed", "true");
     b.innerHTML = `<span class="sw" style="background:${l.hex}"></span>${l.short}<span class="cnt">${n}</span>`;
-    b.onmouseenter = () => setFocus(l.id);
-    b.onmouseleave = () => setFocus(null);
-    b.onfocus = () => setFocus(l.id);
-    b.onblur = () => setFocus(null);
     b.onclick = e => {
       S.labs = new Set(S.labs.has(l.id) ? [...S.labs].filter(x => x !== l.id) : [...S.labs, l.id]);
       sync();
@@ -524,7 +476,7 @@ function drawTimeline() {
   const visible = DATA.labs.filter(l => S.labs.has(l.id));
   DATA.labs.forEach(lab => {
     const lane = document.createElement("div");
-    lane.className = "lane" + (S.focus === lab.id ? " is-focus" : "");
+    lane.className = "lane";
     lane.style.setProperty('--lh', laneH() + 'px');
     lane.dataset.lab = lab.id;
     const on = S.labs.has(lab.id);
@@ -535,11 +487,9 @@ function drawTimeline() {
       S.labs = e.shiftKey ? new Set([...S.labs, lab.id]) : (isOn ? new Set([lab.id]) : new Set([...S.labs, lab.id]));
       sync();
     };
-    const xs = [];
     DATA.rows.filter(r => r.lab === lab.id).forEach(r => {
       const d = D(r.d);
       if (d < start || d > end) return;
-      xs.push(xFor(d.getTime()));
       const el = document.createElement("div");
       const alerted = r.lab === "anthropic" && r.d === "2026-09-22";
       el.className = "dot" + (r.ii ? " scored" : "");
@@ -553,18 +503,6 @@ function drawTimeline() {
         </span>`;
       lane.appendChild(el);
     });
-    if (xs.length > 1) {
-      const a = Math.min(...xs), b = Math.max(...xs);
-      const rail = document.createElement("div");
-      rail.className = "rail";
-      rail.style.left = a + "px"; rail.style.width = (b - a) + "px";
-      rail.style.setProperty("--c", lab.hex);
-      lane.appendChild(rail);
-    }
-    // focus state drives the highlight-and-context behaviour
-    lane.dataset.lab = lab.id;
-    lane.addEventListener("mouseenter", () => setFocus(lab.id));
-    lane.addEventListener("mouseleave", () => setFocus(null));
     lanes.appendChild(lane);
   });
 
@@ -627,9 +565,8 @@ function renderRel(svg) {
       const bx = x(start.getTime() + i * bucketDays * day);
       const hgt = (n / maxC) * ph;
       const by = PADT + ph - acc - hgt;
-      const isTop = acc + hgt >= (Object.values(c).reduce((a, b) => a + b, 0) / maxC * ph) - 0.5;
-      h += `<rect class="bar" data-lab="${l.id}" x="${bx}" y="${by}" width="${bw}" height="${Math.max(1, hgt)}"
-             fill="${l.hex}" rx="${isTop ? 2.5 : 0}"><title>${fmt(new Date(start.getTime() + i * bucketDays * day))} · ${l.short}: ${n}</title></rect>`;
+      h += `<rect class="bar" x="${bx}" y="${by}" width="${bw}" height="${Math.max(1, hgt)}"
+             fill="${l.hex}" rx="1.5"><title>${fmt(new Date(start.getTime() + i * bucketDays * day))} · ${l.short}: ${n}</title></rect>`;
       acc += hgt;
     });
   });
@@ -680,21 +617,19 @@ function renderCap(svg) {
       .sort((a, b) => a.t - b.t);
     if (!pts.length) return;
     n++;
-    h += `<path class="pline" data-lab="${l.id}" stroke="${l.hex}" pathLength="1"
-           d="${pts.map((p, i) => (i ? "L" : "M") + x(p.t) + " " + y(p.v)).join(" ")}"/>`;
+    h += `<path class="pline" stroke="${l.hex}" d="${pts.map((p, i) => (i ? "L" : "M") + x(p.t) + " " + y(p.v)).join(" ")}"/>`;
     pts.forEach(p => {
-      h += `<circle class="pdot" data-lab="${l.id}" cx="${x(p.t)}" cy="${y(p.v)}" r="3.6" fill="${l.hex}">
+      h += `<circle class="pdot" cx="${x(p.t)}" cy="${y(p.v)}" r="4.2" fill="${l.hex}">
               <title>${fmt(new Date(p.t))} · ${p.m} · ${l.short} · Intelligence ${p.v}${p.est ? " (est.)" : ""}</title></circle>`;
       /* label only the interesting points, and place them so they do not collide */
       const NAME = {"Claude Opus 5.5":"up","GPT-6 Astra":"up","Grok 4.7":"down","Muse Spark 1.3":"up",
                     "Qwen3.8 Max 0902":"down","Kimi K3":"down","DeepSeek V4.1 Flash":"up",
                     "GLM-5.3":"down","Gemini 3.8 Flash":"down","GPT-6 Sol":"down","Claude Fable 5.1":"up"};
       const pos = NAME[p.m];
-      const show = pos && (!S.focus || S.focus === l.id);
-      if (show) {
+      if (pos) {
         const dy = pos === "up" ? -10 : 18;
         const short = p.m.replace(/^Claude /, "").replace(" 0902", "");
-        h += `<text class="mlab" data-lab="${l.id}" x="${x(p.t)}" y="${y(p.v) + dy}" text-anchor="middle" fill="${l.hex}">${short}</text>`;
+        h += `<text class="mlab" x="${x(p.t)}" y="${y(p.v) + dy}" text-anchor="middle" fill="${l.hex}">${short}</text>`;
       }
     });
   });
@@ -707,7 +642,6 @@ function drawChart() {
   const svg = document.getElementById("chart");
   svg.setAttribute("viewBox", `0 0 ${W} ${CH}`);
   if (S.mode === "rel") renderRel(svg); else renderCap(svg);
-  paintChartFocus();
   const tt = document.getElementById("chartTitle"), ss = document.getElementById("chartSub");
   if (tt) tt.textContent = (S.mode === "rel") ? "Releases over time" : "Intelligence over time";
   if (ss) ss.textContent = (S.mode === "rel")

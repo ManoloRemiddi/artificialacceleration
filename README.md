@@ -38,6 +38,22 @@ displayed on the page.
 - **Naming** — companies on the lane labels (OpenAI, Anthropic, Google, xAI, Meta,
   DeepSeek, Alibaba, Moonshot, Z.ai) with the model family named underneath.
 
+## Visual design notes
+
+Applied from 2026 data-visualisation guidance:
+
+- **Highlight-and-context** — with nine labs, a chart of all nine at once is unreadable
+  (guidance: 1-3 lines ideal, 4-5 the maximum, 6+ becomes spaghetti). Hovering a lab — chip
+  or lane — keeps that lab at full strength and fades the rest to 14%, in both the timeline
+  and the charts. The dimmed series stay as context rather than disappearing.
+- **Clean markers** — flat colour, 1.5px ring, no glow. Sizes encode hierarchy: releases
+  with an index score are larger and ringed.
+- **Cadence rails** — a hairline per lane connecting a lab's first and last release, so the
+  rhythm between launches reads at a glance.
+- **Motion with a job** — 140-160ms for hover and focus; charts animate on load (bars grow,
+  lines draw) to signal that data changed. `prefers-reduced-motion` is honoured.
+- **Typography** — larger body and label sizes, muted greys lightened for contrast.
+
 ## Layout
 
 | Path | Purpose |

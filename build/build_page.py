@@ -60,8 +60,8 @@ if len(page_rows) < 20:
 # ---- sections, generated from the same data ----
 def sections_html():
     return "".join([
-      '<section id="cluster"><div class="sechead"><span class="num">03</span><h2>The 21\u201322 September cluster</h2>'
-      '<span class="sub">Three labs, three launches, roughly a day and a half. Anthropic went <b>90 minutes before</b> OpenAI \u2014 not cooperation, upstaging.</span></div>'
+      '<section id="cluster"><div class="sechead"><span class="num">03</span><h2>Three launches in 36 hours</h2>'
+      '<span class="sub">Anthropic shipped <b>90 minutes before</b> OpenAI. Exactly one hour of that gap is public \u2014 xAI and Anthropic publish no release hour.</span></div>'
       '<div class="panel pad">%s</div></section>' % cluster_svg(),
       '<section id="streams"><div class="sechead"><span class="num">04</span><h2>Lab by lab: the release stream</h2>'
       '<span class="sub">Every notable release, in order, with the gap since that lab\u2019s previous one. Filled bars are faster than the lab\u2019s own median.</span></div>%s</section>' % stream_cards(),
@@ -69,36 +69,76 @@ def sections_html():
       '<span class="sub">What each lab said about pacing, and what shipped immediately afterwards.</span></div>%s</section>' % evidence_cards(),
     ])
 
+
+def svg_logo(lab_id, x, y, size=24):
+    """Place a brand mark inside an SVG document (nested <svg> or <image>)."""
+    L = LOGOS.get(lab_id)
+    if not L:
+        return ""
+    if L.get("img"):
+        return ('<image x="%d" y="%d" width="%d" height="%d" href="%s" preserveAspectRatio="xMidYMid meet"/>'
+                % (x, y, size, size, L["img"]))
+    svg = L["svg"]
+    svg = re.sub(r'\swidth="[^"]*"', '', svg, count=1)
+    svg = re.sub(r'\sheight="[^"]*"', '', svg, count=1)
+    inner = ('<rect x="%d" y="%d" width="%d" height="%d" rx="4" fill="#ffffff"/>'
+             % (x - 1, y - 1, size + 2, size + 2)) if L.get("chip") else ""
+    svg = re.sub(r'<svg\b', '<svg x="%d" y="%d" width="%d" height="%d"' % (x, y, size, size), svg, count=1)
+    return inner + svg
+
 def cluster_svg():
-    VW, VH, PADL, PADR, AX = 1400, 470, 140, 140, 300
-    span = VW - PADL - PADR
-    xh = lambda h: PADL + (h / 48) * span
-    o = ['<svg viewBox="0 0 %d %d" width="100%%" role="img" aria-label="Release cluster 21 to 24 September 2026">' % (VW, VH)]
+    """Compact swimlane: three releases on a shared 48-hour axis.
+    Replaces a 470px card layout that was mostly empty space."""
+    VW, VH = 1400, 196
+    X0, X1 = 336, 1390               # label column ends at X0
+    hours = 48
+    xh = lambda h: X0 + (h / hours) * (X1 - X0)
+    ROWS = [
+        ("xai",       "Grok 4.7",         12.0, "21 Sep",            "#d8dee9"),
+        ("anthropic", "Claude Opus 5.5",  33.0, "22 Sep",            "#d97757"),
+        ("openai",    "GPT-6 Sol + Luna", 34.5, "22 Sep",              "#10a37f"),
+    ]
+    ROWY = [64, 112, 160]
+
+    o = ['<svg viewBox="0 0 %d %d" width="100%%" role="img" aria-label="Three frontier releases across 21-22 September 2026">' % (VW, VH)]
+
+    # day columns
     for h in (0, 24, 48):
-        o.append('<line x1="%.1f" y1="24" x2="%.1f" y2="446" stroke="var(--line2)" stroke-dasharray="3 5"/>' % (xh(h), xh(h)))
-    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--line)"/>' % (xh(0), AX, xh(48), AX))
-    for h, lb in [(0,"21 Sep 00:00"),(8,"08:00"),(16,"16:00"),(24,"22 Sep 00:00"),(32,"08:00"),(40,"16:00"),(47.4,"23 Sep")]:
+        o.append('<line x1="%.1f" y1="26" x2="%.1f" y2="%d" stroke="var(--line2)" stroke-dasharray="3 5"/>' % (xh(h), xh(h), VH - 12))
+    # axis
+    o.append('<line x1="%.1f" y1="26" x2="%.1f" y2="26" stroke="var(--line)"/>' % (xh(0), xh(48)))
+    for h, lb, anchor in [(0,"21 Sep","start"),(12,"12:00","middle"),(24,"22 Sep","middle"),(36,"12:00","middle"),(48,"23 Sep","end")]:
         x = xh(h)
-        o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--line)"/>' % (x, AX-4, x, AX+4))
-        o.append('<text x="%.1f" y="%d" fill="var(--faint)" font-family="ui-monospace,monospace" font-size="11" text-anchor="middle">%s</text>' % (x, AX+20, lb))
-    for c in SEC.CLUSTER:
-        L = labmap[c["lab"]]; x = xh(c["h"]); up = c["dir"] == "up"
-        top = (AX - 14 - 118) if up else (AX + 14); ox = c.get("ox", 0); w = c["w"]; cx = x + ox
-        o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="%s" opacity="0.55"/>' % (x, AX, x, (top+118 if up else top), L["hex"]))
-        o.append('<rect x="%.1f" y="%d" width="7" height="7" transform="translate(-3.5,-3.5) rotate(45 %.1f %d)" fill="%s"/>' % (x, AX, x, AX, L["hex"]))
-        o.append('<foreignObject x="%.1f" y="%d" width="%d" height="118">' % (cx-w/2, top, w))
-        o.append('<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;background:var(--panel);border:1px solid var(--line);border-left:3px solid %s;border-radius:10px;padding:10px 12px;height:100%%;box-sizing:border-box">' % L["hex"])
-        o.append('<div style="font-size:14px;font-weight:700;color:var(--ink)">%s</div>' % esc(c["name"]))
-        o.append('<div style="font-family:ui-monospace,monospace;font-size:11.5px;color:%s;margin-top:4px">%s</div>' % (L["hex"], esc(c["time"])))
-        o.append('<div style="font-size:12.5px;color:var(--dim);margin-top:6px;line-height:1.45">%s</div>' % esc(c["note"]))
-        o.append('</div></foreignObject>')
-    lo, hi = xh(28), xh(29.5)
-    # bracket the two pins under the axis, then name the gap in the empty lower-left band
-    yb = 442
-    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-dasharray="3 3" opacity="0.85"/>' % (lo, AX + 18, lo, yb))
-    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-dasharray="3 3" opacity="0.85"/>' % (hi, AX + 18, hi, yb))
-    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-dasharray="3 3" opacity="0.85"/>' % (lo, yb, 860, yb))
-    o.append('<text x="854" y="%d" fill="var(--alert)" font-family="ui-monospace,monospace" font-size="12" font-weight="700" text-anchor="end">90 minutes apart</text>' % (yb + 4))
+        o.append('<line x1="%.1f" y1="22" x2="%.1f" y2="30" stroke="var(--line)"/>' % (x, x))
+        o.append('<text x="%.1f" y="18" fill="var(--faint)" font-family="ui-monospace,monospace" font-size="11.5" text-anchor="%s">%s</text>' % (x, anchor, lb))
+
+    # the 90-minute window, drawn as a soft band behind the two pins
+    lo, hi = xh(33.0), xh(34.5)
+    o.append('<rect x="%.1f" y="34" width="%.1f" height="%d" fill="var(--alert)" opacity="0.10"/>' % (lo - 6, (hi - lo) + 12, VH - 52))
+
+    for (lab, name, h, when, _c), y in zip(ROWS, ROWY):
+        L = labmap[lab]; x = xh(h)
+        # guide from the label column to the pin
+        o.append('<line x1="%d" y1="%d" x2="%.1f" y2="%d" stroke="%s" stroke-width="1" opacity="0.30"/>' % (X0, y, x, y, L["hex"]))
+        # label side
+        o.append(svg_logo(lab, 4, y - 12, 24))
+        o.append('<text x="%d" y="%d" fill="var(--ink)" font-family="Inter,sans-serif" font-size="14" font-weight="700">%s</text>'
+                 % (38, y - 1, esc(name)))
+        o.append('<text x="%d" y="%d" fill="var(--faint)" font-family="ui-monospace,monospace" font-size="11.5">%s</text>'
+                 % (38, y + 15, esc(L["short"])))
+        o.append('<text x="%d" y="%d" fill="var(--dim)" font-family="ui-monospace,monospace" font-size="11.5" text-anchor="end">%s</text>'
+                 % (X0 - 10, y + 4, esc(when)))
+        # the pin
+        o.append('<rect x="%.1f" y="%d" width="11" height="11" transform="translate(-5.5,-5.5) rotate(45 %.1f %d)" fill="%s"/>'
+                 % (x, y, x, y, L["hex"]))
+
+    # bracket the 90 minutes, labelled once, clear of everything
+    yb = 104
+    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-width="1" opacity="0.9"/>' % (lo, yb - 8, lo, yb + 8))
+    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-width="1" opacity="0.9"/>' % (hi, yb - 8, hi, yb + 8))
+    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-dasharray="2 2" opacity="0.9"/>' % (lo, yb, hi, yb))
+    o.append('<text x="%.1f" y="%d" fill="var(--alert)" font-family="ui-monospace,monospace" font-size="11" font-weight="700">90 min</text>' % (hi + 8, yb + 4))
+
     o.append('</svg>')
     return "".join(o)
 
