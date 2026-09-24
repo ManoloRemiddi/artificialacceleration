@@ -279,6 +279,10 @@
          font-size:11.5px;font-family:var(--mono);letter-spacing:.03em;display:flex;justify-content:space-between;
          gap:18px;flex-wrap:wrap}
   footer .attr{flex-basis:100%;color:var(--faint);opacity:.85}
+  footer .proj{color:var(--dim)}
+  footer .proj a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px;
+    transition:color .13s,border-color .13s}
+  footer .proj a:hover{color:var(--ink);border-color:var(--faint)}
   footer .attr b{color:var(--dim)}
   @media (max-height:1150px){
     .lede{display:none}                       /* the deck is the explanation, not this line */
@@ -461,7 +465,7 @@
    <div class="headrow">
     <div class="headtext">
     <div class="eyebrow">Release-cadence &amp; capability audit · compiled 24 Sep 2026</div>
-    <h1>Artificial Acceleration<br><span class="thin">Nine labs. One year. Every release, dated.</span></h1>
+    <h1>Artificial Acceleration<br><span class="thin">Nine labs. <span id="tlwin">Four years</span>. Every release, dated.</span></h1>
     <p class="lede">
       Every frontier lab published calls to pace or throttle AI development in 2026 — while shipping faster than ever.
       Below: back to 2022 by default, with all nine labs visible at once, then the same window measured two ways —
@@ -549,6 +553,7 @@
   <footer>
     <span id="srcLine"></span>
     <span class="attr">Benchmark data: <b>Artificial Analysis</b> — artificialanalysis.ai · index v4.3.2. Release dates cross-checked against each lab’s own announcement.</span>
+    <span class="proj">A project of the <a href="https://resonantdao.com" target="_blank" rel="noopener">ResonantDAO</a></span>
     <span>Compiled 24 Sep 2026 · verify before publishing</span>
   </footer>
 </div>
@@ -822,6 +827,9 @@ const measure = () => {
 const laneH = () => (innerHeight >= 1200 ? 32 : innerHeight >= 820 ? 30 : 26);
 const NOW = new Date(Date.UTC(2026, 8, 24));
 const WINDOW_DAYS = { 3: 91, 6: 182, 12: 365, 24: 730, 48: 1461 };
+/* the tagline names the span on screen, so it cannot go stale when the window moves */
+const WINDOW_WORDS = { 3: "Three months", 6: "Six months", 12: "One year",
+                       24: "Two years", 48: "Four years" };
 const BUCKET_DAYS = { 3: 1, 6: 3, 12: 7, 24: 14, 48: 30 };
 /* a four-year axis cannot carry 48 month labels or 48 grid lines */
 const monthStep = () => (S.win <= 12 ? 1 : S.win <= 24 ? 2 : 3);
@@ -1357,6 +1365,9 @@ function sync() {
   const s = src.filter(r => inView(r) && r.ii !== null).length;
   document.querySelectorAll("#chips .chip").forEach(c =>
     c.querySelector(".cnt").textContent = src.filter(r => r.lab === c.dataset.lab && inView(r)).length);
+  const tlwin = document.getElementById("tlwin");
+  if (tlwin) tlwin.textContent = WINDOW_WORDS[S.win] || "One year";
+
   /* the small-dot and cluster keys only appear when those things are drawn */
   const lgMinor = document.getElementById("lgMinor");
   if (lgMinor) lgMinor.classList.toggle("hide", !src.some(r => !r.n));
