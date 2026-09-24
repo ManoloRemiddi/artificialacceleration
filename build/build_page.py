@@ -30,7 +30,9 @@ def mark_html(lab_id):
     if L.get("img"):
         return (f'<span class="logo raster"><img src="{L["img"]}" alt="{esc(L["brand"])}" '
                 f'width="20" height="20" loading="lazy" decoding="async"></span>')
-    cls = "logo mono" if L.get("mono") else "logo"
+    cls = "logo"
+    if L.get("chip"): cls += " chip"
+    if L.get("mono"): cls += " mono"
     return f'<span class="{cls}">{L["svg"]}</span>'
 
 NOTES = json.loads((R / "build" / "notes.json").read_text())

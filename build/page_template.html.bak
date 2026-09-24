@@ -12,7 +12,7 @@
     --alert:#ff5b5b; --chipbg:#12151f;
     --mono:"SF Mono",ui-monospace,"JetBrains Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
     --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --lab:118px; --lh:30px; --markfg:#f2f5fc;
+    --lab:112px; --lh:22px; --markfg:#f2f5fc;
   }
   [data-theme="light"]{
     --bg:#f4f6fb; --panel:#ffffff; --panel2:#f7f9fd; --line:#d3dae8; --line2:#e4e9f3;
@@ -21,7 +21,7 @@
     --markfg:#1a2030;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;overflow-x:clip}
+  html,body{margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;
        -webkit-font-smoothing:antialiased}
@@ -39,12 +39,6 @@
          display:block;overflow:visible}
 
   /* ---------- control bar ---------- */
-  .headrow{display:flex;justify-content:space-between;align-items:flex-start;gap:26px}
-  .headtext{min-width:0}
-  .themewrap{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
-  .themecap{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
-  .bigseg button{font-size:14px!important;padding:8px 16px!important;display:inline-flex;align-items:center;gap:7px}
-  .bigseg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
   .controls{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:center;
             background:var(--panel);border:1px solid var(--line);border-radius:12px;
             padding:12px 14px;margin-bottom:16px}
@@ -84,17 +78,15 @@
   .lab{position:absolute;left:0;top:0;height:100%;width:var(--lab);display:flex;align-items:center;gap:8px;
        padding-right:12px;cursor:pointer}
   /* real brand marks: transparent, sized, and legible on both themes */
-  .logo{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex:0 0 24px;color:var(--markfg)}
-  .logo svg{width:24px;height:24px;display:block}
-  .logo.chip{background:#fff;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10);padding:1px}
-  .logo.chip svg{width:22px;height:22px}
+  .logo{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:0 0 22px;color:var(--markfg)}
+  .logo svg{width:22px;height:22px;display:block}
   .logo.mono svg{fill:currentColor}
   .logo.mono svg path{fill:currentColor}
-  .logo.chip img{border-radius:4px}
-  .logo.chip img{width:20px;height:20px;object-fit:contain;display:block}
+  .logo.raster{border-radius:6px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+  .logo.raster img{width:22px;height:22px;object-fit:contain;display:block}
   .labcard-top .logo{width:24px;height:24px;flex:0 0 24px}
   .labcard-top .logo svg,.labcard-top .logo img{width:24px;height:24px}
-  .lab .nm{font-size:14px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lab .nm{font-size:13.5px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lab.off{opacity:.3}
   .dot{position:absolute;top:50%;width:8px;height:8px;border-radius:2px;transform:translate(-50%,-50%) rotate(45deg);
        background:var(--c);box-shadow:0 0 0 2px var(--bg),0 0 9px -1px var(--c);z-index:3}
@@ -105,18 +97,7 @@
     padding:8px 11px;width:max-content;max-width:280px;opacity:0;pointer-events:none;transition:.13s;z-index:60;
     box-shadow:0 16px 36px rgba(0,0,0,.62)}
   .dot:hover{z-index:70}
-  .dot:hover .tip{display:block;animation:tipin .12s ease-out both}
-  @keyframes tipin{from{opacity:0;transform:translateX(-50%) rotate(-45deg) scale(.95)}
-                   to{opacity:1;transform:translateX(-50%) rotate(-45deg) scale(1)}}
-  /* the newest dots sit at the right edge: anchor their tooltips inward */
-  .lane .dot:nth-last-child(-n+2) .tip{left:auto;right:50%}
-  .lane .dot:nth-last-child(-n+2):hover .tip{animation:tipinR .12s ease-out both}
-  @keyframes tipinR{from{opacity:0;transform:translateX(50%) rotate(-45deg) scale(.95)}
-                    to{opacity:1;transform:translateX(50%) rotate(-45deg) scale(1)}}
-  .lane .dot:nth-child(2) .tip{left:0;right:auto}
-  .lane .dot:nth-child(2):hover .tip{animation:tipinL .12s ease-out both}
-  @keyframes tipinL{from{opacity:0;transform:rotate(-45deg) scale(.95)}
-                    to{opacity:1;transform:rotate(-45deg) scale(1)}}
+  .dot:hover .tip{opacity:1;transform:translateX(-50%) rotate(-45deg) scale(1)}
   .tip .t1{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.07em;display:block}
   .tip .t2{font-size:13px;font-weight:700;display:block;margin-top:2px}
   .tip .t3{font-size:12px;color:var(--dim);display:block;margin-top:5px;line-height:1.42}
@@ -128,11 +109,12 @@
         border-left:1px solid color-mix(in srgb,var(--alert) 40%,transparent);border-right:1px solid color-mix(in srgb,var(--alert) 40%,transparent);pointer-events:none;z-index:1}
   .bandcap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
            font-size:11px;font-weight:700;color:var(--alert);cursor:help;line-height:1}
-  .bandcap .tip{display:none;position:absolute;right:0;bottom:140%;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;
+  .bandcap .tip{position:absolute;left:50%;bottom:140%;transform:translateX(-50%) scale(.95);
+           background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;
            width:max-content;max-width:250px;color:var(--ink);font-family:var(--sans);
-           font-size:12.5px;font-weight:500;letter-spacing:0;
+           font-size:12.5px;font-weight:500;letter-spacing:0;opacity:0;visibility:hidden;
            transition:.13s;box-shadow:0 12px 30px rgba(0,0,0,.35);line-height:1.4;z-index:80}
-  .bandcap:hover .tip,.bandcap:focus .tip{display:block;animation:tipinR .12s ease-out both}
+  .bandcap:hover .tip,.bandcap:focus .tip{opacity:1;visibility:visible;transform:translateX(-50%) scale(1)}
 
   /* ---------- charts ---------- */
   .charts{display:grid;grid-template-columns:1fr;gap:12px}
@@ -254,8 +236,6 @@
 <div class="wrap">
 
   <header>
-   <div class="headrow">
-    <div class="headtext">
     <div class="eyebrow">Release-cadence &amp; capability audit · compiled 24 Sep 2026</div>
     <h1>Artificial Acceleration<br><span class="thin">Nine labs. One year. Every release, dated.</span></h1>
     <p class="lede">
@@ -263,19 +243,17 @@
       Below: each lab's full 2026 release stream with all nine visible at once, then the same window measured two ways —
       <b>how many models shipped</b>, and <b>how much smarter they got</b>.
     </p>
-    </div>
-    <div class="themewrap">
-      <span class="themecap">Appearance</span>
-      <div class="seg bigseg" id="themeseg">
-        <button data-theme="dark" aria-pressed="true"><span aria-hidden="true">&#9789;</span> Dark</button>
-        <button data-theme="light" aria-pressed="false"><span aria-hidden="true">&#9788;</span> Light</button>
-      </div>
-    </div>
-   </div>
   </header>
 
   <!-- ================= CONTROLS ================= -->
   <div class="controls">
+    <div class="ctl">
+      <span class="lbl">Theme</span>
+      <div class="seg" id="themeseg">
+        <button data-theme="dark" aria-pressed="true">Dark</button>
+        <button data-theme="light" aria-pressed="false">Light</button>
+      </div>
+    </div>
     <div class="ctl">
       <span class="lbl">Window</span>
       <div class="seg" id="winseg">
@@ -339,9 +317,8 @@ const LOGOS = DATA.logos || {};
 function markHTML(id) {
   const L = LOGOS[id];
   if (!L) return "";
-  if (L.img) return `<span class="logo chip"><img src="${L.img}" alt="${L.brand}" width="22" height="22" loading="lazy" decoding="async"></span>`;
-  const cls = "logo" + (L.chip ? " chip" : "") + (L.mono ? " mono" : "");
-  return `<span class="${cls}">${L.svg}</span>`;
+  if (L.img) return `<span class="logo raster"><img src="${L.img}" alt="${L.brand}" width="20" height="20" loading="lazy" decoding="async"></span>`;
+  return `<span class="logo${L.mono ? " mono" : ""}">${L.svg}</span>`;
 }
 
 /* ---------- light / dark ---------- */
@@ -369,7 +346,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /* ---------------- state ---------------- */
 const S = { win: 12, mode: "rel", labs: new Set(DATA.labs.map(l => l.id)) };
-let W = 1400, LABW = 112, CH = 470;
+let W = 1400, LABW = 150, CH = 470;
 const fitChart = () => {
   const svg = document.getElementById('chart');
   const box = svg.closest('.chartbox');
@@ -401,14 +378,11 @@ const fitChart = () => {
 const measure = () => {
   const host = document.getElementById('lanes');
   W = Math.max(900, Math.round(host.clientWidth || 1400));
-  // read the label column from CSS so labels and dots can never drift apart
-  const lab = getComputedStyle(document.documentElement).getPropertyValue('--lab').trim();
-  if (lab) LABW = parseFloat(lab) || LABW;
   const vh = innerHeight;
   // shrink the chart on short screens so timeline + chart fit one viewport
   CH = vh < 800 ? 300 : vh < 950 ? 370 : 470;   // provisional; refined by fitChart()
 };
-const laneH = () => (innerHeight >= 1200 ? 32 : innerHeight >= 820 ? 30 : 26);
+const laneH = () => (innerHeight >= 1200 ? 26 : innerHeight >= 820 ? 22 : 19);
 const NOW = new Date(Date.UTC(2026, 8, 24));
 const MAXWIN = 12;
 const byId = Object.fromEntries(DATA.labs.map(l => [l.id, l]));
