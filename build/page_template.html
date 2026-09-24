@@ -103,7 +103,9 @@
        transform:translate(-50%,-50%);background:var(--c);
        box-shadow:0 0 0 1.5px var(--bg);z-index:4;
        transition:transform 140ms cubic-bezier(.2,.7,.3,1), box-shadow 140ms ease-out}
-  .dot.scored{width:10px;height:10px;box-shadow:0 0 0 1.5px var(--bg),inset 0 0 0 1.5px rgba(255,255,255,.85)}
+  /* The ring is the marker for a curated notable release. It used to be tied to
+     "has an index score", which is not the same thing and made the legend a lie. */
+  .dot.curated{width:10px;height:10px;box-shadow:0 0 0 1.5px var(--bg),inset 0 0 0 1.5px rgba(255,255,255,.85)}
   /* releases outside the curated stream: present, legible on hover, not shouting */
   .dot.minor{width:5.5px;height:5.5px;opacity:.42;box-shadow:0 0 0 1px var(--bg)}
   .dot.minor:hover,.dot.minor:focus-visible{opacity:1}
@@ -146,7 +148,21 @@
   .tip .sc b{color:var(--dim);font-weight:600}
   .grid{position:absolute;top:0;width:0;border-left:1px solid var(--line2);pointer-events:none}
   .grid.q{border-left-style:dotted;opacity:.5}
-  .grid.y{border-left-color:var(--line)}
+  .grid.y{border-left-color:var(--line);opacity:.9}
+  .axis .m.edge{transform:translateX(-100%)}
+  /* the timeline needs its own key: two dot sizes and a rail were unexplained */
+  .tllegend{display:flex;flex-wrap:wrap;gap:3px 18px;align-items:center;margin:4px 0 1px var(--lab);
+    font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.02em}
+  .tllegend .ti{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tllegend .ti.hide{display:none}
+  .tllegend .lk{flex:0 0 auto}
+  .tllegend .k-strong{width:10px;height:10px;border-radius:50%;background:var(--dim);
+    box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)}
+  .tllegend .k-minor{width:5.5px;height:5.5px;border-radius:50%;background:var(--dim);opacity:.42}
+  .tllegend .k-rail{width:24px;height:1px;
+    background:linear-gradient(90deg,transparent,var(--dim) 25%,var(--dim) 75%,transparent);opacity:.55}
+  .tllegend .k-cluster{color:var(--alert);font-weight:700;font-size:11px;line-height:1}
+  @media (max-width:900px){ .tllegend{margin-left:0} }
   .band{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,color-mix(in srgb,var(--alert) 16%,transparent),color-mix(in srgb,var(--alert) 3%,transparent));
         border-left:1px solid color-mix(in srgb,var(--alert) 40%,transparent);border-right:1px solid color-mix(in srgb,var(--alert) 40%,transparent);pointer-events:none;z-index:1}
   .bandcap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
@@ -502,6 +518,12 @@
         <span class="scrubout" id="scrubout"></span>
       </div>
       <div class="lanes" id="lanes"></div>
+      <div class="tllegend" id="tllegend">
+        <span class="ti"><span class="lk k-strong"></span>ringed = a notable release we write up</span>
+        <span class="ti hide" id="lgMinor"><span class="lk k-minor"></span>small = everything else in the record</span>
+        <span class="ti"><span class="lk k-rail"></span>line = that lab&rsquo;s release range</span>
+        <span class="ti hide" id="lgCluster"><span class="lk k-cluster">&#9670;</span>21&ndash;22 Sep cluster</span>
+      </div>
     </div>
   </div>
 
@@ -806,7 +828,26 @@ const monthStep = () => (S.win <= 12 ? 1 : S.win <= 24 ? 2 : 3);
 /* stepping from the window start would skip January on a four-year axis, so
    ticks are chosen by calendar month: every month, alternate months, or quarters.
    That keeps a January — and therefore the year label — in every long window. */
-const onTick = (m, step) => step === 1 || m % step === 0;
+/* Ticks are counted backwards from the month we are actually in, so the right
+   edge of every axis is the present. Stepping forward from the window's start
+   instead left the newest label stranded in July on a four-year view, which read
+   as though August and September had not arrived. A tick carries the year when it
+   is the first of its calendar year, or the first on the axis. */
+function tickMonths(start, end, step) {
+  const out = [];
+  let t = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 1));
+  while (t >= start) {
+    out.push(new Date(t));
+    t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() - step, 1));
+  }
+  out.reverse();
+  return out.map((d, i) => ({
+    t: d.getTime(),
+    y: d.getUTCFullYear(),
+    label: MON[d.getUTCMonth()] + ((i === 0 || d.getUTCFullYear() !== out[i - 1].getUTCFullYear())
+                                   ? " ’" + String(d.getUTCFullYear()).slice(2) : ""),
+  }));
+}
 
 /* ---------- what the boards draw ----------
    Up to a year: the curated notable stream, which is what the editorial notes
@@ -905,18 +946,18 @@ function drawTimeline() {
   const [start, end] = windowBounds();
 
   // month ticks across the window, thinned out as the window widens
-  const step = monthStep();
-  let t = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
-  while (t <= end) {
-    const x = xFor(t.getTime());
-    if (x >= LABW && onTick(t.getUTCMonth(), step)) {
-      const m = document.createElement("div");
-      m.className = "m"; m.style.left = x + "px";
-      m.textContent = MON[t.getUTCMonth()] + (t.getUTCMonth() === 0 ? " ’" + String(t.getUTCFullYear()).slice(2) : "");
-      axis.appendChild(m);
-    }
-    t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1));
-  }
+  const ticks = tickMonths(start, end, monthStep());
+  ticks.forEach(tk => {
+    const x = xFor(tk.t);
+    if (x < LABW) return;
+    const m = document.createElement("div");
+    // the newest label sits hard against the right edge: right-align it if a
+    // centred label would run off the panel
+    m.className = "m" + (x > W - 22 ? " edge" : "");
+    m.style.left = x + "px";
+    m.textContent = tk.label;
+    axis.appendChild(m);
+  });
 
   const visible = DATA.labs.filter(l => S.labs.has(l.id));
   let firstDot = null;
@@ -941,7 +982,7 @@ function drawTimeline() {
       xs.push(xFor(d.getTime()));
       const el = document.createElement("div");
       const alerted = r.lab === "anthropic" && r.d === "2026-09-22";
-      el.className = "dot" + (r.ii ? " scored" : "") + (r.n ? "" : " minor");
+      el.className = "dot " + (r.n ? "curated" : "minor");
       el.style.left = xFor(d.getTime()) + "px";
       el.style.setProperty("--c", lab.hex);
       /* reachable by keyboard: one tab stop for the whole board, arrows to travel */
@@ -951,6 +992,7 @@ function drawTimeline() {
       el.setAttribute("data-key", r.lab + "|" + r.d);
       el.setAttribute("aria-label",
         `${lab.short} ${r.m}, released ${dayLabel(r.d)}` +
+        (r.n ? ", notable release" : ", from the full release record") +
         (r.ii ? `, intelligence index ${r.ii}${r.est ? " estimated" : ""}` : ", no index score") +
         ". Enter isolates this lab.");
       if (!firstDot) firstDot = el;
@@ -981,16 +1023,17 @@ function drawTimeline() {
 
   // grid lines + September cluster band
   const lh = lanes.querySelectorAll(".lane").length * laneH() + 8;
-  let gt = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
-  while (gt <= end) {
-    if (onTick(gt.getUTCMonth(), step)) {
-      const g = document.createElement("div");
-      // January reads as a solid year divider; the rest recede to dotted rules
-      g.className = "grid" + (gt.getUTCMonth() === 0 ? " y" : " q");
-      g.style.left = xFor(gt.getTime()) + "px"; g.style.height = lh + "px";
-      lanes.appendChild(g);
-    }
-    gt = new Date(Date.UTC(gt.getUTCFullYear(), gt.getUTCMonth() + 1, 1));
+  const addGrid = (ms, cls) => {
+    const g = document.createElement("div");
+    g.className = "grid " + cls;
+    g.style.left = xFor(ms) + "px"; g.style.height = lh + "px";
+    lanes.appendChild(g);
+  };
+  ticks.forEach(tk => addGrid(tk.t, "q"));
+  // a real year boundary, drawn even when the tick cadence skips January
+  for (let yy = start.getUTCFullYear(); yy <= end.getUTCFullYear(); yy++) {
+    const jan = Date.UTC(yy, 0, 1);
+    if (jan >= start.getTime() && jan <= end.getTime()) addGrid(jan, "y");
   }
   const b0 = xFor(D("2026-09-21").getTime()), b1 = xFor(D("2026-09-23").getTime());
   if (b1 > LABW && b0 < W && (!S.cursor || S.cursor >= D("2026-09-21"))) {
@@ -1049,16 +1092,12 @@ function renderRel(svg) {
     });
   });
   // x ticks
-  const rstep = monthStep();
-  let t = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
-  while (t <= end) {
-    const xx = x(t.getTime());
-    if (xx > PADL - 4 && onTick(t.getUTCMonth(), rstep)) {
-      h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
-      h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${MON[t.getUTCMonth()]}${t.getUTCMonth() === 0 ? " ’" + String(t.getUTCFullYear()).slice(2) : ""}</text>`;
-    }
-    t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1));
-  }
+  tickMonths(start, end, monthStep()).forEach(tk => {
+    const xx = x(tk.t);
+    if (xx <= PADL - 4) return;
+    h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
+    h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${tk.label}</text>`;
+  });
   h += `<text class="axl d" x="${PADL}" y="${PADT - 6}" text-anchor="start">models released</text>`;
   h += `<text class="axl" x="${PADL}" y="${H - 6}">${totalN} ${S.win > 12 ? "" : "notable "}releases in view · bars stacked by lab · bucket ≈ ${bucketDays} day${bucketDays > 1 ? "s" : ""}</text>`;
   svg.innerHTML = h;
@@ -1098,16 +1137,12 @@ function renderCap(svg) {
     h += `<line class="ax" x1="${PADL}" x2="${W - PADR}" y1="${y(v)}" y2="${y(v)}" opacity=".22"/>`;
     h += `<text class="axl" x="${PADL - 8}" y="${y(v) + 3.5}" text-anchor="end">${v}</text>`;
   }
-  const cstep = monthStep();
-  let t = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
-  while (t <= end) {
-    const xx = x(t.getTime());
-    if (xx > PADL - 4 && onTick(t.getUTCMonth(), cstep)) {
-      h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
-      h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${MON[t.getUTCMonth()]}${t.getUTCMonth() === 0 ? " ’" + String(t.getUTCFullYear()).slice(2) : ""}</text>`;
-    }
-    t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1));
-  }
+  tickMonths(start, end, monthStep()).forEach(tk => {
+    const xx = x(tk.t);
+    if (xx <= PADL - 4) return;
+    h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
+    h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${tk.label}</text>`;
+  });
 
   let n = 0;
   const labels = [];
@@ -1322,6 +1357,13 @@ function sync() {
   const s = src.filter(r => inView(r) && r.ii !== null).length;
   document.querySelectorAll("#chips .chip").forEach(c =>
     c.querySelector(".cnt").textContent = src.filter(r => r.lab === c.dataset.lab && inView(r)).length);
+  /* the small-dot and cluster keys only appear when those things are drawn */
+  const lgMinor = document.getElementById("lgMinor");
+  if (lgMinor) lgMinor.classList.toggle("hide", !src.some(r => !r.n));
+  const lgCluster = document.getElementById("lgCluster");
+  if (lgCluster) lgCluster.classList.toggle("hide",
+    !!S.cursor && S.cursor < D("2026-09-21"));
+
   document.getElementById("srcLine").textContent =
     `${labsOn.length}/${DATA.labs.length} labs · ${n} releases and ${s} index scores in view · ` +
     `${S.win > 12 ? "full release record" : "curated notable stream"} · ` +
