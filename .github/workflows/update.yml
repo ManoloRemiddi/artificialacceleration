@@ -59,15 +59,18 @@ jobs:
             git push
           fi
 
+      - name: Check whether data moved
+        id: delta
+        run: echo "changed=${{ steps.commit.outputs.changed }}" >> "$GITHUB_OUTPUT"
+
       - name: Upload site
-        if: steps.commit.outputs.changed == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: site            # only the built page — never the pipeline or data files
 
   publish:
     needs: refresh
-    if: needs.refresh.outputs.changed == 'true'
+    # always publish: a fresh site must go live even when the data is unchanged
     runs-on: ubuntu-latest
     environment:
       name: github-pages
