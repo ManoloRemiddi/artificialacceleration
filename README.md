@@ -28,6 +28,16 @@ written to any committed file. Snapshot rows are normalised to one entry per rel
 Data by [Artificial Analysis](https://artificialanalysis.ai) — attribution required and
 displayed on the page.
 
+## Presentation
+
+- **Brand** — titled *Artificial Acceleration*.
+- **Themes** — dark by default, with a Dark/Light switch that remembers the choice.
+- **Logos** — real brand marks fetched from the provider assets on artificialanalysis.ai,
+  background tiles stripped so they are transparent, and single-colour marks set to
+  `currentColor` so they stay legible whichever theme is active.
+- **Naming** — companies on the lane labels (OpenAI, Anthropic, Google, xAI, Meta,
+  DeepSeek, Alibaba, Moonshot, Z.ai) with the model family named underneath.
+
 ## Layout
 
 | Path | Purpose |

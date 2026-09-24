@@ -20,6 +20,19 @@ def to_date(s):
     y, m, d = (int(x) for x in s.split("-")); return date(y, m, d)
 
 LABS = json.loads((R / "build" / "labs.json").read_text())
+LOGOS = json.loads((R / "build" / "logos.json").read_text())
+
+def mark_html(lab_id):
+    """Real brand mark from the provider's own logo asset, transparent background."""
+    L = LOGOS.get(lab_id)
+    if not L:
+        return ""
+    if L.get("img"):
+        return (f'<span class="logo raster"><img src="{L["img"]}" alt="{esc(L["brand"])}" '
+                f'width="20" height="20" loading="lazy" decoding="async"></span>')
+    cls = "logo mono" if L.get("mono") else "logo"
+    return f'<span class="{cls}">{L["svg"]}</span>'
+
 NOTES = json.loads((R / "build" / "notes.json").read_text())
 DATA = json.loads((R / "data" / "releases.json").read_text())
 rows = DATA["rows"]
@@ -60,26 +73,30 @@ def cluster_svg():
     xh = lambda h: PADL + (h / 48) * span
     o = ['<svg viewBox="0 0 %d %d" width="100%%" height="auto" role="img" aria-label="Release cluster 21 to 24 September 2026">' % (VW, VH)]
     for h in (0, 24, 48):
-        o.append('<line x1="%.1f" y1="24" x2="%.1f" y2="446" stroke="#1a1d2b" stroke-dasharray="3 5"/>' % (xh(h), xh(h)))
-    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#232739"/>' % (xh(0), AX, xh(48), AX))
+        o.append('<line x1="%.1f" y1="24" x2="%.1f" y2="446" stroke="var(--line2)" stroke-dasharray="3 5"/>' % (xh(h), xh(h)))
+    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--line)"/>' % (xh(0), AX, xh(48), AX))
     for h, lb in [(0,"21 Sep 00:00"),(8,"08:00"),(16,"16:00"),(24,"22 Sep 00:00"),(32,"08:00"),(40,"16:00"),(47.4,"23 Sep")]:
         x = xh(h)
-        o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#232739"/>' % (x, AX-4, x, AX+4))
-        o.append('<text x="%.1f" y="%d" fill="#646d87" font-family="ui-monospace,monospace" font-size="11" text-anchor="middle">%s</text>' % (x, AX+20, lb))
+        o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--line)"/>' % (x, AX-4, x, AX+4))
+        o.append('<text x="%.1f" y="%d" fill="var(--faint)" font-family="ui-monospace,monospace" font-size="11" text-anchor="middle">%s</text>' % (x, AX+20, lb))
     for c in SEC.CLUSTER:
         L = labmap[c["lab"]]; x = xh(c["h"]); up = c["dir"] == "up"
         top = (AX - 14 - 118) if up else (AX + 14); ox = c.get("ox", 0); w = c["w"]; cx = x + ox
         o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="%s" opacity="0.55"/>' % (x, AX, x, (top+118 if up else top), L["hex"]))
         o.append('<rect x="%.1f" y="%d" width="7" height="7" transform="translate(-3.5,-3.5) rotate(45 %.1f %d)" fill="%s"/>' % (x, AX, x, AX, L["hex"]))
         o.append('<foreignObject x="%.1f" y="%d" width="%d" height="118">' % (cx-w/2, top, w))
-        o.append('<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;background:#151824;border:1px solid #232739;border-left:3px solid %s;border-radius:10px;padding:10px 12px;height:100%%;box-sizing:border-box">' % L["hex"])
-        o.append('<div style="font-size:13.5px;font-weight:700;color:#eef1fa">%s</div>' % esc(c["name"]))
-        o.append('<div style="font-family:ui-monospace,monospace;font-size:10.5px;color:%s;margin-top:4px">%s</div>' % (L["hex"], esc(c["time"])))
-        o.append('<div style="font-size:11.5px;color:#98a0b8;margin-top:6px;line-height:1.4">%s</div>' % esc(c["note"]))
+        o.append('<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Inter,sans-serif;background:var(--panel);border:1px solid var(--line);border-left:3px solid %s;border-radius:10px;padding:10px 12px;height:100%%;box-sizing:border-box">' % L["hex"])
+        o.append('<div style="font-size:14px;font-weight:700;color:var(--ink)">%s</div>' % esc(c["name"]))
+        o.append('<div style="font-family:ui-monospace,monospace;font-size:11.5px;color:%s;margin-top:4px">%s</div>' % (L["hex"], esc(c["time"])))
+        o.append('<div style="font-size:12.5px;color:var(--dim);margin-top:6px;line-height:1.45">%s</div>' % esc(c["note"]))
         o.append('</div></foreignObject>')
     lo, hi = xh(28), xh(29.5)
-    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#ff5b5b" stroke-dasharray="3 3" opacity="0.75"/>' % (lo, AX-96, hi, AX-96))
-    o.append('<text x="%.1f" y="%d" fill="#ffb0b0" font-family="ui-monospace,monospace" font-size="11" text-anchor="middle">90 minutes apart</text>' % ((lo+hi)/2, AX-102))
+    # bracket the two pins under the axis, then name the gap in the empty lower-left band
+    yb = 442
+    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-dasharray="3 3" opacity="0.85"/>' % (lo, AX + 18, lo, yb))
+    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-dasharray="3 3" opacity="0.85"/>' % (hi, AX + 18, hi, yb))
+    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-dasharray="3 3" opacity="0.85"/>' % (lo, yb, 860, yb))
+    o.append('<text x="854" y="%d" fill="var(--alert)" font-family="ui-monospace,monospace" font-size="12" font-weight="700" text-anchor="end">90 minutes apart</text>' % (yb + 4))
     o.append('</svg>')
     return "".join(o)
 
@@ -92,7 +109,7 @@ def stream_cards():
         gaps = [r for r in rel if r.get("gap")]
         gv = sorted(g["gap"] for g in gaps); med = gv[len(gv)//2] if gv else 0
         o.append('<div class="labcard" style="--c:%s">' % L["hex"])
-        o.append('<div class="labcard-top"><span class="mark">%s</span><span><span class="nm">%s</span><br><span class="mod">%s</span></span></div>' % (L["mark"], esc(L["name"]), esc(L["product"])))
+        o.append('<div class="labcard-top">%s<span><span class="nm">%s</span><br><span class="mod">%s</span></span></div>' % (mark_html(L["id"]), esc(L["name"]), esc(L["product"])))
         o.append('<div class="labcard-vals">'
                  '<div><span class="kk">Median gap</span><span class="vv" style="color:%s">%s<small> days</small></span></div>'
                  '<div><span class="kk">Releases</span><span class="vv">%d</span></div>'
@@ -133,7 +150,7 @@ def evidence_cards():
 
 def main():
     tpl = (R / "build" / "page_template.html").read_text()
-    payload = {"labs": [dict(L, mark=L["mark"]) for L in LABS],
+    payload = {"labs": [dict(L) for L in LABS], "logos": LOGOS,
                "rows": page_rows,
                "sections": sections_html(),
                "meta": {"compiled": DATA.get("generated_utc", "")[:10],
