@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Pacing Paradox — Frontier Release &amp; Intelligence Tracker</title>
+<style>
+  :root{
+    --bg:#07070c; --panel:#0e1018; --panel2:#12141f; --line:#232739; --line2:#1a1d2b;
+    --ink:#eef1fa; --dim:#98a0b8; --faint:#646d87; --alert:#ff5b5b;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --lab:96px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;
+       -webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(900px 460px at 10% -10%,rgba(16,163,127,.10),transparent 70%),
+               radial-gradient(820px 460px at 88% 0%,rgba(217,119,87,.10),transparent 70%),
+               radial-gradient(700px 500px at 50% 110%,rgba(0,129,251,.07),transparent 70%)}
+  .wrap{position:relative;z-index:1;max-width:1560px;margin:0 auto;padding:20px 22px 34px}
+
+  h1{font-size:clamp(20px,2.3vw,29px);line-height:1.05;margin:4px 0 5px;letter-spacing:-.028em;font-weight:800}
+  h1 .thin{font-weight:300;color:var(--dim)}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .lede{color:var(--dim);max-width:150ch;margin:0;font-size:12.5px}
+  header{border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px}
+
+  /* ---------- control bar ---------- */
+  .controls{display:flex;flex-wrap:nowrap;gap:16px;align-items:center;overflow:hidden;
+            background:var(--panel);border:1px solid var(--line);border-radius:12px;
+            padding:12px 14px;margin-bottom:16px}
+  .ctl{display:flex;flex-direction:column;gap:4px;flex:0 0 auto}
+  .ctl .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint)}
+  .seg{display:flex;gap:4px;background:#0a0c13;border:1px solid var(--line);border-radius:8px;padding:3px}
+  .seg button{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--dim);
+    background:none;border:0;border-radius:6px;padding:5px 11px;cursor:pointer;transition:.14s}
+  .seg button:hover{color:var(--ink);background:#181c28}
+  .seg button[aria-pressed="true"]{color:#04120e;font-weight:700}
+  .seg button[aria-pressed="true"].on-window{background:#e8ecf6}
+  .seg button[aria-pressed="true"].on-mode{background:#e8ecf6}
+
+  .chips{display:flex;flex-wrap:nowrap;gap:5px;overflow-x:auto;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--dim);white-space:nowrap;
+    background:#0a0c13;border:1px solid var(--line);border-radius:20px;padding:3px 9px 3px 7px;cursor:pointer;
+    transition:.14s;user-select:none}
+  .chip:hover{border-color:#39415a;color:var(--ink)}
+  .chip .sw{width:9px;height:9px;border-radius:3px;flex:0 0 9px;transform:rotate(45deg)}
+  .chip[aria-pressed="false"]{opacity:.38}
+  .chip[aria-pressed="false"] .sw{background:#4a5268!important}
+  .chip .cnt{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+  .spacer{flex:1}
+
+  /* ---------- timeline ---------- */
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+         border-radius:12px;padding:10px 13px 8px}
+  .tl{position:relative;width:100%}
+  .axis{position:relative;height:17px}
+  .axis .m{position:absolute;top:0;font-family:var(--mono);font-size:10px;color:var(--faint);
+           transform:translateX(-50%);white-space:nowrap;letter-spacing:.06em}
+  .lanes{position:relative;width:100%;padding-bottom:8px}
+  .lane{position:relative;height:var(--lh,22px)}
+  .lane::after{content:"";position:absolute;left:var(--lab);right:0;bottom:0;border-bottom:1px solid var(--line2)}
+  .lane:hover{background:rgba(255,255,255,.016)}
+  .lab{position:absolute;left:0;top:0;height:100%;width:var(--lab);display:flex;align-items:center;gap:8px;
+       padding-right:12px;cursor:pointer}
+  .lab .mark{width:15px;height:15px;flex:0 0 15px}
+  .lab .mark svg{width:15px;height:15px;display:block}
+  .lab .nm{font-size:12px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lab.off{opacity:.3}
+  .dot{position:absolute;top:50%;width:8px;height:8px;border-radius:2px;transform:translate(-50%,-50%) rotate(45deg);
+       background:var(--c);box-shadow:0 0 0 2px rgba(0,0,0,.6),0 0 9px -1px var(--c);z-index:3}
+  .dot.scored{width:11.5px;height:11.5px;box-shadow:0 0 0 2px rgba(0,0,0,.6),0 0 12px 0 var(--c)}
+  .dot.alert{background:#fff;box-shadow:0 0 0 2px #ff5b5b,0 0 12px 0 #ff5b5b}
+  .dot .tip{position:absolute;left:50%;bottom:150%;transform:translateX(-50%) rotate(-45deg) scale(.95);
+    transform-origin:bottom center;background:#161927;border:1px solid var(--line);border-radius:8px;
+    padding:8px 11px;width:max-content;max-width:280px;opacity:0;pointer-events:none;transition:.13s;z-index:60;
+    box-shadow:0 16px 36px rgba(0,0,0,.62)}
+  .dot:hover{z-index:70}
+  .dot:hover .tip{opacity:1;transform:translateX(-50%) rotate(-45deg) scale(1)}
+  .tip .t1{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.07em;display:block}
+  .tip .t2{font-size:13px;font-weight:700;display:block;margin-top:2px}
+  .tip .t3{font-size:12px;color:var(--dim);display:block;margin-top:5px;line-height:1.42}
+  .tip .sc{font-family:var(--mono);font-size:11px;margin-top:6px;display:inline-block;
+           border:1px solid var(--line);border-radius:20px;padding:1px 7px}
+  .grid{position:absolute;top:0;width:0;border-left:1px solid var(--line2);pointer-events:none}
+  .grid.q{border-left-style:dotted;opacity:.5}
+  .band{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,rgba(255,91,91,.12),rgba(255,91,91,.02));
+        border-left:1px solid rgba(255,91,91,.3);border-right:1px solid rgba(255,91,91,.3);pointer-events:none;z-index:1}
+  .bandcap{position:absolute;top:-14px;font-family:var(--mono);font-size:9.5px;color:#ff9d9d;letter-spacing:.08em;
+           transform:translateX(-50%);white-space:nowrap}
+
+  /* ---------- charts ---------- */
+  .charts{display:grid;grid-template-columns:1fr;gap:12px}
+  .chartbox{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+            border-radius:12px;padding:10px 13px 8px}
+  .charthead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:2px}
+  .charthead h2{font-size:15.5px;margin:0;letter-spacing:-.01em;font-weight:700}
+  .charthead .sub{font-size:12.5px;color:var(--faint)}
+  .scrollx{width:100%}
+  @media (max-height:1150px){
+    .wrap{padding:14px 20px 20px}
+    header{padding-bottom:8px;margin-bottom:10px}
+    .controls{padding:8px 10px;margin-bottom:10px}
+    .chartbox{padding:9px 12px 6px}
+    .note{font-size:10.5px;margin-top:4px;line-height:1.4}
+    footer{margin-top:9px;padding-top:6px;font-size:10px}
+  }
+  svg.chart{display:block;width:100%;height:auto}
+  .ax{stroke:var(--line);stroke-width:1}
+  .axl{fill:var(--faint);font-family:var(--mono);font-size:10px}
+  .axl.d{fill:var(--dim)}
+  text.mlab{font-family:var(--mono);font-size:9.5px;fill:var(--dim)}
+  .bar{opacity:.92}
+  .pline{fill:none;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
+  .pdot{stroke:#0b0d14;stroke-width:1.4}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:2px}
+  .lg{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--dim)}
+  .lg .sw{width:10px;height:3px;border-radius:2px}
+  .lg .pt{width:8px;height:8px;border-radius:50%}
+
+  .note{font-size:11.5px;color:var(--faint);margin-top:5px;line-height:1.45}
+
+  /* ---------- restored bottom sections ---------- */
+  section{margin-top:16px}
+  .sechead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .sechead .num{font-family:var(--mono);font-size:11px;color:var(--faint);border:1px solid var(--line);
+                border-radius:4px;padding:2px 6px}
+  .sechead h2{font-size:15.5px;margin:0;letter-spacing:-.01em;font-weight:700}
+  .sechead .sub{font-size:12.5px;color:var(--faint);flex:1;min-width:280px}
+  .sechead .sub b{color:var(--dim)}
+  .panel.pad{padding:12px 14px 8px}
+
+  .streams{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px}
+  .labcard{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+           border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  .labcard-top{display:flex;align-items:center;gap:10px;padding:11px 13px 9px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--c) 14%,transparent),transparent)}
+  .labcard-top .mark{width:19px;height:19px;flex:0 0 19px}
+  .labcard-top .mark svg{width:19px;height:19px;display:block}
+  .labcard-top .nm{font-size:14.5px;font-weight:800;letter-spacing:-.015em;color:var(--ink)}
+  .labcard-top .mod{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .labcard-vals{display:flex;gap:16px;padding:9px 13px;border-bottom:1px solid var(--line);background:#0b0d15}
+  .labcard-vals .kk{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+  .labcard-vals .vv{display:block;font-size:18px;font-weight:800;letter-spacing:-.025em;margin-top:3px;color:var(--ink)}
+  .labcard-vals .vv small{font-size:10.5px;font-weight:600;color:var(--faint)}
+  .labcard-vals .vv.small{font-size:11.5px;font-weight:600;color:var(--dim);margin-top:5px}
+
+  .cad{padding:9px 13px 11px;border-bottom:1px solid var(--line)}
+  .cad-h{display:grid;grid-template-columns:50px 1fr;gap:8px;font-family:var(--mono);font-size:9.5px;
+         color:var(--faint);margin-bottom:7px;text-transform:uppercase;letter-spacing:.1em}
+  .cad-row{display:grid;grid-template-columns:50px minmax(0,1fr) 40px;align-items:center;gap:8px;
+           font-family:var(--mono);font-size:10.5px;color:var(--faint);margin:5px 0}
+  .cad-bar{position:relative;height:7px;border-radius:4px;background:#171a26;display:block}
+  .cad-fill{position:absolute;left:0;top:0;height:7px;border-radius:4px;opacity:.9;min-width:3px}
+  .cad-fill.acc{opacity:1}
+  .cad-fill:not(.acc){opacity:.45}
+  .cad-row .vv{text-align:right;color:var(--ink);font-weight:700}
+
+  .rel{list-style:none;margin:0;padding:9px 13px 12px;max-height:340px;overflow:auto}
+  .rel li{display:grid;grid-template-columns:52px 1fr;gap:9px;padding:7px 0;border-top:1px solid var(--line2)}
+  .rel li:first-child{border-top:0}
+  .rel .dt{font-family:var(--mono);font-size:9.5px;color:var(--faint);padding-top:2px}
+  .rel .rn{font-size:13px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .rel .cap{display:block;font-size:11.5px;color:var(--dim);margin-top:3px;line-height:1.4}
+  .rel .delta{font-family:var(--mono);font-size:9.5px;color:#fff;border:1px solid var(--line);border-radius:20px;padding:1px 6px}
+  .rel .delta.acc{border-color:color-mix(in srgb,var(--c) 55%,transparent);background:color-mix(in srgb,var(--c) 20%,transparent)}
+  .rel .sc{font-family:var(--mono);font-size:9.5px;border:1px solid var(--line);border-radius:20px;padding:1px 6px}
+  .rel .sc.dim{color:var(--faint)}
+
+  .evgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .card h4{margin:0 0 10px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+           color:var(--faint);font-weight:600}
+  .card p{margin:0 0 9px;font-size:12.5px;color:var(--dim);line-height:1.5}
+  .card p b{color:var(--ink)}
+  .card p.foot{margin:8px 0 0;padding-top:8px;border-top:1px solid var(--line2);color:var(--faint);font-size:12px}
+  .card ul{margin:0;padding-left:16px;color:var(--dim);font-size:12.5px;line-height:1.55}
+  .card ul li{margin-bottom:7px}
+  .card ul li b{color:var(--ink)}
+  .quote{border-left:3px solid var(--c,var(--line));padding-left:11px;margin:0 0 10px}
+  .quote .q{font-size:13px;color:var(--ink);line-height:1.45}
+  .quote .q b{color:#fff}
+  .quote .a{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:4px;letter-spacing:.04em}
+
+  .note b{color:var(--dim)}
+  .warn{border-left:3px solid var(--alert);padding-left:11px}
+  footer{border-top:1px solid var(--line);margin-top:12px;padding-top:8px;color:var(--faint);
+         font-size:11.5px;font-family:var(--mono);letter-spacing:.03em;display:flex;justify-content:space-between;
+         gap:18px;flex-wrap:wrap}
+  footer .attr{flex-basis:100%;color:var(--faint);opacity:.85}
+  footer .attr b{color:var(--dim)}
+  @media (max-height:1150px){
+    .lede{display:none}                       /* the deck is the explanation, not this line */
+    h1{margin:0 0 4px}
+    .eyebrow{font-size:10px}
+    .charthead h2{font-size:14px}
+    .charthead .sub{font-size:11.5px}
+    .lg{font-size:11px}
+    .panel{padding:8px 11px 6px}
+    .chartbox{padding:8px 11px 5px}
+  }
+  @media (max-height:1000px){
+    .legend{display:none}                     /* keep the axis + points, drop the reading key */
+  }
+  @media (max-width:900px){ .wrap{padding:20px 12px 60px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Release-cadence &amp; capability audit · compiled 24 Sep 2026</div>
+    <h1>The Pacing Paradox<br><span class="thin">Nine labs. One year. Every release, dated.</span></h1>
+    <p class="lede">
+      Every frontier lab published calls to pace or throttle AI development in 2026 — while shipping faster than ever.
+      Below: each lab's full 2026 release stream with all nine visible at once, then the same window measured two ways —
+      <b>how many models shipped</b>, and <b>how much smarter they got</b>.
+    </p>
+  </header>
+
+  <!-- ================= CONTROLS ================= -->
+  <div class="controls">
+    <div class="ctl">
+      <span class="lbl">Window</span>
+      <div class="seg" id="winseg">
+        <button class="on-window" data-win="12" aria-pressed="true">12 months</button>
+        <button class="on-window" data-win="6" aria-pressed="false">6 months</button>
+        <button class="on-window" data-win="3" aria-pressed="false">3 months</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="lbl">Chart mode</span>
+      <div class="seg" id="modeseg">
+        <button class="on-mode" data-mode="rel" aria-pressed="true">Releases over time</button>
+        <button class="on-mode" data-mode="cap" aria-pressed="false">Intelligence over time</button>
+      </div>
+    </div>
+    <div class="ctl" style="flex:1;min-width:280px">
+      <span class="lbl" style="white-space:nowrap">Labs · click to isolate</span>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+
+  <!-- ================= TIMELINE ================= -->
+  <div class="panel" id="tlpanel">
+    <div class="tl">
+      <div class="axis" id="axis"></div>
+      <div class="lanes" id="lanes"></div>
+    </div>
+  </div>
+
+  <!-- ================= CHART ================= -->
+  <div class="charts" style="margin-top:16px">
+    <div class="chartbox">
+      <div class="charthead">
+        <h2 id="chartTitle">Releases over time</h2>
+        <span class="sub" id="chartSub"></span>
+      </div>
+      <div class="scrollx"><svg class="chart" id="chart" width="1400" height="470"></svg></div>
+      <div class="legend" id="legend">
+      <span class="lg"><span class="pt" style="background:#eef1fa"></span>one point = one model release, at its max-effort score</span>
+      <span class="lg"><span class="sw" style="background:#eef1fa"></span>line = that lab's own capability path</span>
+      <span class="lg">colour = lab, matching the lanes above</span>
+    </div>
+      <p class="note" id="chartNote"></p>
+    </div>
+  </div>
+
+  <div id="sections"></div>
+
+  <footer>
+    <span id="srcLine"></span>
+    <span class="attr">Benchmark data: <b>Artificial Analysis</b> — artificialanalysis.ai · index v4.3.2. Release dates cross-checked against each lab’s own announcement.</span>
+    <span>Compiled 24 Sep 2026 · verify before publishing</span>
+  </footer>
+</div>
+
+<script>
+const DATA = __PAYLOAD__;
+document.addEventListener("DOMContentLoaded", function () {
+  const host = document.getElementById("sections");
+  if (host && DATA.sections) host.innerHTML = DATA.sections;   // generated at build time from our own dataset
+});
+
+/* ---------------- state ---------------- */
+const S = { win: 12, mode: "rel", labs: new Set(DATA.labs.map(l => l.id)) };
+let W = 1400, LABW = 150, CH = 470;
+const fitChart = () => {
+  const svg = document.getElementById('chart');
+  const box = svg.closest('.chartbox');
+  if (!box) return;
+  const boxTop = box.getBoundingClientRect().top;
+  const head = box.querySelector('.charthead');
+  const leg = box.querySelector('.legend');
+  const note = box.querySelector('.note');
+  const chrome = (head ? head.getBoundingClientRect().height : 0)
+               + (leg ? leg.getBoundingClientRect().height : 0)
+               + (note ? note.getBoundingClientRect().height : 0)
+               + 24;                                   // panel padding
+  const footer = document.querySelector('footer');
+  const lanesH = document.querySelector('.lanes');
+  const tallExtra = innerHeight >= 1200 ? 34 : 0;
+  const footAndGap = (footer ? footer.getBoundingClientRect().height : 0) + 92 + tallExtra;
+  const room = innerHeight - boxTop - chrome - footAndGap;
+  CH = Math.max(200, Math.min(620, Math.round(room)));
+  svg.setAttribute('height', CH);
+  // the note is the last element: account for reflow by re-reading once
+  const boxTop2 = box.getBoundingClientRect().top;
+  const note2 = note ? note.getBoundingClientRect().height : 0;
+  const room2 = innerHeight - boxTop2 - chrome - footAndGap;
+  if (Math.abs(room2 - room) > 8) {
+    CH = Math.max(200, Math.min(560, Math.round(room2)));
+    svg.setAttribute('height', CH);
+  }
+};
+const measure = () => {
+  const host = document.getElementById('lanes');
+  W = Math.max(900, Math.round(host.clientWidth || 1400));
+  const vh = innerHeight;
+  // shrink the chart on short screens so timeline + chart fit one viewport
+  CH = vh < 800 ? 300 : vh < 950 ? 370 : 470;   // provisional; refined by fitChart()
+};
+const laneH = () => (innerHeight >= 1200 ? 26 : innerHeight >= 820 ? 22 : 19);
+const NOW = new Date(Date.UTC(2026, 8, 24));
+const MAXWIN = 12;
+const byId = Object.fromEntries(DATA.labs.map(l => [l.id, l]));
+
+/* ---------------- helpers ---------------- */
+const day = 86400000;
+const D = s => new Date(s + "T00:00:00Z");
+const fmt = d => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" });
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function windowBounds() {
+  const end = NOW;
+  const start = new Date(end.getTime() - (S.win === 12 ? 365 : S.win === 6 ? 182 : 91) * day);
+  return [start, end];
+}
+const xFor = t => LABW + ((t - windowBounds()[0]) / (windowBounds()[1] - windowBounds()[0])) * (W - LABW - 8);
+
+/* ---------------- control bar ---------------- */
+(function buildChips() {
+  const host = document.getElementById("chips");
+  DATA.labs.map(l => l).forEach(l => {
+    const n = DATA.rows.filter(r => r.lab === l.id).length;
+    const b = document.createElement("button");
+    b.className = "chip"; b.dataset.lab = l.id; b.setAttribute("aria-pressed", "true");
+    b.innerHTML = `<span class="sw" style="background:${l.hex}"></span>${l.short}<span class="cnt">${n}</span>`;
+    b.onclick = e => {
+      S.labs = new Set(S.labs.has(l.id) ? [...S.labs].filter(x => x !== l.id) : [...S.labs, l.id]);
+      sync();
+    };
+    b.ondblclick = () => { S.labs = new Set(DATA.labs.map(x => x.id)); sync(); };
+    host.appendChild(b);
+  });
+})();
+document.querySelectorAll("#winseg button").forEach(b => b.onclick = () => {
+  S.win = +b.dataset.win;
+  document.querySelectorAll("#winseg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  sync();
+});
+document.querySelectorAll("#modeseg button").forEach(b => b.onclick = () => {
+  S.mode = b.dataset.mode;
+  document.querySelectorAll("#modeseg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  sync();
+});
+
+/* ---------------- timeline ---------------- */
+function drawTimeline() {
+  const axis = document.getElementById("axis"), lanes = document.getElementById("lanes");
+  axis.innerHTML = ""; lanes.innerHTML = "";
+  const [start, end] = windowBounds();
+
+  // month ticks across the window
+  let t = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+  while (t <= end) {
+    const x = xFor(t.getTime());
+    if (x >= LABW) {
+      const m = document.createElement("div");
+      m.className = "m"; m.style.left = x + "px";
+      m.textContent = MON[t.getUTCMonth()] + (t.getUTCMonth() === 0 ? " ’26" : "");
+      axis.appendChild(m);
+    }
+    t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1));
+  }
+
+  const visible = DATA.labs.filter(l => S.labs.has(l.id));
+  DATA.labs.forEach(lab => {
+    const lane = document.createElement("div");
+    lane.className = "lane";
+    lane.style.setProperty('--lh', laneH() + 'px');
+    lane.dataset.lab = lab.id;
+    const on = S.labs.has(lab.id);
+    lane.innerHTML = `<div class="lab ${on ? "" : "off"}" data-lab="${lab.id}">
+        <span class="mark">${lab.mark}</span><span class="nm">${lab.short}</span></div>`;
+    lane.querySelector(".lab").onclick = e => {
+      const isOn = S.labs.has(lab.id);
+      S.labs = e.shiftKey ? new Set([...S.labs, lab.id]) : (isOn ? new Set([lab.id]) : new Set([...S.labs, lab.id]));
+      sync();
+    };
+    DATA.rows.filter(r => r.lab === lab.id).forEach(r => {
+      const d = D(r.d);
+      if (d < start || d > end) return;
+      const el = document.createElement("div");
+      const alerted = r.lab === "anthropic" && r.d === "2026-09-22";
+      el.className = "dot" + (r.ii ? " scored" : "");
+      el.style.left = xFor(d.getTime()) + "px";
+      el.style.setProperty("--c", lab.hex);
+      el.innerHTML = `<span class="tip">
+          <span class="t1">${r.d} · ${lab.product}</span>
+          <span class="t2">${r.m}</span>
+          ${r.ii ? `<span class="sc" style="color:${lab.hex}">Intelligence ${r.ii}${r.est ? " (est.)" : ""}</span>` : `<span class="sc" style="color:var(--faint)">no index score listed</span>`}
+          ${r.note ? `<span class="t3">${r.note}</span>` : ""}
+        </span>`;
+      lane.appendChild(el);
+    });
+    lanes.appendChild(lane);
+  });
+
+  // grid lines + September cluster band
+  const lh = lanes.querySelectorAll(".lane").length * laneH() + 8;
+  let gt = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+  while (gt <= end) {
+    const g = document.createElement("div");
+    g.className = "grid" + (gt.getUTCMonth() === 8 ? "" : " q");
+    g.style.left = xFor(gt.getTime()) + "px"; g.style.height = lh + "px";
+    lanes.appendChild(g);
+    gt = new Date(Date.UTC(gt.getUTCFullYear(), gt.getUTCMonth() + 1, 1));
+  }
+  const b0 = xFor(D("2026-09-21").getTime()), b1 = xFor(D("2026-09-23").getTime());
+  if (b1 > LABW && b0 < W) {
+    const band = document.createElement("div");
+    band.className = "band";
+    band.style.left = Math.max(b0, LABW) + "px";
+    band.style.width = Math.max(2, b1 - Math.max(b0, LABW)) + "px";
+    band.innerHTML = `<span class="bandcap">21–22 Sep · 3 labs, 3 launches</span>`;
+    lanes.appendChild(band);
+  }
+}
+
+/* ---------------- charts ---------------- */
+function renderRel(svg) {
+  const [start, end] = windowBounds();
+  const H = CH, PADL = 46, PADB = 40, PADT = 18, PADR = 14;
+  const pw = W - PADL - PADR, ph = H - PADB - PADT;
+  const x = t => PADL + ((t - start) / (end - start)) * pw;
+
+  // bucket: weekly for 12m, 3-day for 6m, daily for 3m
+  const bucketDays = S.win === 12 ? 7 : S.win === 6 ? 3 : 1;
+  const buckets = Math.ceil((end - start) / (bucketDays * day));
+  const counts = new Array(buckets).fill(0).map(() => ({}));
+  let maxC = 0, totalN = 0;
+  DATA.rows.forEach(r => {
+    if (!S.labs.has(r.lab)) return;
+    const d = D(r.d); if (d < start || d > end) return;
+    const b = Math.min(buckets - 1, Math.floor((d - start) / (bucketDays * day)));
+    counts[b][r.lab] = (counts[b][r.lab] || 0) + 1;
+    totalN++;
+  });
+  counts.forEach(c => { const s = Object.values(c).reduce((a, b) => a + b, 0); if (s > maxC) maxC = s; });
+  maxC = Math.max(1, maxC);
+  const y = v => PADT + ph - (v / maxC) * ph;
+  const bw = Math.max(2, (pw / buckets) - 1.5);
+
+  let h = "";
+  // y grid
+  for (let i = 0; i <= maxC; i++) {
+    h += `<line class="ax" x1="${PADL}" x2="${W - PADR}" y1="${y(i)}" y2="${y(i)}" opacity="${i === 0 ? 1 : .22}"/>`;
+    h += `<text class="axl" x="${PADL - 8}" y="${y(i) + 3.5}" text-anchor="end">${i}</text>`;
+  }
+  // bars
+  counts.forEach((c, i) => {
+    let acc = 0;
+    DATA.labs.forEach(l => {
+      const n = c[l.id]; if (!n) return;
+      const bx = x(start.getTime() + i * bucketDays * day);
+      const hgt = (n / maxC) * ph;
+      const by = PADT + ph - acc - hgt;
+      h += `<rect class="bar" x="${bx}" y="${by}" width="${bw}" height="${Math.max(1, hgt)}"
+             fill="${l.hex}" rx="1.5"><title>${fmt(new Date(start.getTime() + i * bucketDays * day))} · ${l.short}: ${n}</title></rect>`;
+      acc += hgt;
+    });
+  });
+  // x ticks
+  let t = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+  while (t <= end) {
+    const xx = x(t.getTime());
+    if (xx > PADL - 4) {
+      h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
+      h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${MON[t.getUTCMonth()]}${t.getUTCMonth() === 0 ? " ’26" : ""}</text>`;
+    }
+    t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1));
+  }
+  h += `<text class="axl d" x="${PADL}" y="${PADT - 6}" text-anchor="start">models released</text>`;
+  h += `<text class="axl" x="${PADL}" y="${H - 6}">${totalN} notable releases in view · bars stacked by lab · bucket ≈ ${bucketDays} day${bucketDays > 1 ? "s" : ""}</text>`;
+  svg.innerHTML = h;
+}
+
+function renderCap(svg) {
+  const [start, end] = windowBounds();
+  const H = CH, PADL = 46, PADB = 40, PADT = 18, PADR = 14;
+  const pw = W - PADL - PADR, ph = H - PADB - PADT;
+  const x = t => PADL + ((t - start) / (end - start)) * pw;
+  const lo = 8, hi = 60;
+  const y = v => PADT + ph - ((v - lo) / (hi - lo)) * ph;
+
+  let h = "";
+  for (let v = 10; v <= 60; v += 10) {
+    h += `<line class="ax" x1="${PADL}" x2="${W - PADR}" y1="${y(v)}" y2="${y(v)}" opacity=".22"/>`;
+    h += `<text class="axl" x="${PADL - 8}" y="${y(v) + 3.5}" text-anchor="end">${v}</text>`;
+  }
+  let t = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+  while (t <= end) {
+    const xx = x(t.getTime());
+    if (xx > PADL - 4) {
+      h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
+      h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${MON[t.getUTCMonth()]}${t.getUTCMonth() === 0 ? " ’26" : ""}</text>`;
+    }
+    t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1));
+  }
+
+  let n = 0;
+  DATA.labs.forEach(l => {
+    if (!S.labs.has(l.id)) return;
+    const pts = DATA.rows.filter(r => r.lab === l.id && r.ii !== null)
+      .map(r => ({ t: D(r.d).getTime(), v: r.ii, m: r.m, est: r.est }))
+      .filter(p => p.t >= start.getTime() && p.t <= end.getTime())
+      .sort((a, b) => a.t - b.t);
+    if (!pts.length) return;
+    n++;
+    h += `<path class="pline" stroke="${l.hex}" d="${pts.map((p, i) => (i ? "L" : "M") + x(p.t) + " " + y(p.v)).join(" ")}"/>`;
+    pts.forEach(p => {
+      h += `<circle class="pdot" cx="${x(p.t)}" cy="${y(p.v)}" r="4.2" fill="${l.hex}">
+              <title>${fmt(new Date(p.t))} · ${p.m} · ${l.short} · Intelligence ${p.v}${p.est ? " (est.)" : ""}</title></circle>`;
+      /* label only the interesting points, and place them so they do not collide */
+      const NAME = {"Claude Opus 5.5":"up","GPT-6 Astra":"up","Grok 4.7":"down","Muse Spark 1.3":"up",
+                    "Qwen3.8 Max 0902":"down","Kimi K3":"down","DeepSeek V4.1 Flash":"up",
+                    "GLM-5.3":"down","Gemini 3.8 Flash":"down","GPT-6 Sol":"down","Claude Fable 5.1":"up"};
+      const pos = NAME[p.m];
+      if (pos) {
+        const dy = pos === "up" ? -10 : 18;
+        const short = p.m.replace(/^Claude /, "").replace(" 0902", "");
+        h += `<text class="mlab" x="${x(p.t)}" y="${y(p.v) + dy}" text-anchor="middle" fill="${l.hex}">${short}</text>`;
+      }
+    });
+  });
+  h += `<text class="axl d" x="${PADL}" y="${PADT - 6}" text-anchor="start">AI Intelligence Index (max effort)</text>`;
+  if (!n) h += `<text class="axl" x="${W / 2}" y="${H / 2}" text-anchor="middle">no scored models in this window for the selected labs</text>`;
+  svg.innerHTML = h;
+}
+
+function drawChart() {
+  const svg = document.getElementById("chart");
+  svg.setAttribute("viewBox", `0 0 ${W} ${CH}`);
+  if (S.mode === "rel") renderRel(svg); else renderCap(svg);
+  const tt = document.getElementById("chartTitle"), ss = document.getElementById("chartSub");
+  if (tt) tt.textContent = (S.mode === "rel") ? "Releases over time" : "Intelligence over time";
+  if (ss) ss.textContent = (S.mode === "rel")
+      ? "time on X · number of releases on Y"
+      : "time on X · Artificial Analysis Intelligence Index on Y";
+  document.getElementById("chartNote").innerHTML = S.mode === "rel"
+    ? `<b>Counted:</b> notable releases only — major generations and flagships. Minor size variants (4B, nano, Flash-Lite), re-uploads and hosting variants are excluded, so a bar is "how many models worth announcing", not raw API entries.`
+    : `<b>Reading it:</b> a point is a model release, plotted at the <b>max-effort</b> score Artificial Analysis reports for it. Lines join each lab's own points, so a steep line means that lab's flagship improved fast. Scores are from index <b>v4.3.2</b> — comparable to each other, but historical values were re-measured on the current index, and those flagged <b>(est.)</b> are AA's own estimates. Effort levels are not identical across labs (Google publishes "high", others "max"/"xhigh"), so treat small gaps as noise.`;
+}
+
+/* ---------------- sync ---------------- */
+function sync() {
+  const [start, end] = windowBounds();
+  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", S.labs.has(c.dataset.lab)));
+  const labsOn = DATA.labs.filter(l => S.labs.has(l.id));
+  const n = DATA.rows.filter(r => S.labs.has(r.lab) && D(r.d) >= start && D(r.d) <= end).length;
+  const s = DATA.rows.filter(r => S.labs.has(r.lab) && r.ii !== null && D(r.d) >= start && D(r.d) <= end).length;
+  document.getElementById("srcLine").textContent =
+    `${labsOn.length}/${DATA.labs.length} labs · ${n} releases and ${s} index scores in view · ${DATA.meta.index_version} · source: ${DATA.meta.source}`;
+  drawTimeline(); drawChart();
+}
+measure();
+sync();              // establish layout so the chart box sits at its final position
+fitChart();          // size the chart to the space actually left over
+sync();              // redraw at that height
+
+let _rt = 0;
+addEventListener("resize", () => { clearTimeout(_rt); _rt = setTimeout(() => { measure(); sync(); fitChart(); sync(); }, 130); });
+addEventListener("keydown", e => {
+  const win = { "1": "12", "2": "6", "3": "3" }[e.key];
+  if (win) { document.querySelector(`#winseg button[data-win="${win}"]`).click(); return; }
+  if (e.key === "r" || e.key === "R") document.querySelector('#modeseg button[data-mode="rel"]').click();
+  if (e.key === "i" || e.key === "I") document.querySelector('#modeseg button[data-mode="cap"]').click();
+  if (e.key === "a" || e.key === "A") {
+    S.labs = new Set(S.labs.size === DATA.labs.length ? [] : DATA.labs.map(l => l.id));
+    sync();
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+name: update-tracker
+
+# Runs entirely on GitHub — no home server, no cron on any of your machines.
+on:
+  schedule:
+    - cron: "17 */6 * * *"      # every 6 h at :17 (off the top of the hour, when GitHub is congested)
+  workflow_dispatch: {}          # manual "Run workflow" button
+  push:
+    branches: [main]
+    paths: ["build/**", "pipeline/**", "scripts/**", ".github/workflows/update.yml"]
+
+permissions:
+  contents: write                # to commit refreshed data
+  pages: write                   # to publish
+  id-token: write                # required by deploy-pages
+
+concurrency:
+  group: update-tracker
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch from Artificial Analysis
+        env:
+          AA_API_KEY: ${{ secrets.AA_API_KEY }}
+        run: |
+          if [ -z "$AA_API_KEY" ]; then
+            echo "::error::AA_API_KEY secret is not set (Settings → Secrets and variables → Actions)"
+            exit 1
+          fi
+          python3 pipeline/fetch.py
+          python3 scripts/build_data.py
+
+      - name: Rebuild the page
+        run: python3 build/build_page.py
+
+      - name: Commit only if the data actually changed
+        id: commit
+        run: |
+          if git diff --quiet -- data/releases.json data/baseline.json data/changelog.jsonl index.html; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No data change — nothing to publish."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git config user.name  "acceleration-bot"
+            git config user.email "bot@users.noreply.github.com"
+            git add data index.html
+            git commit -m "data: refresh $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
+
+      - name: Upload site
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  publish:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deploy
