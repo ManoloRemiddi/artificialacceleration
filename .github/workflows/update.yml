@@ -47,17 +47,38 @@ jobs:
       - name: Commit only if the data actually changed
         id: commit
         run: |
-          if git diff --quiet -- data/releases.json data/baseline.json data/changelog.jsonl; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No data change — nothing to publish."
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            git config user.name  "acceleration-bot"
-            git config user.email "bot@users.noreply.github.com"
-            git add data
-            git commit -m "data: refresh $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push
+          git config user.name  "acceleration-bot"
+          git config user.email "bot@users.noreply.github.com"
+
+          # Compare the releases themselves, not the files: generated_utc moves on
+          # every run, so a plain git diff would commit four times a day forever.
+          git show HEAD:data/releases.json > "$RUNNER_TEMP/prev.json" 2>/dev/null \
+            || echo '{"rows": []}' > "$RUNNER_TEMP/prev.json"
+          CHANGED=$(python3 scripts/data_changed.py "$RUNNER_TEMP/prev.json")
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+
+          if [ "$CHANGED" = "false" ]; then
+            echo "No data change — nothing to commit."
+            exit 0
           fi
+
+          git add data
+          git commit -m "data: refresh $(date -u +'%Y-%m-%d %H:%M UTC')" || exit 0
+
+          # The schedule and a human push can land together. Rebase and retry, and
+          # never fail the job over it: a lost commit costs nothing, a skipped
+          # deploy costs the whole page.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "::warning::push rejected (attempt $attempt) — rebasing on the new head"
+            git pull --rebase --autostash || git rebase --abort || true
+            sleep $((attempt * 5))
+          done
+          echo "::warning::could not push the data commit; the site will still publish"
+          exit 0
 
       - name: Check whether data moved
         id: delta
