@@ -57,6 +57,21 @@ for r in rows:
     })
 page_rows.sort(key=lambda r: (r["d"], r["lab"]))
 
+# ---- the whole release stream, for the longer windows ----
+# The curated set above is a 12-month editorial artefact: its earliest entry is
+# November 2025. Anything longer than a year has to draw on the full record, so
+# the page carries both. Short keys keep the payload small.
+def _stream_row(r):
+    row = {"d": r["date"], "l": r["lab"], "m": r["release"],
+           "i": (round(r["ii"], 1) if r.get("ii") is not None else None)}
+    if r.get("estimated"):
+        row["e"] = 1
+    return row
+
+
+stream_rows = [_stream_row(r) for r in rows]
+stream_rows.sort(key=lambda r: (r["d"], r["l"]))
+
 if len(page_rows) < 20:
     sys.exit(f"only {len(page_rows)} notable rows — refusing to render a thin page")
 
@@ -197,6 +212,7 @@ def main():
     tpl = (R / "build" / "page_template.html").read_text()
     payload = {"labs": [dict(L) for L in LABS], "logos": LOGOS,
                "rows": page_rows,
+               "stream": stream_rows,
                "sections": sections_html(),
                "meta": {"compiled": DATA.get("generated_utc", "")[:10],
                         "index_version": "Artificial Analysis Intelligence Index v4.3.2",
@@ -208,7 +224,8 @@ def main():
     site = R / "site"
     site.mkdir(exist_ok=True)
     (site / "index.html").write_text(out)
-    print(f"index.html written: {len(out)} bytes, {len(page_rows)} release rows")
+    print(f"index.html written: {len(out)} bytes, {len(page_rows)} curated rows, "
+          f"{len(stream_rows)} stream rows")
 
 if __name__ == "__main__":
     main()

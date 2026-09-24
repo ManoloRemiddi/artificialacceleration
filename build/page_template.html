@@ -97,32 +97,35 @@
   .labcard-top .logo{width:24px;height:24px;flex:0 0 24px}
   .labcard-top .logo svg,.labcard-top .logo img{width:24px;height:24px}
   .lab .nm{font-size:14px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .lab.off{opacity:.3}
+  .lab.off{opacity:.6}
   /* markers: crisp, no glow. hierarchy by size, ringed for contrast. */
   .dot{position:absolute;top:50%;width:7px;height:7px;border-radius:50%;
        transform:translate(-50%,-50%);background:var(--c);
        box-shadow:0 0 0 1.5px var(--bg);z-index:4;
        transition:transform 140ms cubic-bezier(.2,.7,.3,1), box-shadow 140ms ease-out}
   .dot.scored{width:10px;height:10px;box-shadow:0 0 0 1.5px var(--bg),inset 0 0 0 1.5px rgba(255,255,255,.85)}
+  /* releases outside the curated stream: present, legible on hover, not shouting */
+  .dot.minor{width:5.5px;height:5.5px;opacity:.42;box-shadow:0 0 0 1px var(--bg)}
+  .dot.minor:hover,.dot.minor:focus-visible{opacity:1}
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
   }
   /* emphasise with a ring, never a transform: scaling the dot would scale its tooltip */
   .dot:hover,.dot:focus-visible{z-index:70;
-             box-shadow:0 0 0 1.5px var(--bg),0 0 0 5px color-mix(in srgb,var(--c) 38%,transparent)}
+             box-shadow:0 0 0 1.5px var(--bg),0 0 0 3.5px color-mix(in srgb,var(--c) 24%,transparent)}
   .dot:focus-visible{outline:none}
   /* the cadence rail: shows each lab's release rhythm behind its markers */
   .rail{position:absolute;height:1px;top:50%;transform:translateY(-.5px);
         background:linear-gradient(90deg,transparent,var(--c) 6%,var(--c) 94%,transparent);
         opacity:.30;z-index:2;pointer-events:none}
   /* highlight and context: focus one lab, everything else recedes */
-  .lanes.focusing .lane{opacity:.32;transition:opacity 140ms ease-out}
+  .lanes.focusing .lane{opacity:.82;transition:opacity 260ms ease-out}
   .lanes.focusing .lane.is-focus{opacity:1}
   .lanes.focusing .lane .dot{transition:transform 140ms,opacity 140ms}
   .chart.focusing .pdot,.chart.focusing .pline{transition:opacity 160ms ease-out,stroke-width 160ms ease-out}
-  .chart.focusing .dimmed{opacity:.14;stroke-width:1.1}
+  .chart.focusing .dimmed{opacity:.5;stroke-width:1.5}
   .chart.focusing .bar{transition:fill-opacity 160ms ease-out}
-  .chart.focusing rect.bar.dimmed{fill-opacity:.20}
+  .chart.focusing rect.bar.dimmed{fill-opacity:.42}
   .dot.alert{background:var(--ink);box-shadow:0 0 0 2px var(--alert),0 0 12px 0 var(--alert)}
   /* idle tooltips are display:none so they cannot occupy layout or widen the page.
      Straight, compact, and deliberately quiet - it is an information card, not a badge. */
@@ -143,6 +146,7 @@
   .tip .sc b{color:var(--dim);font-weight:600}
   .grid{position:absolute;top:0;width:0;border-left:1px solid var(--line2);pointer-events:none}
   .grid.q{border-left-style:dotted;opacity:.5}
+  .grid.y{border-left-color:var(--line)}
   .band{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,color-mix(in srgb,var(--alert) 16%,transparent),color-mix(in srgb,var(--alert) 3%,transparent));
         border-left:1px solid color-mix(in srgb,var(--alert) 40%,transparent);border-right:1px solid color-mix(in srgb,var(--alert) 40%,transparent);pointer-events:none;z-index:1}
   .bandcap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
@@ -298,9 +302,9 @@
   .scrollx::-webkit-scrollbar-thumb:hover{background:var(--faint)}
 
   /* ---- reading progress: the rail is driven by scroll position itself ---- */
-  #prog{position:fixed;top:0;left:0;right:0;height:3px;z-index:230;pointer-events:none;
-        transform-origin:0 50%;scale:0 1;background:linear-gradient(90deg,#10a37f,#7cc47c 34%,#d97757 68%,#0081fb);
-        box-shadow:0 0 12px color-mix(in srgb,#10a37f 40%,transparent)}
+  #prog{position:fixed;top:0;left:0;right:0;height:2px;z-index:230;pointer-events:none;
+        transform-origin:0 50%;scale:0 1;opacity:.72;
+        background:linear-gradient(90deg,#10a37f,#7cc47c 34%,#d97757 68%,#0081fb)}
   @supports (animation-timeline:scroll()){
     #prog{animation:progfill linear both;animation-timeline:scroll(root block)}
     @keyframes progfill{from{scale:0 1}to{scale:1 1}}
@@ -339,17 +343,21 @@
       #sections .card:nth-of-type(3){animation-range:entry 14% entry 42%}
       #sections .card:nth-of-type(4){animation-range:entry 20% entry 48%}
       #sections .card:nth-of-type(5){animation-range:entry 26% entry 54%}
-      @keyframes rise{from{opacity:0;translate:0 18px}to{opacity:1;translate:0 0}}
+      @keyframes rise{from{opacity:.25;translate:0 9px}to{opacity:1;translate:0 0}}
     }
   }
 
-  /* ---- pointer-tracked spotlight: depth where the cursor actually is ---- */
+  /* ---- pointer-tracked tint: barely there on purpose ----
+     A visible pool of light under the cursor reads as decoration and fights the
+     data. On the wide panels it is gone; on a card it is a hint you notice only
+     if you look for it. */
   .spot{position:relative;isolation:isolate;--mx:50%;--my:0%;--sc:#10a37f}
   .spot::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-    opacity:0;transition:opacity .28s ease-out;z-index:-1;
-    background:radial-gradient(340px 220px at var(--mx) var(--my),
-      color-mix(in srgb,var(--sc) 20%,transparent),transparent 72%)}
+    opacity:0;transition:opacity .5s ease-out;z-index:-1;
+    background:radial-gradient(420px 280px at var(--mx) var(--my),
+      color-mix(in srgb,var(--sc) 8%,transparent),transparent 68%)}
   .spot:hover::after{opacity:1}
+  #tlpanel::after,#chartpanel::after{display:none}          /* no pool on the boards */
   @media (prefers-reduced-motion:reduce){ .spot::after{display:none} }
 
   /* ---- view transitions: a state change morphs instead of blinking ---- */
@@ -374,7 +382,7 @@
     background:linear-gradient(90deg,color-mix(in srgb,#10a37f 72%,transparent),color-mix(in srgb,#d97757 40%,var(--line)))}
   .scrub::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;margin-top:-5.5px;
     background:#10a37f;border:2px solid var(--bg);
-    box-shadow:0 0 0 1px color-mix(in srgb,#10a37f 60%,transparent),0 0 10px color-mix(in srgb,#10a37f 40%,transparent)}
+    box-shadow:0 0 0 1px color-mix(in srgb,#10a37f 45%,transparent)}
   .scrub:hover::-webkit-slider-thumb{background:#16c39a}
   .scrub::-moz-range-track{height:4px;border-radius:4px;background:var(--line)}
   .scrub::-moz-range-progress{height:4px;border-radius:4px;background:color-mix(in srgb,#10a37f 72%,transparent)}
@@ -426,9 +434,11 @@
     <div class="ctl">
       <span class="lbl">Window</span>
       <div class="seg" id="winseg">
-        <button class="on-window" data-win="12" aria-pressed="true">12 months</button>
-        <button class="on-window" data-win="6" aria-pressed="false">6 months</button>
-        <button class="on-window" data-win="3" aria-pressed="false">3 months</button>
+        <button class="on-window" data-win="3" aria-pressed="false" title="Three months">3m</button>
+        <button class="on-window" data-win="6" aria-pressed="false" title="Six months">6m</button>
+        <button class="on-window" data-win="12" aria-pressed="true" title="Twelve months">12m</button>
+        <button class="on-window" data-win="24" aria-pressed="false" title="Two years">24m</button>
+        <button class="on-window" data-win="48" aria-pressed="false" title="Four years">48m</button>
       </div>
     </div>
     <div class="ctl">
@@ -528,7 +538,7 @@ function markHTML(id) {
       vt.ready.then(() => {
         root.animate(
           { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-          { duration: 430, easing: "cubic-bezier(.3,.8,.3,1)", pseudoElement: "::view-transition-new(root)" }
+          { duration: 340, easing: "cubic-bezier(.3,.8,.3,1)", pseudoElement: "::view-transition-new(root)" }
         ).finished.finally(() => root.classList.remove("circlemorph"));
       }).catch(() => root.classList.remove("circlemorph"));
     });
@@ -671,7 +681,28 @@ const measure = () => {
 };
 const laneH = () => (innerHeight >= 1200 ? 32 : innerHeight >= 820 ? 30 : 26);
 const NOW = new Date(Date.UTC(2026, 8, 24));
-const MAXWIN = 12;
+const WINDOW_DAYS = { 3: 91, 6: 182, 12: 365, 24: 730, 48: 1461 };
+const BUCKET_DAYS = { 3: 1, 6: 3, 12: 7, 24: 14, 48: 30 };
+/* a four-year axis cannot carry 48 month labels or 48 grid lines */
+const monthStep = () => (S.win <= 12 ? 1 : S.win <= 24 ? 2 : 3);
+/* stepping from the window start would skip January on a four-year axis, so
+   ticks are chosen by calendar month: every month, alternate months, or quarters.
+   That keeps a January — and therefore the year label — in every long window. */
+const onTick = (m, step) => step === 1 || m % step === 0;
+
+/* ---------- what the boards draw ----------
+   Up to a year: the curated notable stream, which is what the editorial notes
+   are written for. Beyond a year: the complete release record, because the
+   curated list only begins in November 2025 and a four-year view drawn from it
+   would be 46 dots huddled in the right-hand corner. Rows from the longer
+   windows keep an `n` flag so the curated ones stay visually emphasised. */
+const NOTABLE_KEY = new Set(DATA.rows.map(r => r.lab + "|" + r.m + "|" + r.d));
+const FULL = (DATA.stream || []).map(r => ({
+  d: r.d, lab: r.l, m: r.m, ii: r.i === undefined ? null : r.i,
+  est: r.e ? 1 : 0, note: "", n: NOTABLE_KEY.has(r.l + "|" + r.m + "|" + r.d),
+}));
+const CURATED = DATA.rows.map(r => Object.assign({}, r, { n: true }));
+const plotRows = () => (S.win > 12 && FULL.length ? FULL : CURATED);
 const byId = Object.fromEntries(DATA.labs.map(l => [l.id, l]));
 
 /* ---------- state changes morph rather than blink ----------
@@ -694,7 +725,7 @@ const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","
 
 function windowBounds() {
   const end = NOW;
-  const start = new Date(end.getTime() - (S.win === 12 ? 365 : S.win === 6 ? 182 : 91) * day);
+  const start = new Date(end.getTime() - (WINDOW_DAYS[S.win] || 365) * day);
   return [start, end];
 }
 const xFor = t => LABW + ((t - windowBounds()[0]) / (windowBounds()[1] - windowBounds()[0])) * (W - LABW - 8);
@@ -723,10 +754,9 @@ function paintChartFocus() {
 (function buildChips() {
   const host = document.getElementById("chips");
   DATA.labs.map(l => l).forEach(l => {
-    const n = DATA.rows.filter(r => r.lab === l.id).length;
     const b = document.createElement("button");
     b.className = "chip"; b.dataset.lab = l.id; b.setAttribute("aria-pressed", "true");
-    b.innerHTML = `<span class="sw" style="background:${l.hex}"></span>${l.short}<span class="cnt">${n}</span>`;
+    b.innerHTML = `<span class="sw" style="background:${l.hex}"></span>${l.short}<span class="cnt">0</span>`;
     b.onmouseenter = () => setFocus(l.id);
     b.onmouseleave = () => setFocus(null);
     b.onfocus = () => setFocus(l.id);
@@ -756,14 +786,15 @@ function drawTimeline() {
   axis.innerHTML = ""; lanes.innerHTML = "";
   const [start, end] = windowBounds();
 
-  // month ticks across the window
+  // month ticks across the window, thinned out as the window widens
+  const step = monthStep();
   let t = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
   while (t <= end) {
     const x = xFor(t.getTime());
-    if (x >= LABW) {
+    if (x >= LABW && onTick(t.getUTCMonth(), step)) {
       const m = document.createElement("div");
       m.className = "m"; m.style.left = x + "px";
-      m.textContent = MON[t.getUTCMonth()] + (t.getUTCMonth() === 0 ? " ’26" : "");
+      m.textContent = MON[t.getUTCMonth()] + (t.getUTCMonth() === 0 ? " ’" + String(t.getUTCFullYear()).slice(2) : "");
       axis.appendChild(m);
     }
     t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1));
@@ -786,13 +817,13 @@ function drawTimeline() {
     };
     const xs = [];
     const cut = cutEnd();
-    DATA.rows.filter(r => r.lab === lab.id).forEach(r => {
+    plotRows().filter(r => r.lab === lab.id).forEach(r => {
       const d = D(r.d);
       if (d < start || d > end || d > cut) return;
       xs.push(xFor(d.getTime()));
       const el = document.createElement("div");
       const alerted = r.lab === "anthropic" && r.d === "2026-09-22";
-      el.className = "dot" + (r.ii ? " scored" : "");
+      el.className = "dot" + (r.ii ? " scored" : "") + (r.n ? "" : " minor");
       el.style.left = xFor(d.getTime()) + "px";
       el.style.setProperty("--c", lab.hex);
       /* reachable by keyboard: one tab stop for the whole board, arrows to travel */
@@ -834,10 +865,13 @@ function drawTimeline() {
   const lh = lanes.querySelectorAll(".lane").length * laneH() + 8;
   let gt = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
   while (gt <= end) {
-    const g = document.createElement("div");
-    g.className = "grid" + (gt.getUTCMonth() === 8 ? "" : " q");
-    g.style.left = xFor(gt.getTime()) + "px"; g.style.height = lh + "px";
-    lanes.appendChild(g);
+    if (onTick(gt.getUTCMonth(), step)) {
+      const g = document.createElement("div");
+      // January reads as a solid year divider; the rest recede to dotted rules
+      g.className = "grid" + (gt.getUTCMonth() === 0 ? " y" : " q");
+      g.style.left = xFor(gt.getTime()) + "px"; g.style.height = lh + "px";
+      lanes.appendChild(g);
+    }
     gt = new Date(Date.UTC(gt.getUTCFullYear(), gt.getUTCMonth() + 1, 1));
   }
   const b0 = xFor(D("2026-09-21").getTime()), b1 = xFor(D("2026-09-23").getTime());
@@ -858,13 +892,12 @@ function renderRel(svg) {
   const pw = W - PADL - PADR, ph = H - PADB - PADT;
   const x = t => PADL + ((t - start) / (end - start)) * pw;
 
-  // bucket: weekly for 12m, 3-day for 6m, daily for 3m
-  const bucketDays = S.win === 12 ? 7 : S.win === 6 ? 3 : 1;
+  const bucketDays = BUCKET_DAYS[S.win] || 7;      // wider window, wider bucket
   const buckets = Math.ceil((end - start) / (bucketDays * day));
   const counts = new Array(buckets).fill(0).map(() => ({}));
   let maxC = 0, totalN = 0;
   const cutRel = cutEnd();
-  DATA.rows.forEach(r => {
+  plotRows().forEach(r => {
     if (!S.labs.has(r.lab)) return;
     const d = D(r.d); if (d < start || d > end || d > cutRel) return;
     const b = Math.min(buckets - 1, Math.floor((d - start) / (bucketDays * day)));
@@ -877,8 +910,9 @@ function renderRel(svg) {
   const bw = Math.max(2, (pw / buckets) - 1.5);
 
   let h = "";
-  // y grid
-  for (let i = 0; i <= maxC; i++) {
+  // y grid: one label per release is fine up to about eight; past that, step it
+  const ystep = maxC <= 8 ? 1 : Math.ceil(maxC / 6);
+  for (let i = 0; i <= maxC; i += ystep) {
     h += `<line class="ax" x1="${PADL}" x2="${W - PADR}" y1="${y(i)}" y2="${y(i)}" opacity="${i === 0 ? 1 : .22}"/>`;
     h += `<text class="axl" x="${PADL - 8}" y="${y(i) + 3.5}" text-anchor="end">${i}</text>`;
   }
@@ -897,17 +931,18 @@ function renderRel(svg) {
     });
   });
   // x ticks
+  const rstep = monthStep();
   let t = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
   while (t <= end) {
     const xx = x(t.getTime());
-    if (xx > PADL - 4) {
+    if (xx > PADL - 4 && onTick(t.getUTCMonth(), rstep)) {
       h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
-      h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${MON[t.getUTCMonth()]}${t.getUTCMonth() === 0 ? " ’26" : ""}</text>`;
+      h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${MON[t.getUTCMonth()]}${t.getUTCMonth() === 0 ? " ’" + String(t.getUTCFullYear()).slice(2) : ""}</text>`;
     }
     t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1));
   }
   h += `<text class="axl d" x="${PADL}" y="${PADT - 6}" text-anchor="start">models released</text>`;
-  h += `<text class="axl" x="${PADL}" y="${H - 6}">${totalN} notable releases in view · bars stacked by lab · bucket ≈ ${bucketDays} day${bucketDays > 1 ? "s" : ""}</text>`;
+  h += `<text class="axl" x="${PADL}" y="${H - 6}">${totalN} ${S.win > 12 ? "" : "notable "}releases in view · bars stacked by lab · bucket ≈ ${bucketDays} day${bucketDays > 1 ? "s" : ""}</text>`;
   svg.innerHTML = h;
 }
 
@@ -922,26 +957,36 @@ function renderCap(svg) {
   /* the end-of-window names need a rail to the right of the last data point,
      so the plotting box gives up some width exactly when they are present */
   const railCutT = end.getTime() - 42 * day;
-  const railCount = DATA.rows.filter(r => LABEL_POS[r.m] && r.ii !== null && S.labs.has(r.lab)
+  const railCount = plotRows().filter(r => LABEL_POS[r.m] && r.ii !== null && S.labs.has(r.lab)
       && D(r.d) >= new Date(railCutT) && D(r.d) <= end && (!S.focus || S.focus === r.lab)
       && D(r.d) <= cutEnd()).length;
   const PADR = railCount ? RAILW : 14;
   const pw = W - PADL - PADR, ph = H - PADB - PADT;
   const x = t => PADL + ((t - start) / (end - start)) * pw;
-  const lo = 8, hi = 60;
+  /* The frame is 8–60 by default, which is what a single year needs. Four years
+     reaches back to models scoring under 4, so the axis has to open up — but it
+     only ever widens, never tightens, so the one-year chart is unchanged. */
+  const cutTop = cutEnd();
+  const seen = plotRows().filter(r => S.labs.has(r.lab) && r.ii !== null && D(r.d) >= start
+      && D(r.d) <= end && D(r.d) <= cutTop).map(r => r.ii);
+  const vmin = seen.length ? Math.min.apply(null, seen) : 10;
+  const vmax = seen.length ? Math.max.apply(null, seen) : 60;
+  const lo = Math.max(0, Math.min(8, Math.floor((vmin - 4) / 5) * 5));
+  const hi = Math.max(60, Math.ceil((vmax + 2) / 5) * 5);
   const y = v => PADT + ph - ((v - lo) / (hi - lo)) * ph;
 
   let h = "";
-  for (let v = 10; v <= 60; v += 10) {
+  for (let v = Math.ceil(lo / 10) * 10; v <= hi; v += 10) {
     h += `<line class="ax" x1="${PADL}" x2="${W - PADR}" y1="${y(v)}" y2="${y(v)}" opacity=".22"/>`;
     h += `<text class="axl" x="${PADL - 8}" y="${y(v) + 3.5}" text-anchor="end">${v}</text>`;
   }
+  const cstep = monthStep();
   let t = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
   while (t <= end) {
     const xx = x(t.getTime());
-    if (xx > PADL - 4) {
+    if (xx > PADL - 4 && onTick(t.getUTCMonth(), cstep)) {
       h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
-      h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${MON[t.getUTCMonth()]}${t.getUTCMonth() === 0 ? " ’26" : ""}</text>`;
+      h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${MON[t.getUTCMonth()]}${t.getUTCMonth() === 0 ? " ’" + String(t.getUTCFullYear()).slice(2) : ""}</text>`;
     }
     t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1));
   }
@@ -950,7 +995,7 @@ function renderCap(svg) {
   const labels = [];
   DATA.labs.forEach(l => {
     if (!S.labs.has(l.id)) return;
-    const pts = DATA.rows.filter(r => r.lab === l.id && r.ii !== null)
+    const pts = plotRows().filter(r => r.lab === l.id && r.ii !== null)
       .map(r => ({ t: D(r.d).getTime(), v: r.ii, m: r.m, est: r.est }))
       .filter(p => p.t >= start.getTime() && p.t <= Math.min(end.getTime(), cutEnd().getTime()))
       .sort((a, b) => a.t - b.t);
@@ -1078,10 +1123,12 @@ function drawChart() {
   const tt = document.getElementById("chartTitle"), ss = document.getElementById("chartSub");
   if (tt) tt.textContent = (S.mode === "rel") ? "Releases over time" : "Intelligence over time";
   if (ss) ss.textContent = (S.mode === "rel")
-      ? "time on X · number of releases on Y"
+      ? `time on X · number of releases on Y · ${S.win > 12 ? "every release" : "notable releases"}`
       : "time on X · Artificial Analysis Intelligence Index on Y";
   document.getElementById("chartNote").innerHTML = S.mode === "rel"
-    ? `<b>Counted:</b> notable releases only — major generations and flagships. Minor size variants (4B, nano, Flash-Lite), re-uploads and hosting variants are excluded, so a bar is "how many models worth announcing", not raw API entries.`
+    ? (S.win > 12
+       ? `<b>Counted:</b> every release Artificial Analysis lists in this window — the curated stream of names and notes only begins in November 2025, so the emphasised dots are the recent ones and the earlier stretch is the raw record. A four-year bar is total output, not output worth announcing.`
+       : `<b>Counted:</b> notable releases only — major generations and flagships. Minor size variants (4B, nano, Flash-Lite), re-uploads and hosting variants are excluded, so a bar is "how many models worth announcing", not raw API entries.`)
     : `<b>Reading it:</b> a point is a model release, plotted at the <b>max-effort</b> score Artificial Analysis reports for it. Lines join each lab's own points, so a steep line means that lab's flagship improved fast. Scores are from index <b>v4.3.2</b> — comparable to each other, but historical values were re-measured on the current index, and those flagged <b>(est.)</b> are AA's own estimates. Effort levels are not identical across labs (Google publishes "high", others "max"/"xhigh"), so treat small gaps as noise.`;
 }
 
@@ -1102,7 +1149,7 @@ function drawChart() {
     const v = +box.value;
     S.cursor = v >= 1000 ? null : new Date(a.getTime() + (v / 1000) * (b.getTime() - a.getTime()));
     const cut = S.cursor || b;
-    const rows = DATA.rows.filter(r => S.labs.has(r.lab) && D(r.d) >= a && D(r.d) <= cut);
+    const rows = plotRows().filter(r => S.labs.has(r.lab) && D(r.d) >= a && D(r.d) <= cut);
     const scored = rows.filter(r => r.ii !== null);
     const best = scored.length ? Math.max(...scored.map(r => r.ii)) : null;
     const iso = cut.toISOString().slice(0, 10);
@@ -1151,10 +1198,16 @@ function sync() {
   document.querySelectorAll("#chips .chip").forEach(c => c.setAttribute("aria-pressed", S.labs.has(c.dataset.lab)));
   const labsOn = DATA.labs.filter(l => S.labs.has(l.id));
   const cut = cutEnd();
-  const n = DATA.rows.filter(r => S.labs.has(r.lab) && D(r.d) >= start && D(r.d) <= end && D(r.d) <= cut).length;
-  const s = DATA.rows.filter(r => S.labs.has(r.lab) && r.ii !== null && D(r.d) >= start && D(r.d) <= end && D(r.d) <= cut).length;
+  const src = plotRows();
+  const inView = r => S.labs.has(r.lab) && D(r.d) >= start && D(r.d) <= end && D(r.d) <= cut;
+  const n = src.filter(inView).length;
+  const s = src.filter(r => inView(r) && r.ii !== null).length;
+  document.querySelectorAll("#chips .chip").forEach(c =>
+    c.querySelector(".cnt").textContent = src.filter(r => r.lab === c.dataset.lab && inView(r)).length);
   document.getElementById("srcLine").textContent =
-    `${labsOn.length}/${DATA.labs.length} labs · ${n} releases and ${s} index scores in view · ${DATA.meta.index_version} · source: ${DATA.meta.source}`;
+    `${labsOn.length}/${DATA.labs.length} labs · ${n} releases and ${s} index scores in view · ` +
+    `${S.win > 12 ? "full release record" : "curated notable stream"} · ` +
+    `${DATA.meta.index_version} · source: ${DATA.meta.source}`;
   drawTimeline(); drawChart();
 }
 measure();
@@ -1229,8 +1282,9 @@ addEventListener("keydown", e => {
 addEventListener("keydown", e => {
   const t = e.target, typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
   if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
-  const win = { "1": "12", "2": "6", "3": "3" }[e.key];
-  if (win) { document.querySelector(`#winseg button[data-win="${win}"]`).click(); return; }
+  const wbtn = Array.prototype.slice.call(document.querySelectorAll("#winseg button"));
+  const wi = "12345".indexOf(e.key);
+  if (wi >= 0 && wbtn[wi]) { wbtn[wi].click(); return; }
   if (e.key === "t" || e.key === "T") { scrollTo({ top: 0, behavior: "smooth" }); return; }
   if (e.key === "r" || e.key === "R") document.querySelector('#modeseg button[data-mode="rel"]').click();
   if (e.key === "i" || e.key === "I") document.querySelector('#modeseg button[data-mode="cap"]').click();
