@@ -73,7 +73,7 @@ def cluster_svg():
     VW, VH, PADL, PADR, AX = 1400, 470, 140, 140, 300
     span = VW - PADL - PADR
     xh = lambda h: PADL + (h / 48) * span
-    o = ['<svg viewBox="0 0 %d %d" width="100%%" height="auto" role="img" aria-label="Release cluster 21 to 24 September 2026">' % (VW, VH)]
+    o = ['<svg viewBox="0 0 %d %d" width="100%%" role="img" aria-label="Release cluster 21 to 24 September 2026">' % (VW, VH)]
     for h in (0, 24, 48):
         o.append('<line x1="%.1f" y1="24" x2="%.1f" y2="446" stroke="var(--line2)" stroke-dasharray="3 5"/>' % (xh(h), xh(h)))
     o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--line)"/>' % (xh(0), AX, xh(48), AX))

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2310a37f'/%3E%3Cpath d='M16 6l7 20h-4l-1.4-4.4h-5.2L11 26H7L14 6h2zm.9 6.6l-1.8 5.6h3.6l-1.8-5.6z' fill='%23fff'/%3E%3C/svg%3E">
 <title>Artificial Acceleration — Frontier Release &amp; Intelligence Tracker</title>
 <style>
   :root{
@@ -100,21 +101,21 @@
        background:var(--c);box-shadow:0 0 0 2px var(--bg),0 0 9px -1px var(--c);z-index:3}
   .dot.scored{width:11.5px;height:11.5px;box-shadow:0 0 0 2px var(--bg),0 0 12px 0 var(--c)}
   .dot.alert{background:var(--ink);box-shadow:0 0 0 2px var(--alert),0 0 12px 0 var(--alert)}
-  .dot .tip{position:absolute;left:50%;bottom:150%;transform:translateX(-50%) rotate(-45deg) scale(.95);
-    transform-origin:bottom center;background:var(--panel);border:1px solid var(--line);border-radius:8px;
-    padding:8px 11px;width:max-content;max-width:280px;opacity:0;pointer-events:none;transition:.13s;z-index:60;
-    box-shadow:0 16px 36px rgba(0,0,0,.62)}
+  /* idle tooltips are display:none so they cannot occupy layout or widen the page.
+     The entrance animates opacity ONLY, so JS stays free to set the transform. */
+  .dot .tip{display:none;opacity:0;position:absolute;left:50%;bottom:150%;
+    transform:translateX(-50%) rotate(-45deg);transform-origin:bottom center;
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:8px 11px;width:max-content;max-width:280px;pointer-events:none;z-index:60;
+    box-shadow:0 16px 36px rgba(0,0,0,.45)}
   .dot:hover{z-index:70}
-  .dot:hover .tip{display:block;animation:tipin .12s ease-out both}
+  .dot:hover .tip{display:block;animation:tipfade .12s ease-out both}
+  @keyframes tipfade{from{opacity:0}to{opacity:1}}
   @keyframes tipin{from{opacity:0;transform:translateX(-50%) rotate(-45deg) scale(.95)}
                    to{opacity:1;transform:translateX(-50%) rotate(-45deg) scale(1)}}
   /* the newest dots sit at the right edge: anchor their tooltips inward */
-  .lane .dot:nth-last-child(-n+2) .tip{left:auto;right:50%}
-  .lane .dot:nth-last-child(-n+2):hover .tip{animation:tipinR .12s ease-out both}
   @keyframes tipinR{from{opacity:0;transform:translateX(50%) rotate(-45deg) scale(.95)}
                     to{opacity:1;transform:translateX(50%) rotate(-45deg) scale(1)}}
-  .lane .dot:nth-child(2) .tip{left:0;right:auto}
-  .lane .dot:nth-child(2):hover .tip{animation:tipinL .12s ease-out both}
   @keyframes tipinL{from{opacity:0;transform:rotate(-45deg) scale(.95)}
                     to{opacity:1;transform:rotate(-45deg) scale(1)}}
   .tip .t1{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.07em;display:block}
@@ -669,6 +670,26 @@ sync();              // redraw at that height
 
 let _rt = 0;
 addEventListener("resize", () => { clearTimeout(_rt); _rt = setTimeout(() => { measure(); sync(); fitChart(); sync(); }, 130); });
+/* ---------- keep hover tooltips inside the viewport ----------
+   The tooltip is rotated, so its bounding box is wider than its layout box.
+   Adjust the offset and re-measure until it sits inside the viewport. */
+addEventListener("mouseover", function (e) {
+  const dot = e.target && e.target.closest ? e.target.closest(".dot") : null;
+  if (!dot) return;
+  const tip = dot.querySelector(".tip");
+  if (!tip) return;
+  let off = 0;
+  tip.style.transform = "";
+  for (let pass = 0; pass < 5; pass++) {
+    tip.style.transform = "translateX(calc(-50% + " + off + "px)) rotate(-45deg)";
+    const b = tip.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth, pad = 14;
+    if (b.right > vw - pad) { off -= (b.right - (vw - pad)); continue; }
+    if (b.left < pad)       { off += (pad - b.left);        continue; }
+    break;
+  }
+}, true);
+
 addEventListener("keydown", e => {
   const win = { "1": "12", "2": "6", "3": "3" }[e.key];
   if (win) { document.querySelector(`#winseg button[data-win="${win}"]`).click(); return; }
