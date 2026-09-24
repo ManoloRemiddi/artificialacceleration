@@ -38,6 +38,9 @@ def mark_html(lab_id):
     if L.get("mono"): cls += " mono"
     return f'<span class="{cls}">{L["svg"]}</span>'
 
+sys.path.insert(0, str(R / "scripts"))
+import acceleration_index as ACCEL      # noqa: E402
+
 NOTES = json.loads((R / "build" / "notes.json").read_text())
 DATA = json.loads((R / "data" / "releases.json").read_text())
 rows = DATA["rows"]
@@ -208,11 +211,26 @@ def evidence_cards():
     o.append('</ul></div></div>')
     return "".join(o)
 
+ACCEL_IDX = None
+
+
+def accel_payload():
+    """The header gauge, computed here so the number is reproducible and logged."""
+    recs, as_of = ACCEL.load_records(R / "data" / "releases.json")
+    idx = ACCEL.build_index(recs, as_of)
+    print(f"acceleration index {idx['value']} ({idx['level']}) as of {idx['as_of']}"
+          f" · week {idx['week']} · month {idx['month']}")
+    return idx
+
+
 def main():
+    global ACCEL_IDX
+    ACCEL_IDX = accel_payload()
     tpl = (R / "build" / "page_template.html").read_text()
     payload = {"labs": [dict(L) for L in LABS], "logos": LOGOS,
                "rows": page_rows,
                "stream": stream_rows,
+               "accel": ACCEL_IDX,
                "sections": sections_html(),
                "meta": {"compiled": DATA.get("generated_utc", "")[:10],
                         "index_version": "Artificial Analysis Intelligence Index v4.3.2",

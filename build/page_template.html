@@ -360,6 +360,39 @@
   #tlpanel::after,#chartpanel::after{display:none}          /* no pool on the boards */
   @media (prefers-reduced-motion:reduce){ .spot::after{display:none} }
 
+  /* ---- the acceleration gauge: sits with the appearance switch ---- */
+  .headright{display:flex;align-items:flex-start;gap:22px;flex:0 0 auto}
+  .gaugewrap{position:relative}
+  .accel{display:block;cursor:help;outline-offset:4px}
+  .accel .gauge{display:block;overflow:visible}
+  .accel .gseg{fill:none;stroke-width:7;stroke-linecap:butt;opacity:.30}
+  .accel.armed .gseg{opacity:.95}
+  .accel .gneedle{stroke:var(--ink);stroke-width:2.4;stroke-linecap:round}
+  .accel .ghub{fill:var(--ink)}
+  .accelread{display:flex;align-items:baseline;gap:7px;justify-content:center;margin-top:-6px}
+  .accelval{font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  .accellvl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase}
+  .themecap,.accelcap{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .accelcap{text-align:center;margin-top:3px;display:block}
+  .accelpanel{position:absolute;top:calc(100% + 10px);right:-6px;z-index:250;width:286px;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 13px 10px;
+    box-shadow:0 18px 44px rgba(0,0,0,.34);display:none;text-align:left}
+  .accel:hover .accelpanel,.accel:focus-visible .accelpanel{display:block;animation:tipfade .14s ease-out both}
+  .ap-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .ap-head b{font-size:13px;letter-spacing:-.01em}
+  .ap-head span{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+  .ap-row{display:grid;grid-template-columns:104px 1fr 60px;gap:9px;align-items:center;margin-bottom:6px}
+  .ap-row .k{font-family:var(--mono);font-size:9px;letter-spacing:.045em;text-transform:uppercase;
+    color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ap-row .bar{height:5px;border-radius:3px;background:var(--line2);overflow:hidden}
+  .ap-row .bar i{display:block;height:100%;border-radius:3px;background:var(--c,#e04a4a)}
+  .ap-row .v{font-family:var(--mono);font-size:10px;color:var(--dim);text-align:right;white-space:nowrap}
+  .ap-trace{margin:9px 0 4px;display:block}
+  .ap-foot{font-family:var(--mono);font-size:10px;color:var(--faint);display:flex;gap:12px;flex-wrap:wrap}
+  .ap-foot b{color:var(--dim)}
+  .ap-note{margin:8px 0 0;padding-top:8px;border-top:1px solid var(--line2);font-size:11.5px;color:var(--faint);line-height:1.45}
+  .ap-note a{color:var(--dim)}
+
   /* ---- view transitions: a state change morphs instead of blinking ---- */
   @media (prefers-reduced-motion:no-preference){
     ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){
@@ -415,16 +448,19 @@
     <h1>Artificial Acceleration<br><span class="thin">Nine labs. One year. Every release, dated.</span></h1>
     <p class="lede">
       Every frontier lab published calls to pace or throttle AI development in 2026 — while shipping faster than ever.
-      Below: each lab's full 2026 release stream with all nine visible at once, then the same window measured two ways —
+      Below: back to 2022 by default, with all nine labs visible at once, then the same window measured two ways —
       <b>how many models shipped</b>, and <b>how much smarter they got</b>.
     </p>
     </div>
+    <div class="headright">
+    <div class="gaugewrap" id="gaugewrap"></div>
     <div class="themewrap">
       <span class="themecap">Appearance</span>
       <div class="seg bigseg" id="themeseg">
         <button data-theme="dark" aria-pressed="true"><span aria-hidden="true">&#9789;</span> Dark</button>
         <button data-theme="light" aria-pressed="false"><span aria-hidden="true">&#9788;</span> Light</button>
       </div>
+    </div>
     </div>
    </div>
   </header>
@@ -434,11 +470,11 @@
     <div class="ctl">
       <span class="lbl">Window</span>
       <div class="seg" id="winseg">
-        <button class="on-window" data-win="3" aria-pressed="false" title="Three months">3m</button>
-        <button class="on-window" data-win="6" aria-pressed="false" title="Six months">6m</button>
-        <button class="on-window" data-win="12" aria-pressed="true" title="Twelve months">12m</button>
+        <button class="on-window" data-win="48" aria-pressed="true" title="Four years">48m</button>
         <button class="on-window" data-win="24" aria-pressed="false" title="Two years">24m</button>
-        <button class="on-window" data-win="48" aria-pressed="false" title="Four years">48m</button>
+        <button class="on-window" data-win="12" aria-pressed="false" title="Twelve months">12m</button>
+        <button class="on-window" data-win="6" aria-pressed="false" title="Six months">6m</button>
+        <button class="on-window" data-win="3" aria-pressed="false" title="Three months">3m</button>
       </div>
     </div>
     <div class="ctl">
@@ -545,6 +581,88 @@ function markHTML(id) {
     sync();
   });
 })();
+/* ---------------- the acceleration gauge ----------------
+   A composite of four measured inputs over the trailing 30 days, each scored as
+   a percentile of every 30-day window since the record began. Rendered here
+   rather than hard-coded so the number and the arc can never disagree. */
+(function gauge(){
+  const host = document.getElementById("gaugewrap");
+  const A = DATA.accel;
+  if (!host || !A) return;
+  const W = 132, H = 58, CX = 66, CY = 50, R = 40.5, NR = 34;
+  const zone = [[0, 24, "#4a7bd6"], [24, 45, "#2fb8a3"], [45, 55, "#d8b13a"],
+                [55, 75, "#e2843f"], [75, 100, "#e04a4a"]];
+  const ang = v => (180 - 1.8 * v) * Math.PI / 180;
+  const pt = (v, r) => [CX + r * Math.cos(ang(v)), CY - r * Math.sin(ang(v))];
+  const arc = (a, b) => {
+    const [x1, y1] = pt(a, R), [x2, y2] = pt(b, R);
+    return `M${x1.toFixed(2)} ${y1.toFixed(2)} A${R} ${R} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+  };
+  const segs = zone.map(([a, b, c]) =>
+    `<path class="gseg" d="${arc(a, b)}" stroke="${c}"/>`).join("");
+  const [nx, ny] = pt(A.value, NR);
+  const per = {tempo: "releases", climb: "pts", breadth: "of 9 labs", burst: "in 7 days"};
+  const LBL = {tempo: "Tempo", climb: "Frontier climb", breadth: "Lab breadth", burst: "Densest burst"};
+  const fmtRaw = p => p.key === "climb" ? (p.raw > 0 ? "+" : "") + p.raw
+                      : p.raw + (p.key === "breadth" ? "" : "");
+  /* each input is tinted by its own standing, so a lagging one is visible */
+  const tint = pct => zone.reduce((c, [lo, , hex]) => (pct >= lo ? hex : c), zone[0][2]);
+  const rows = A.parts.map(p => `
+    <div class="ap-row" style="--c:${tint(p.pct)}">
+      <span class="k">${LBL[p.key]}</span>
+      <span class="bar"><i style="width:${Math.max(2, p.pct).toFixed(1)}%"></i></span>
+      <span class="v">${fmtRaw(p)} ${per[p.key]}</span>
+    </div>`).join("");
+
+  /* the trace: one sample a month across the whole record, on its own 0-100 axis */
+  const ser = A.series || [];
+  let trace = "";
+  if (ser.length > 1) {
+    const TW = 258, TH = 30, n = ser.length;
+    const px = i => (i / (n - 1)) * TW;
+    const py = v => TH - (v / 100) * TH;
+    const line = ser.map((s, i) => `${i ? "L" : "M"}${px(i).toFixed(1)} ${py(s[1]).toFixed(1)}`).join(" ");
+    trace = `<svg class="ap-trace" width="${TW}" height="${TH + 4}" viewBox="0 0 ${TW} ${TH + 4}" aria-hidden="true">
+        <path d="${line} L${TW} ${TH} L0 ${TH} Z" fill="${A.colour}" opacity=".12"/>
+        <path d="${line}" fill="none" stroke="${A.colour}" stroke-width="1.4" stroke-linejoin="round"/>
+        <circle cx="${TW}" cy="${py(ser[n - 1][1]).toFixed(1)}" r="2.6" fill="${A.colour}"/>
+      </svg>`;
+  }
+
+  host.innerHTML = `
+    <div class="accel" tabindex="0" role="img"
+         aria-label="Acceleration Index ${A.value} of 100, ${A.level}, measured over the trailing ${A.window_days} days">
+      <svg class="gauge" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+        ${segs}
+        <line class="gneedle" x1="${CX}" y1="${CY}" x2="${nx.toFixed(2)}" y2="${ny.toFixed(2)}"/>
+        <circle class="ghub" cx="${CX}" cy="${CY}" r="3.4"/>
+      </svg>
+      <div class="accelread">
+        <span class="accelval" style="color:${A.colour}">${A.value}</span>
+        <span class="accellvl" style="color:${A.colour}">${A.level}</span>
+      </div>
+      <span class="accelcap">Acceleration &middot; ${A.window_days}d</span>
+      <div class="accelpanel" role="tooltip">
+        <div class="ap-head"><b>Acceleration Index</b><span>trailing 30 days</span></div>
+        ${rows}
+        ${trace}
+        <div class="ap-foot"><span>today <b>${A.value}</b></span>
+          <span>last week <b>${A.week}</b></span><span>last month <b>${A.month}</b></span></div>
+        <p class="ap-note">Our own composite over this release record, in the spirit of the
+          crypto Fear &amp; Greed Index — not an official metric. Each input is scored as a
+          percentile of all ${A.sampled} thirty-day windows since November 2022. Bar length is
+          that percentile; the trace is monthly, three-month smoothed.</p>
+      </div>
+    </div>`;
+  /* the arc lights up only when you actually attend to it */
+  const el = host.querySelector(".accel");
+  const arm = on => el.classList.toggle("armed", on);
+  el.addEventListener("pointerenter", () => arm(true));
+  el.addEventListener("pointerleave", () => arm(false));
+  el.addEventListener("focus", () => arm(true));
+  el.addEventListener("blur", () => arm(false));
+})();
+
 /* ---------- dock, section map, spotlight ---------- */
 (function chrome(){
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -638,7 +756,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* ---------------- state ---------------- */
-const S = { win: 12, mode: "rel", labs: new Set(DATA.labs.map(l => l.id)), focus: null, cursor: null };
+const S = { win: 48, mode: "rel", labs: new Set(DATA.labs.map(l => l.id)), focus: null, cursor: null };
 let resetReplay = () => {};                 // filled in by the replay control below
 /* the right edge of what is currently revealed: the scrub cursor, or now */
 const cutEnd = () => (S.cursor && S.cursor < NOW ? S.cursor : NOW);
