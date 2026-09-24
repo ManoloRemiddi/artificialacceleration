@@ -106,8 +106,9 @@
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
   }
-  .dot:hover{transform:translate(-50%,-50%) scale(1.45);z-index:70;
-             box-shadow:0 0 0 1.5px var(--bg),0 0 0 4px color-mix(in srgb,var(--c) 35%,transparent)}
+  /* emphasise with a ring, never a transform: scaling the dot would scale its tooltip */
+  .dot:hover{z-index:70;
+             box-shadow:0 0 0 1.5px var(--bg),0 0 0 5px color-mix(in srgb,var(--c) 38%,transparent)}
   /* the cadence rail: shows each lab's release rhythm behind its markers */
   .rail{position:absolute;height:1px;top:50%;transform:translateY(-.5px);
         background:linear-gradient(90deg,transparent,var(--c) 6%,var(--c) 94%,transparent);
@@ -122,27 +123,22 @@
   .chart.focusing rect.bar.dimmed{fill-opacity:.20}
   .dot.alert{background:var(--ink);box-shadow:0 0 0 2px var(--alert),0 0 12px 0 var(--alert)}
   /* idle tooltips are display:none so they cannot occupy layout or widen the page.
-     The entrance animates opacity ONLY, so JS stays free to set the transform. */
-  .dot .tip{display:none;opacity:0;position:absolute;left:50%;bottom:150%;
-    transform:translateX(-50%) rotate(-45deg);transform-origin:bottom center;
-    background:var(--panel);border:1px solid var(--line);border-radius:8px;
-    padding:8px 11px;width:max-content;max-width:280px;pointer-events:none;z-index:60;
-    box-shadow:0 16px 36px rgba(0,0,0,.45)}
+     Straight, compact, and deliberately quiet - it is an information card, not a badge. */
+  .dot .tip{display:none;opacity:0;position:absolute;left:50%;bottom:145%;
+    transform:translateX(-50%);transform-origin:bottom center;
+    background:var(--panel);border:1px solid var(--line);border-radius:6px;
+    padding:6px 9px;width:206px;pointer-events:none;z-index:60;
+    box-shadow:0 6px 18px rgba(0,0,0,.26)}
   .dot:hover{z-index:70}
   .dot:hover .tip{display:block;animation:tipfade .12s ease-out both}
   @keyframes tipfade{from{opacity:0}to{opacity:1}}
-  @keyframes tipin{from{opacity:0;transform:translateX(-50%) rotate(-45deg) scale(.95)}
-                   to{opacity:1;transform:translateX(-50%) rotate(-45deg) scale(1)}}
   /* the newest dots sit at the right edge: anchor their tooltips inward */
-  @keyframes tipinR{from{opacity:0;transform:translateX(50%) rotate(-45deg) scale(.95)}
-                    to{opacity:1;transform:translateX(50%) rotate(-45deg) scale(1)}}
-  @keyframes tipinL{from{opacity:0;transform:rotate(-45deg) scale(.95)}
-                    to{opacity:1;transform:rotate(-45deg) scale(1)}}
-  .tip .t1{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.07em;display:block}
-  .tip .t2{font-size:13px;font-weight:700;display:block;margin-top:2px}
-  .tip .t3{font-size:12px;color:var(--dim);display:block;margin-top:5px;line-height:1.42}
-  .tip .sc{font-family:var(--mono);font-size:11px;margin-top:6px;display:inline-block;
-           border:1px solid var(--line);border-radius:20px;padding:1px 7px}
+  .tip .t1{font-family:var(--mono);font-size:10px;color:var(--faint);display:block;line-height:1.3}
+  .tip .t2{font-size:12.5px;font-weight:600;display:block;margin-top:2px;line-height:1.3;letter-spacing:-.005em}
+  .tip .t3{font-size:11.5px;color:var(--dim);display:block;margin-top:4px;line-height:1.38}
+  .tip .sc{font-family:var(--mono);font-size:10.5px;margin-top:5px;display:block;
+           color:var(--faint)}
+  .tip .sc b{color:var(--dim);font-weight:600}
   .grid{position:absolute;top:0;width:0;border-left:1px solid var(--line2);pointer-events:none}
   .grid.q{border-left-style:dotted;opacity:.5}
   .band{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,color-mix(in srgb,var(--alert) 16%,transparent),color-mix(in srgb,var(--alert) 3%,transparent));
@@ -442,6 +438,7 @@ const byId = Object.fromEntries(DATA.labs.map(l => [l.id, l]));
 const day = 86400000;
 const D = s => new Date(s + "T00:00:00Z");
 const fmt = d => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" });
+const dayLabel = iso => D(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 function windowBounds() {
@@ -546,9 +543,9 @@ function drawTimeline() {
       el.style.left = xFor(d.getTime()) + "px";
       el.style.setProperty("--c", lab.hex);
       el.innerHTML = `<span class="tip">
-          <span class="t1">${r.d} · ${lab.product}</span>
+          <span class="t1">${lab.short} &middot; ${dayLabel(r.d)}</span>
           <span class="t2">${r.m}</span>
-          ${r.ii ? `<span class="sc" style="color:${lab.hex}">Intelligence ${r.ii}${r.est ? " (est.)" : ""}</span>` : `<span class="sc" style="color:var(--faint)">no index score listed</span>`}
+          ${r.ii ? `<span class="sc"><b>${r.ii}</b> index${r.est ? " (est.)" : ""}</span>` : `<span class="sc">no index score</span>`}
           ${r.note ? `<span class="t3">${r.note}</span>` : ""}
         </span>`;
       lane.appendChild(el);
@@ -747,7 +744,7 @@ addEventListener("mouseover", function (e) {
   let off = 0;
   tip.style.transform = "";
   for (let pass = 0; pass < 5; pass++) {
-    tip.style.transform = "translateX(calc(-50% + " + off + "px)) rotate(-45deg)";
+    tip.style.transform = "translateX(calc(-50% + " + off + "px))";
     const b = tip.getBoundingClientRect();
     const vw = document.documentElement.clientWidth, pad = 14;
     if (b.right > vw - pad) { off -= (b.right - (vw - pad)); continue; }
