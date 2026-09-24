@@ -79,6 +79,7 @@
   .axis .m{position:absolute;top:0;font-family:var(--mono);font-size:11.5px;color:var(--dim);
            transform:translateX(-50%);white-space:nowrap;letter-spacing:.06em}
   .lanes{position:relative;width:100%;padding-bottom:8px}
+  .dot[role="button"]{cursor:pointer}
   .lane{position:relative;height:var(--lh,22px)}
   .lane::after{content:"";position:absolute;left:var(--lab);right:0;bottom:0;border-bottom:1px solid var(--line2)}
   .lane:hover{background:rgba(255,255,255,.016)}
@@ -87,12 +88,12 @@
   /* real brand marks: transparent, sized, and legible on both themes */
   .logo{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex:0 0 24px;color:var(--markfg)}
   .logo svg{width:24px;height:24px;display:block}
-  .logo.chip{background:#fff;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10);padding:1px}
-  .logo.chip svg{width:22px;height:22px}
+  .logo.backed{background:#fff;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10);padding:1px}
+  .logo.backed svg{width:22px;height:22px}
   .logo.mono svg{fill:currentColor}
   .logo.mono svg path{fill:currentColor}
-  .logo.chip img{border-radius:4px}
-  .logo.chip img{width:20px;height:20px;object-fit:contain;display:block}
+  .logo.backed img{border-radius:4px}
+  .logo.backed img{width:20px;height:20px;object-fit:contain;display:block}
   .labcard-top .logo{width:24px;height:24px;flex:0 0 24px}
   .labcard-top .logo svg,.labcard-top .logo img{width:24px;height:24px}
   .lab .nm{font-size:14px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -107,8 +108,9 @@
     *, *::before, *::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
   }
   /* emphasise with a ring, never a transform: scaling the dot would scale its tooltip */
-  .dot:hover{z-index:70;
+  .dot:hover,.dot:focus-visible{z-index:70;
              box-shadow:0 0 0 1.5px var(--bg),0 0 0 5px color-mix(in srgb,var(--c) 38%,transparent)}
+  .dot:focus-visible{outline:none}
   /* the cadence rail: shows each lab's release rhythm behind its markers */
   .rail{position:absolute;height:1px;top:50%;transform:translateY(-.5px);
         background:linear-gradient(90deg,transparent,var(--c) 6%,var(--c) 94%,transparent);
@@ -130,7 +132,7 @@
     padding:6px 9px;width:206px;pointer-events:none;z-index:60;
     box-shadow:0 6px 18px rgba(0,0,0,.26)}
   .dot:hover{z-index:70}
-  .dot:hover .tip{display:block;animation:tipfade .12s ease-out both}
+  .dot:hover .tip,.dot:focus-visible .tip{display:block;animation:tipfade .12s ease-out both}
   @keyframes tipfade{from{opacity:0}to{opacity:1}}
   /* the newest dots sit at the right edge: anchor their tooltips inward */
   .tip .t1{font-family:var(--mono);font-size:10px;color:var(--faint);display:block;line-height:1.3}
@@ -149,7 +151,7 @@
            width:max-content;max-width:250px;color:var(--ink);font-family:var(--sans);
            font-size:12.5px;font-weight:500;letter-spacing:0;
            transition:.13s;box-shadow:0 12px 30px rgba(0,0,0,.35);line-height:1.4;z-index:80}
-  .bandcap:hover .tip,.bandcap:focus .tip{display:block;animation:tipinR .12s ease-out both}
+  .bandcap:hover .tip,.bandcap:focus .tip{display:block;animation:tipfade .12s ease-out both}
 
   /* ---------- charts ---------- */
   .charts{display:grid;grid-template-columns:1fr;gap:12px}
@@ -171,7 +173,7 @@
   .ax{stroke:var(--line);stroke-width:1}
   .axl{fill:var(--faint);font-family:var(--mono);font-size:10px}
   .axl.d{fill:var(--dim)}
-  text.mlab{font-family:var(--mono);font-size:9.5px;fill:var(--dim)}
+  text.mlab{font-family:var(--mono);font-size:9.5px}
   .bar{opacity:.95}
   .pline{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;
          stroke-dasharray:1;animation:drawline 560ms cubic-bezier(.25,.6,.3,1) both}
@@ -179,6 +181,9 @@
   .bar{transform-box:fill-box;transform-origin:bottom;animation:growbar 340ms cubic-bezier(.25,.6,.3,1) both}
   @keyframes growbar{from{transform:scaleY(.02)}to{transform:scaleY(1)}}
   .pdot{stroke:#0b0d14;stroke-width:1.4}
+  text.mlab{font-size:10px;font-weight:600;letter-spacing:-.012em}
+  .lead{stroke-width:.9;opacity:.62;fill:none}
+  .chart.focusing .lead.dimmed{opacity:.08}
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:2px}
   .lg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dim)}
   .lg .sw{width:10px;height:3px;border-radius:2px}
@@ -269,9 +274,130 @@
     .legend{display:none}                     /* keep the axis + points, drop the reading key */
   }
   @media (max-width:900px){ .wrap{padding:20px 12px 60px} }
+
+  /* ============================================================
+     MODERN INTERACTION LAYER
+     Everything below is progressive enhancement: it uses native
+     scroll-driven animation, view transitions and pointer tracking
+     where the browser offers them, and the page stays fully usable
+     and static where it doesn't.
+     ============================================================ */
+  :root{interpolate-size:allow-keywords}
+  html[data-theme="dark"]{color-scheme:dark}
+  html[data-theme="light"]{color-scheme:light}
+  html{accent-color:#10a37f;scroll-padding-top:64px}
+  h1,h2,h3,h4{text-wrap:balance}
+  p,li{text-wrap:pretty}
+  ::selection{background:color-mix(in srgb,#10a37f 36%,transparent);color:var(--ink)}
+  :where(a,button,[tabindex]):focus-visible{outline:2px solid color-mix(in srgb,#10a37f 72%,transparent);
+    outline-offset:2px;border-radius:6px}
+  *{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+  .scrollx::-webkit-scrollbar{height:9px}
+  .scrollx::-webkit-scrollbar-track{background:transparent}
+  .scrollx::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+  .scrollx::-webkit-scrollbar-thumb:hover{background:var(--faint)}
+
+  /* ---- reading progress: the rail is driven by scroll position itself ---- */
+  #prog{position:fixed;top:0;left:0;right:0;height:3px;z-index:230;pointer-events:none;
+        transform-origin:0 50%;scale:0 1;background:linear-gradient(90deg,#10a37f,#7cc47c 34%,#d97757 68%,#0081fb);
+        box-shadow:0 0 12px color-mix(in srgb,#10a37f 40%,transparent)}
+  @supports (animation-timeline:scroll()){
+    #prog{animation:progfill linear both;animation-timeline:scroll(root block)}
+    @keyframes progfill{from{scale:0 1}to{scale:1 1}}
+  }
+
+  /* ---- dock: appears once the masthead has left, and carries the section map ---- */
+  .dock{position:fixed;top:0;left:0;right:0;z-index:220;height:46px;
+        display:flex;align-items:center;gap:16px;padding:0 22px;
+        background:color-mix(in srgb,var(--bg) 78%,transparent);
+        -webkit-backdrop-filter:blur(16px) saturate(1.6);backdrop-filter:blur(16px) saturate(1.6);
+        border-bottom:1px solid var(--line);
+        opacity:0;translate:0 -100%;pointer-events:none;
+        transition:opacity .2s ease-out,translate .26s cubic-bezier(.2,.8,.3,1)}
+  .dock.on{opacity:1;translate:0 0;pointer-events:auto}
+  .dock .dt{font-weight:800;font-size:13.5px;letter-spacing:-.022em;white-space:nowrap;flex:0 0 auto}
+  .dock .dnav{display:flex;gap:2px;min-width:0;overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
+  .dock .dnav a{font-family:var(--mono);font-size:10.5px;letter-spacing:.085em;text-transform:uppercase;
+    color:var(--faint);text-decoration:none;padding:5px 9px;border-radius:7px;white-space:nowrap;
+    transition:color .13s,background .13s}
+  .dock .dnav a:hover{color:var(--ink);background:var(--line2)}
+  .dock .dnav a[aria-current="true"]{color:var(--ink);background:color-mix(in srgb,#10a37f 22%,transparent)}
+  .dock .dgo{margin-left:auto;flex:0 0 auto}
+  .dock .dtop{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--dim);
+    background:var(--chipbg);border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;
+    transition:color .13s,border-color .13s}
+  .dock .dtop:hover{color:var(--ink);border-color:var(--faint)}
+  #tlpanel,#chartpanel,#sections>section{scroll-margin-top:60px}
+
+  /* ---- scroll reveals: the page assembles as you move through it ---- */
+  @media (prefers-reduced-motion:no-preference){
+    @supports (animation-timeline:view()){
+      #sections .sechead,#sections .panel.pad,#sections .card{
+        animation:rise linear both;animation-timeline:view();animation-range:entry 2% entry 30%}
+      #sections .card:nth-of-type(2){animation-range:entry 8% entry 36%}
+      #sections .card:nth-of-type(3){animation-range:entry 14% entry 42%}
+      #sections .card:nth-of-type(4){animation-range:entry 20% entry 48%}
+      #sections .card:nth-of-type(5){animation-range:entry 26% entry 54%}
+      @keyframes rise{from{opacity:0;translate:0 18px}to{opacity:1;translate:0 0}}
+    }
+  }
+
+  /* ---- pointer-tracked spotlight: depth where the cursor actually is ---- */
+  .spot{position:relative;isolation:isolate;--mx:50%;--my:0%;--sc:#10a37f}
+  .spot::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    opacity:0;transition:opacity .28s ease-out;z-index:-1;
+    background:radial-gradient(340px 220px at var(--mx) var(--my),
+      color-mix(in srgb,var(--sc) 20%,transparent),transparent 72%)}
+  .spot:hover::after{opacity:1}
+  @media (prefers-reduced-motion:reduce){ .spot::after{display:none} }
+
+  /* ---- view transitions: a state change morphs instead of blinking ---- */
+  @media (prefers-reduced-motion:no-preference){
+    ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){
+      animation-duration:.24s;animation-timing-function:cubic-bezier(.2,.8,.3,1)}
+    ::view-transition-group(*){animation-duration:.3s;animation-timing-function:cubic-bezier(.2,.8,.3,1)}
+    /* the theme flip is a circular wipe from the button itself */
+    html.circlemorph::view-transition-old(root){animation:none}
+    html.circlemorph::view-transition-new(root){animation:none;mix-blend-mode:normal}
+  }
+  /* ---- replay row: scrub or replay the window ---- */
+  .scrubrow{display:flex;align-items:center;gap:10px;margin:0 0 5px var(--lab);min-height:23px}
+  .scrubcap{flex:0 0 auto;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .playbtn{flex:0 0 auto;width:29px;height:24px;display:grid;place-items:center;font-size:9px;line-height:1;
+    background:var(--chipbg);color:var(--dim);border:1px solid var(--line);border-radius:7px;cursor:pointer;
+    transition:color .13s,border-color .13s,background .13s}
+  .playbtn:hover{color:var(--ink);border-color:#10a37f;background:color-mix(in srgb,#10a37f 16%,var(--chipbg))}
+  .playbtn.playing{background:color-mix(in srgb,#10a37f 30%,transparent);color:var(--ink);border-color:transparent}
+  .scrub{-webkit-appearance:none;appearance:none;flex:1 1 auto;min-width:110px;height:20px;background:none;cursor:pointer}
+  .scrub::-webkit-slider-runnable-track{height:4px;border-radius:4px;
+    background:linear-gradient(90deg,color-mix(in srgb,#10a37f 72%,transparent),color-mix(in srgb,#d97757 40%,var(--line)))}
+  .scrub::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;margin-top:-5.5px;
+    background:#10a37f;border:2px solid var(--bg);
+    box-shadow:0 0 0 1px color-mix(in srgb,#10a37f 60%,transparent),0 0 10px color-mix(in srgb,#10a37f 40%,transparent)}
+  .scrub:hover::-webkit-slider-thumb{background:#16c39a}
+  .scrub::-moz-range-track{height:4px;border-radius:4px;background:var(--line)}
+  .scrub::-moz-range-progress{height:4px;border-radius:4px;background:color-mix(in srgb,#10a37f 72%,transparent)}
+  .scrub::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#10a37f;border:2px solid var(--bg)}
+  @media (max-width:1100px){ .scrubcap{display:none} }
+  .scrubout{flex:0 1 auto;font-family:var(--mono);font-size:10.5px;color:var(--faint);white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  .scrubout b{color:var(--dim);font-weight:600}
+  @media (max-width:760px){ .scrubrow{margin-left:0} }
+  #chart{view-transition-name:aa-chart}
+  #tlpanel{view-transition-name:aa-timeline}
+
+  /* ---- render-cost containment for the long tail of the page ---- */
+  #sections>section{content-visibility:auto;contain-intrinsic-size:auto 460px}
 </style>
 </head>
 <body>
+<div id="prog" aria-hidden="true"></div>
+<nav class="dock" id="dock" aria-label="Page sections">
+  <span class="dt">Artificial Acceleration</span>
+  <div class="dnav" id="dnav"></div>
+  <div class="dgo"><button class="dtop" id="dtop" type="button">&#8593; Top</button></div>
+</nav>
 <div class="wrap">
 
   <header>
@@ -319,16 +445,23 @@
   </div>
 
   <!-- ================= TIMELINE ================= -->
-  <div class="panel" id="tlpanel">
+  <div class="panel spot" id="tlpanel">
     <div class="tl">
       <div class="axis" id="axis"></div>
+      <div class="scrubrow">
+        <span class="scrubcap" aria-hidden="true">Replay</span>
+        <button class="playbtn" id="scrubplay" type="button" aria-label="Replay the year">&#9654;</button>
+        <input class="scrub" id="scrub" type="range" min="0" max="1000" value="1000" step="1"
+               aria-label="Reveal releases up to a date in the window">
+        <span class="scrubout" id="scrubout"></span>
+      </div>
       <div class="lanes" id="lanes"></div>
     </div>
   </div>
 
   <!-- ================= CHART ================= -->
   <div class="charts" style="margin-top:16px">
-    <div class="chartbox">
+    <div class="chartbox spot" id="chartpanel">
       <div class="charthead">
         <h2 id="chartTitle">Releases over time</h2>
         <span class="sub" id="chartSub"></span>
@@ -360,8 +493,8 @@ const LOGOS = DATA.logos || {};
 function markHTML(id) {
   const L = LOGOS[id];
   if (!L) return "";
-  if (L.img) return `<span class="logo chip"><img src="${L.img}" alt="${L.brand}" width="22" height="22" loading="lazy" decoding="async"></span>`;
-  const cls = "logo" + (L.chip ? " chip" : "") + (L.mono ? " mono" : "");
+  if (L.img) return `<span class="logo backed"><img src="${L.img}" alt="${L.brand}" width="22" height="22" loading="lazy" decoding="async"></span>`;
+  const cls = "logo" + (L.chip ? " backed" : "") + (L.mono ? " mono" : "");
   return `<span class="${cls}">${L.svg}</span>`;
 }
 
@@ -376,11 +509,117 @@ function markHTML(id) {
     const sync = () => seg.querySelectorAll("button").forEach(b =>
       b.setAttribute("aria-pressed", String(b.dataset.theme === document.documentElement.dataset.theme)));
     seg.querySelectorAll("button").forEach(b => b.onclick = () => {
-      document.documentElement.dataset.theme = b.dataset.theme;
-      localStorage.setItem("aa-theme", b.dataset.theme);
-      sync();
+      const apply = () => {
+        document.documentElement.dataset.theme = b.dataset.theme;
+        localStorage.setItem("aa-theme", b.dataset.theme);
+        sync();
+      };
+      if (!document.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        apply();
+        return;
+      }
+      /* wipe the new theme in as a circle growing from the button you pressed */
+      const r = b.getBoundingClientRect();
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      const root = document.documentElement;
+      root.classList.add("circlemorph");
+      const vt = document.startViewTransition(apply);
+      vt.ready.then(() => {
+        root.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+          { duration: 430, easing: "cubic-bezier(.3,.8,.3,1)", pseudoElement: "::view-transition-new(root)" }
+        ).finished.finally(() => root.classList.remove("circlemorph"));
+      }).catch(() => root.classList.remove("circlemorph"));
     });
     sync();
+  });
+})();
+/* ---------- dock, section map, spotlight ---------- */
+(function chrome(){
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* the rail is native scroll-driven where available; this is the fallback */
+  if (!(window.CSS && CSS.supports && CSS.supports("animation-timeline", "scroll()"))) {
+    const prog = document.getElementById("prog"), doc = document.documentElement;
+    const paint = () => {
+      const max = doc.scrollHeight - innerHeight;
+      prog.style.scale = (max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 1).toFixed(4) + " 1";
+    };
+    addEventListener("scroll", paint, { passive: true });
+    addEventListener("resize", paint);
+    addEventListener("load", paint);
+    paint();
+  }
+
+  /* spotlight follows the pointer, on a rAF budget so it never fights the scroll */
+  let raf = 0, pend = null;
+  const flush = () => {
+    raf = 0;
+    if (!pend) return;
+    const [el, x, y] = pend;
+    const r = el.getBoundingClientRect();
+    if (r.width && r.height) {
+      el.style.setProperty("--mx", ((x - r.left) / r.width * 100).toFixed(1) + "%");
+      el.style.setProperty("--my", ((y - r.top) / r.height * 100).toFixed(1) + "%");
+    }
+  };
+  addEventListener("pointermove", e => {
+    if (reduced || e.pointerType === "touch") return;
+    const el = e.target && e.target.closest ? e.target.closest(".spot") : null;
+    if (!el) return;
+    pend = [el, e.clientX, e.clientY];
+    if (!raf) raf = requestAnimationFrame(flush);
+  }, { passive: true });
+
+  addEventListener("DOMContentLoaded", () => {
+    /* every card becomes a spotlight, tinted by its own lab colour where it has one */
+    document.querySelectorAll("#sections .card, #sections .panel.pad").forEach(el => {
+      const c = getComputedStyle(el).getPropertyValue("--c").trim();
+      if (c) el.style.setProperty("--sc", c);
+      el.classList.add("spot");
+    });
+
+    const dock = document.getElementById("dock"), nav = document.getElementById("dnav");
+    const head = document.querySelector("header");
+    if (!dock || !nav || !head) return;
+
+    /* the section map is read off the page, so it cannot drift from the content */
+    const targets = [
+      ["#tlpanel", "01 Timeline"], ["#chartpanel", "02 Charts"], ["#cluster", "03 Cluster"],
+      ["#streams", "04 Lab by lab"], ["#evidence", "05 The words"],
+    ].map(([sel, label]) => {
+      const el = document.querySelector(sel);
+      if (!el) return null;
+      const a = document.createElement("a");
+      a.href = sel; a.textContent = label;
+      a.onclick = ev => {
+        ev.preventDefault();
+        history.replaceState(null, "", sel);
+        el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+      };
+      nav.appendChild(a);
+      return { el, a };
+    }).filter(Boolean);
+
+    /* the dock only exists while the masthead is out of the way */
+    new IntersectionObserver(([e]) => dock.classList.toggle("on", !e.isIntersecting),
+      { rootMargin: "-6px 0px 0px 0px" }).observe(head);
+
+    const top = document.getElementById("dtop");
+    if (top) top.onclick = () => scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+
+    /* which section am I in? */
+    const vis = new Map();
+    const mark = () => {
+      const first = targets.find(t => vis.get(t.el.id));
+      targets.forEach(t => t.a.setAttribute("aria-current", String(!!first && first.el.id === t.el.id)));
+    };
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => vis.set(e.target.id, e.isIntersecting));
+      mark();
+    }, { rootMargin: "-30% 0px -55% 0px" });
+    targets.forEach(t => io.observe(t.el));
   });
 })();
 document.addEventListener("DOMContentLoaded", function () {
@@ -389,7 +628,10 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* ---------------- state ---------------- */
-const S = { win: 12, mode: "rel", labs: new Set(DATA.labs.map(l => l.id)), focus: null };
+const S = { win: 12, mode: "rel", labs: new Set(DATA.labs.map(l => l.id)), focus: null, cursor: null };
+let resetReplay = () => {};                 // filled in by the replay control below
+/* the right edge of what is currently revealed: the scrub cursor, or now */
+const cutEnd = () => (S.cursor && S.cursor < NOW ? S.cursor : NOW);
 let W = 1400, LABW = 112, CH = 470;
 const fitChart = () => {
   const svg = document.getElementById('chart');
@@ -403,19 +645,17 @@ const fitChart = () => {
                + (leg ? leg.getBoundingClientRect().height : 0)
                + (note ? note.getBoundingClientRect().height : 0)
                + 24;                                   // panel padding
-  const footer = document.querySelector('footer');
-  const lanesH = document.querySelector('.lanes');
-  const tallExtra = innerHeight >= 1200 ? 34 : 0;
-  const footAndGap = (footer ? footer.getBoundingClientRect().height : 0) + 92 + tallExtra;
-  const room = innerHeight - boxTop - chrome - footAndGap;
-  CH = Math.max(200, Math.min(620, Math.round(room)));
+  // the footer lives *below* the chart, so reserving its height here would starve
+  // the plot for no reason; keep only a small breathing gap under the note
+  const breath = 18;
+  const room = innerHeight - boxTop - chrome - breath;
+  CH = Math.max(248, Math.min(620, Math.round(room)));
   svg.setAttribute('height', CH);
   // the note is the last element: account for reflow by re-reading once
   const boxTop2 = box.getBoundingClientRect().top;
-  const note2 = note ? note.getBoundingClientRect().height : 0;
-  const room2 = innerHeight - boxTop2 - chrome - footAndGap;
+  const room2 = innerHeight - boxTop2 - chrome - breath;
   if (Math.abs(room2 - room) > 8) {
-    CH = Math.max(200, Math.min(560, Math.round(room2)));
+    CH = Math.max(248, Math.min(620, Math.round(room2)));
     svg.setAttribute('height', CH);
   }
 };
@@ -433,6 +673,17 @@ const laneH = () => (innerHeight >= 1200 ? 32 : innerHeight >= 820 ? 30 : 26);
 const NOW = new Date(Date.UTC(2026, 8, 24));
 const MAXWIN = 12;
 const byId = Object.fromEntries(DATA.labs.map(l => [l.id, l]));
+
+/* ---------- state changes morph rather than blink ----------
+   A view transition snapshots the page, swaps the DOM, and cross-fades the
+   two states. The timeline and chart are named, so they animate as units
+   instead of being redrawn twice by the root fade. */
+const MORPH = !matchMedia("(prefers-reduced-motion: reduce)").matches
+           && typeof document.startViewTransition === "function";
+function morph(fn) {
+  if (!MORPH) { fn(); return null; }
+  return document.startViewTransition(fn);
+}
 
 /* ---------------- helpers ---------------- */
 const day = 86400000;
@@ -482,7 +733,7 @@ function paintChartFocus() {
     b.onblur = () => setFocus(null);
     b.onclick = e => {
       S.labs = new Set(S.labs.has(l.id) ? [...S.labs].filter(x => x !== l.id) : [...S.labs, l.id]);
-      sync();
+      morph(sync);
     };
     b.ondblclick = () => { S.labs = new Set(DATA.labs.map(x => x.id)); sync(); };
     host.appendChild(b);
@@ -491,12 +742,12 @@ function paintChartFocus() {
 document.querySelectorAll("#winseg button").forEach(b => b.onclick = () => {
   S.win = +b.dataset.win;
   document.querySelectorAll("#winseg button").forEach(x => x.setAttribute("aria-pressed", x === b));
-  sync();
+  morph(resetReplay);
 });
 document.querySelectorAll("#modeseg button").forEach(b => b.onclick = () => {
   S.mode = b.dataset.mode;
   document.querySelectorAll("#modeseg button").forEach(x => x.setAttribute("aria-pressed", x === b));
-  sync();
+  morph(sync);
 });
 
 /* ---------------- timeline ---------------- */
@@ -519,6 +770,7 @@ function drawTimeline() {
   }
 
   const visible = DATA.labs.filter(l => S.labs.has(l.id));
+  let firstDot = null;
   DATA.labs.forEach(lab => {
     const lane = document.createElement("div");
     lane.className = "lane" + (S.focus === lab.id ? " is-focus" : "");
@@ -530,18 +782,29 @@ function drawTimeline() {
     lane.querySelector(".lab").onclick = e => {
       const isOn = S.labs.has(lab.id);
       S.labs = e.shiftKey ? new Set([...S.labs, lab.id]) : (isOn ? new Set([lab.id]) : new Set([...S.labs, lab.id]));
-      sync();
+      morph(sync);
     };
     const xs = [];
+    const cut = cutEnd();
     DATA.rows.filter(r => r.lab === lab.id).forEach(r => {
       const d = D(r.d);
-      if (d < start || d > end) return;
+      if (d < start || d > end || d > cut) return;
       xs.push(xFor(d.getTime()));
       const el = document.createElement("div");
       const alerted = r.lab === "anthropic" && r.d === "2026-09-22";
       el.className = "dot" + (r.ii ? " scored" : "");
       el.style.left = xFor(d.getTime()) + "px";
       el.style.setProperty("--c", lab.hex);
+      /* reachable by keyboard: one tab stop for the whole board, arrows to travel */
+      el.tabIndex = -1;
+      el.setAttribute("role", "button");
+      el.dataset.lane = r.lab;
+      el.setAttribute("data-key", r.lab + "|" + r.d);
+      el.setAttribute("aria-label",
+        `${lab.short} ${r.m}, released ${dayLabel(r.d)}` +
+        (r.ii ? `, intelligence index ${r.ii}${r.est ? " estimated" : ""}` : ", no index score") +
+        ". Enter isolates this lab.");
+      if (!firstDot) firstDot = el;
       el.innerHTML = `<span class="tip">
           <span class="t1">${lab.short} &middot; ${dayLabel(r.d)}</span>
           <span class="t2">${r.m}</span>
@@ -565,6 +828,8 @@ function drawTimeline() {
     lanes.appendChild(lane);
   });
 
+  if (firstDot) firstDot.tabIndex = 0;          // the board is one stop, not forty-six
+
   // grid lines + September cluster band
   const lh = lanes.querySelectorAll(".lane").length * laneH() + 8;
   let gt = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
@@ -576,7 +841,7 @@ function drawTimeline() {
     gt = new Date(Date.UTC(gt.getUTCFullYear(), gt.getUTCMonth() + 1, 1));
   }
   const b0 = xFor(D("2026-09-21").getTime()), b1 = xFor(D("2026-09-23").getTime());
-  if (b1 > LABW && b0 < W) {
+  if (b1 > LABW && b0 < W && (!S.cursor || S.cursor >= D("2026-09-21"))) {
     const band = document.createElement("div");
     band.className = "band";
     band.style.left = Math.max(b0, LABW) + "px";
@@ -598,9 +863,10 @@ function renderRel(svg) {
   const buckets = Math.ceil((end - start) / (bucketDays * day));
   const counts = new Array(buckets).fill(0).map(() => ({}));
   let maxC = 0, totalN = 0;
+  const cutRel = cutEnd();
   DATA.rows.forEach(r => {
     if (!S.labs.has(r.lab)) return;
-    const d = D(r.d); if (d < start || d > end) return;
+    const d = D(r.d); if (d < start || d > end || d > cutRel) return;
     const b = Math.min(buckets - 1, Math.floor((d - start) / (bucketDays * day)));
     counts[b][r.lab] = (counts[b][r.lab] || 0) + 1;
     totalN++;
@@ -645,9 +911,21 @@ function renderRel(svg) {
   svg.innerHTML = h;
 }
 
+/* which releases deserve a name on the capability chart, and which side of the point */
+const LABEL_POS = {"Claude Opus 5.5":"up","GPT-6 Astra":"up","Grok 4.7":"down","Muse Spark 1.3":"up",
+                   "Qwen3.8 Max 0902":"down","Kimi K3":"down","DeepSeek V4.1 Flash":"up",
+                   "GLM-5.3":"down","Gemini 3.8 Flash":"down","GPT-6 Sol":"down","Claude Fable 5.1":"up"};
+
 function renderCap(svg) {
   const [start, end] = windowBounds();
-  const H = CH, PADL = 46, PADB = 40, PADT = 18, PADR = 14;
+  const H = CH, PADL = 46, PADB = 40, PADT = 18;
+  /* the end-of-window names need a rail to the right of the last data point,
+     so the plotting box gives up some width exactly when they are present */
+  const railCutT = end.getTime() - 42 * day;
+  const railCount = DATA.rows.filter(r => LABEL_POS[r.m] && r.ii !== null && S.labs.has(r.lab)
+      && D(r.d) >= new Date(railCutT) && D(r.d) <= end && (!S.focus || S.focus === r.lab)
+      && D(r.d) <= cutEnd()).length;
+  const PADR = railCount ? RAILW : 14;
   const pw = W - PADL - PADR, ph = H - PADB - PADT;
   const x = t => PADL + ((t - start) / (end - start)) * pw;
   const lo = 8, hi = 60;
@@ -669,11 +947,12 @@ function renderCap(svg) {
   }
 
   let n = 0;
+  const labels = [];
   DATA.labs.forEach(l => {
     if (!S.labs.has(l.id)) return;
     const pts = DATA.rows.filter(r => r.lab === l.id && r.ii !== null)
       .map(r => ({ t: D(r.d).getTime(), v: r.ii, m: r.m, est: r.est }))
-      .filter(p => p.t >= start.getTime() && p.t <= end.getTime())
+      .filter(p => p.t >= start.getTime() && p.t <= Math.min(end.getTime(), cutEnd().getTime()))
       .sort((a, b) => a.t - b.t);
     if (!pts.length) return;
     n++;
@@ -682,22 +961,113 @@ function renderCap(svg) {
     pts.forEach(p => {
       h += `<circle class="pdot" data-lab="${l.id}" cx="${x(p.t)}" cy="${y(p.v)}" r="3.6" fill="${l.hex}">
               <title>${fmt(new Date(p.t))} · ${p.m} · ${l.short} · Intelligence ${p.v}${p.est ? " (est.)" : ""}</title></circle>`;
-      /* label only the interesting points, and place them so they do not collide */
-      const NAME = {"Claude Opus 5.5":"up","GPT-6 Astra":"up","Grok 4.7":"down","Muse Spark 1.3":"up",
-                    "Qwen3.8 Max 0902":"down","Kimi K3":"down","DeepSeek V4.1 Flash":"up",
-                    "GLM-5.3":"down","Gemini 3.8 Flash":"down","GPT-6 Sol":"down","Claude Fable 5.1":"up"};
-      const pos = NAME[p.m];
-      const show = pos && (!S.focus || S.focus === l.id);
-      if (show) {
-        const dy = pos === "up" ? -10 : 18;
-        const short = p.m.replace(/^Claude /, "").replace(" 0902", "");
-        h += `<text class="mlab" data-lab="${l.id}" x="${x(p.t)}" y="${y(p.v) + dy}" text-anchor="middle" fill="${l.hex}">${short}</text>`;
+      /* label the interesting points only; placement happens after the loop,
+         once every label's real width is known */
+      const pos = LABEL_POS[p.m];
+      if (pos && (!S.focus || S.focus === l.id)) {
+        labels.push({ cx: x(p.t), cy: y(p.v), pos, hex: l.hex, lab: l.id,
+                      text: p.m.replace(/^Claude /, "").replace(" 0902", "") });
       }
     });
   });
   h += `<text class="axl d" x="${PADL}" y="${PADT - 6}" text-anchor="start">AI Intelligence Index (max effort)</text>`;
   if (!n) h += `<text class="axl" x="${W / 2}" y="${H / 2}" text-anchor="middle">no scored models in this window for the selected labs</text>`;
   svg.innerHTML = h;
+  placeLabels(svg, labels, PADL, PADR, PADT, ph, x(railCutT));
+}
+
+/* ---------- label placement, measured rather than estimated ----------
+   One rule cannot serve both ends of this chart, so there are two:
+   - names inside the crowded end-of-window cluster move to a right-hand rail,
+     assigned in the same vertical order as their dots so the leaders never
+     cross each other;
+   - names earlier in the year stay beside their point, nudged off neighbours.
+   Each name is measured only after it is in the document, so the layout uses
+   real font metrics. Anything displaced keeps a hairline leader to its dot, so
+   a name is never orphaned from its data. */
+const NS = "http://www.w3.org/2000/svg";
+const RAILW = 140, RAILGAP = 13.5;
+function placeLabels(svg, reqs, PADL, PADR, PADT, ph, railCut) {
+  if (!reqs.length) return;
+  const MINY = PADT + 9, MAXY = PADT + ph - 2;
+  const gLead = document.createElementNS(NS, "g"), gLab = document.createElementNS(NS, "g");
+  gLead.setAttribute("class", "leads");
+  gLab.setAttribute("class", "labg");
+  svg.insertBefore(gLab, svg.firstChild);          // names paint above the lines
+  svg.insertBefore(gLead, gLab);                   // leaders paint under the names
+
+  const INK = () => getComputedStyle(document.documentElement).getPropertyValue("--ink").trim() || "#fff";
+  const mk = (r, anchor) => {
+    const t = document.createElementNS(NS, "text");
+    t.setAttribute("class", "mlab");
+    t.setAttribute("text-anchor", anchor);
+    t.setAttribute("data-lab", r.lab);
+    /* mixed toward the theme ink so a pale brand colour stays legible on white */
+    t.style.fill = `color-mix(in srgb, ${r.hex} 76%, ${INK()})`;
+    t.textContent = r.text;
+    gLab.appendChild(t);
+    return { t, r, w: 0 };
+  };
+  const rail = reqs.filter(r => r.cx >= railCut).map(r => mk(r, "start"));
+  const pile = reqs.filter(r => r.cx <  railCut).map(r => mk(r, "middle"));
+  svg.getBoundingClientRect();                     // one forced layout for every name
+  [...rail, ...pile].forEach(it => { it.w = it.t.getBBox().width; });
+
+  const leader = (it, x2, y2) => {
+    const l = document.createElementNS(NS, "line");
+    l.setAttribute("class", "lead");
+    l.setAttribute("data-lab", it.r.lab);
+    l.setAttribute("stroke", it.r.hex);
+    l.setAttribute("x1", it.r.cx.toFixed(1));
+    l.setAttribute("y1", it.r.cy.toFixed(1));
+    l.setAttribute("x2", x2.toFixed(1));
+    l.setAttribute("y2", y2.toFixed(1));
+    gLead.appendChild(l);
+  };
+
+  /* ---- the rail: a column, ordered like its dots, so no two leaders cross ---- */
+  if (rail.length) {
+    rail.sort((a, b) => a.r.cy - b.r.cy);
+    const ys = rail.map(it => it.r.cy);
+    for (let i = 1; i < ys.length; i++) if (ys[i] - ys[i - 1] < RAILGAP) ys[i] = ys[i - 1] + RAILGAP;
+    const over = ys[ys.length - 1] - MAXY;
+    if (over > 0) for (let i = ys.length - 1; i >= 0; i--) {
+      ys[i] -= over;
+      if (i === 0 || ys[i] - ys[i - 1] >= RAILGAP) break;
+    }
+    rail.forEach((it, i) => {
+      const ty = Math.max(MINY, ys[i]);
+      const tx = Math.min(W - PADR + 12, W - 8 - it.w);
+      it.t.setAttribute("x", tx.toFixed(1));
+      it.t.setAttribute("y", ty.toFixed(1));
+      leader(it, tx - 3, ty - 3.4);
+    });
+  }
+
+  /* ---- everything earlier: beside its own point, pushed off its neighbours ---- */
+  const placed = [];
+  pile.sort((a, b) => a.r.cx - b.r.cx).forEach(it => {
+    const w = it.w, half = w / 2;
+    const minL = PADL + 6, maxL = W - PADR - 6;
+    let lx = it.r.cx;
+    if (lx - half < minL) lx = minL + half;
+    if (lx + half > maxL) lx = maxL - half;
+    const pref = it.r.cy + (it.r.pos === "up" ? -10 : 18);
+    let ly = pref;
+    const clash = (x, y) => placed.some(D => Math.abs(D.lx - x) < (D.w + w) / 2 + 5 && Math.abs(D.ly - y) < 12.5);
+    for (let step = 0; step < 40 && clash(lx, ly); step++) {
+      const cand = pref + 13 * Math.ceil((step + 1) / 2) * (step % 2 ? 1 : -1);
+      if (cand >= MINY && cand <= MAXY) ly = cand;
+    }
+    ly = Math.max(MINY, Math.min(MAXY, ly));
+    it.t.setAttribute("x", lx.toFixed(1));
+    it.t.setAttribute("y", ly.toFixed(1));
+    placed.push({ lx, ly, w });
+    if (Math.abs(lx - it.r.cx) > 8 || Math.abs(ly - pref) > 5) {
+      leader(it, Math.max(lx - half, Math.min(lx + half, it.r.cx)),
+                 ly + (ly < it.r.cy ? 3 : -7));
+    }
+  });
 }
 
 function drawChart() {
@@ -715,13 +1085,74 @@ function drawChart() {
     : `<b>Reading it:</b> a point is a model release, plotted at the <b>max-effort</b> score Artificial Analysis reports for it. Lines join each lab's own points, so a steep line means that lab's flagship improved fast. Scores are from index <b>v4.3.2</b> — comparable to each other, but historical values were re-measured on the current index, and those flagged <b>(est.)</b> are AA's own estimates. Effort levels are not identical across labs (Google publishes "high", others "max"/"xhigh"), so treat small gaps as noise.`;
 }
 
+/* ---------------- replay: scrub or play the year ----------------
+   The slider is a reveal cursor, not a zoom. Moving it back un-ships the year:
+   dots, rails, bars and capability lines all exist only up to that date, so
+   dragging it right actually shows the pile-up building. */
+(function replay(){
+  const box = document.getElementById("scrub");
+  const btn = document.getElementById("scrubplay");
+  const out = document.getElementById("scrubout");
+  if (!box || !btn || !out) return;
+  const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let raf = 0, anim = 0;
+
+  const setCut = () => {
+    const [a, b] = windowBounds();
+    const v = +box.value;
+    S.cursor = v >= 1000 ? null : new Date(a.getTime() + (v / 1000) * (b.getTime() - a.getTime()));
+    const cut = S.cursor || b;
+    const rows = DATA.rows.filter(r => S.labs.has(r.lab) && D(r.d) >= a && D(r.d) <= cut);
+    const scored = rows.filter(r => r.ii !== null);
+    const best = scored.length ? Math.max(...scored.map(r => r.ii)) : null;
+    const iso = cut.toISOString().slice(0, 10);
+    out.innerHTML = v >= 1000
+      ? `all <b>${rows.length}</b> releases in the window`
+      : `as of <b>${dayLabel(iso)}</b> · <b>${rows.length}</b> released` +
+        (best !== null ? ` · best index <b>${best}</b>` : "");
+    box.setAttribute("aria-valuetext", v >= 1000 ? "whole window shown" : "up to " + dayLabel(iso));
+  };
+  const apply = () => { setCut(); sync(); };   // sync keeps the footer count honest too
+  const paint = () => {                       // coalesce input events into one frame
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = 0; apply(); });
+  };
+  const stop = () => {
+    if (anim) cancelAnimationFrame(anim);
+    anim = 0; btn.classList.remove("playing");
+    btn.innerHTML = "&#9654;"; btn.setAttribute("aria-label", "Replay the year");
+  };
+  resetReplay = () => { stop(); box.value = 1000; S.cursor = null; apply(); };
+
+  box.addEventListener("input", () => { stop(); paint(); });
+  btn.addEventListener("click", () => {
+    if (anim) { stop(); return; }
+    if (REDUCED) { box.value = 1000; S.cursor = null; apply(); return; }
+    box.value = 0;
+    btn.classList.add("playing");
+    btn.innerHTML = "&#10073;&#10073;";
+    btn.setAttribute("aria-label", "Pause the replay");
+    const t0 = performance.now(), DUR = 8600;
+    const step = now => {
+      const p = Math.min(1, (now - t0) / DUR);
+      box.value = Math.round(1000 * Math.pow(p, 1.45));   // ease-in: the year accelerates
+      apply();
+      if (p < 1) anim = requestAnimationFrame(step);
+      else { box.value = 1000; stop(); resetReplay(); }
+    };
+    anim = requestAnimationFrame(step);
+  });
+  setCut();                  // boot state only: the page boot sequence draws the views
+})();
+
 /* ---------------- sync ---------------- */
 function sync() {
   const [start, end] = windowBounds();
-  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", S.labs.has(c.dataset.lab)));
+  document.querySelectorAll("#chips .chip").forEach(c => c.setAttribute("aria-pressed", S.labs.has(c.dataset.lab)));
   const labsOn = DATA.labs.filter(l => S.labs.has(l.id));
-  const n = DATA.rows.filter(r => S.labs.has(r.lab) && D(r.d) >= start && D(r.d) <= end).length;
-  const s = DATA.rows.filter(r => S.labs.has(r.lab) && r.ii !== null && D(r.d) >= start && D(r.d) <= end).length;
+  const cut = cutEnd();
+  const n = DATA.rows.filter(r => S.labs.has(r.lab) && D(r.d) >= start && D(r.d) <= end && D(r.d) <= cut).length;
+  const s = DATA.rows.filter(r => S.labs.has(r.lab) && r.ii !== null && D(r.d) >= start && D(r.d) <= end && D(r.d) <= cut).length;
   document.getElementById("srcLine").textContent =
     `${labsOn.length}/${DATA.labs.length} labs · ${n} releases and ${s} index scores in view · ${DATA.meta.index_version} · source: ${DATA.meta.source}`;
   drawTimeline(); drawChart();
@@ -736,9 +1167,7 @@ addEventListener("resize", () => { clearTimeout(_rt); _rt = setTimeout(() => { m
 /* ---------- keep hover tooltips inside the viewport ----------
    The tooltip is rotated, so its bounding box is wider than its layout box.
    Adjust the offset and re-measure until it sits inside the viewport. */
-addEventListener("mouseover", function (e) {
-  const dot = e.target && e.target.closest ? e.target.closest(".dot") : null;
-  if (!dot) return;
+function clampTip(dot) {
   const tip = dot.querySelector(".tip");
   if (!tip) return;
   let off = 0;
@@ -751,16 +1180,71 @@ addEventListener("mouseover", function (e) {
     if (b.left < pad)       { off += (pad - b.left);        continue; }
     break;
   }
+}
+addEventListener("mouseover", e => {
+  const dot = e.target && e.target.closest ? e.target.closest(".dot") : null;
+  if (dot) clampTip(dot);
+}, true);
+addEventListener("focusin", e => {
+  const dot = e.target && e.target.closest ? e.target.closest(".dot") : null;
+  if (dot) clampTip(dot);
 }, true);
 
+/* ---------- travelling the timeline by keyboard ----------
+   Roving tabindex: the whole board is a single tab stop, then arrows move
+   between releases. Up/down jumps to the nearest release in the next lab. */
+const keyFocus = key => requestAnimationFrame(() => {
+  const d = document.querySelector(`#lanes .dot[data-key="${key.replace(/"/g, '\\"')}"]`);
+  if (!d) return;
+  document.querySelectorAll("#lanes .dot").forEach(x => x.tabIndex = -1);
+  d.tabIndex = 0;
+  d.focus({ preventScroll: true });
+});
 addEventListener("keydown", e => {
+  const dot = e.target && e.target.closest ? e.target.closest(".dot") : null;
+  if (!dot || !e.key.startsWith("Arrow")) return;
+  const lanes = [...document.querySelectorAll("#lanes .lane")];
+  const li = lanes.findIndex(l => l.dataset.lab === dot.dataset.lane);
+  const inLane = l => [...l.querySelectorAll(".dot")];
+  let next = null;
+  if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+    const arr = inLane(lanes[li]);
+    next = arr[arr.indexOf(dot) + (e.key === "ArrowRight" ? 1 : -1)] || null;
+  } else {
+    const dir = e.key === "ArrowUp" ? -1 : 1;
+    for (let step = 1; step < lanes.length && !next; step++) {
+      const lj = li + dir * step;
+      if (lj < 0 || lj >= lanes.length) break;
+      const arr = inLane(lanes[lj]);
+      if (arr.length) next = arr.reduce((best, d) =>
+        Math.abs(d.offsetLeft - dot.offsetLeft) < Math.abs(best.offsetLeft - dot.offsetLeft) ? d : best, arr[0]);
+    }
+  }
+  if (!next) return;
+  e.preventDefault();
+  document.querySelectorAll("#lanes .dot").forEach(x => x.tabIndex = -1);
+  next.tabIndex = 0;
+  next.focus({ preventScroll: true });
+});
+addEventListener("keydown", e => {
+  const t = e.target, typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+  if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
   const win = { "1": "12", "2": "6", "3": "3" }[e.key];
   if (win) { document.querySelector(`#winseg button[data-win="${win}"]`).click(); return; }
+  if (e.key === "t" || e.key === "T") { scrollTo({ top: 0, behavior: "smooth" }); return; }
   if (e.key === "r" || e.key === "R") document.querySelector('#modeseg button[data-mode="rel"]').click();
   if (e.key === "i" || e.key === "I") document.querySelector('#modeseg button[data-mode="cap"]').click();
+  const dot = e.target && e.target.closest ? e.target.closest(".dot") : null;
+  if (dot && (e.key === "Enter" || e.key === " ")) {
+    e.preventDefault();
+    const id = dot.dataset.lab, key = dot.dataset.key;
+    S.labs = new Set(S.labs.has(id) ? [...S.labs].filter(x => x !== id) : [...S.labs, id]);
+    morph(() => { sync(); keyFocus(key); });
+    return;
+  }
   if (e.key === "a" || e.key === "A") {
     S.labs = new Set(S.labs.size === DATA.labs.length ? [] : DATA.labs.map(l => l.id));
-    sync();
+    morph(sync);
   }
 });
 </script>

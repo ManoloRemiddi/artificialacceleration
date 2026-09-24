@@ -28,10 +28,13 @@ def mark_html(lab_id):
     if not L:
         return ""
     if L.get("img"):
-        return (f'<span class="logo raster"><img src="{L["img"]}" alt="{esc(L["brand"])}" '
+        return (f'<span class="logo backed"><img src="{L["img"]}" alt="{esc(L["brand"])}" '
                 f'width="20" height="20" loading="lazy" decoding="async"></span>')
     cls = "logo"
-    if L.get("chip"): cls += " chip"
+    # "backed" = the mark needs a light plate behind it. It must NOT be called
+    # "chip": the lab filter chips are .chip, and their aria-pressed dimming was
+    # leaking into these plates.
+    if L.get("chip"): cls += " backed"
     if L.get("mono"): cls += " mono"
     return f'<span class="{cls}">{L["svg"]}</span>'
 
