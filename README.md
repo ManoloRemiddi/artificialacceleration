@@ -81,31 +81,41 @@ Applied from 2026 data-visualisation guidance:
 
 ### The monthly price agent
 
-`build/hardware.json` holds purchase prices no keyless source publishes. Once a month
-(`.github/workflows/prices.yml`, 3rd of the month, or "Run workflow" on demand)
-`pipeline/price_agent.py` re-checks them on GitHub's servers, so no computer or login is
-involved:
+`build/hardware.json` holds purchase prices no keyless source publishes. On the 3rd of
+each month a systemd user timer on the maintainer's machine runs
+`scripts/price_check_local.sh`, which:
 
-1. searches the web (MiniMax Token Plan search) and fetches the candidate pages itself,
-   never fetching sites whose terms forbid it (Apple, Vast.ai, RunPod, eBay, Amazon…);
-2. asks a MiniMax model for the current price **and the exact sentence that states it**;
+1. clones the repo fresh into a temp dir (the working copy is never touched);
+2. runs `pipeline/price_agent.py`: web search, fetch the candidate pages (never sites whose
+   terms forbid it: Apple, Vast.ai, RunPod, eBay, Amazon…), and ask a model for the current
+   price **and the exact sentence that states it**;
 3. accepts an answer only if, in code, that sentence is on the cited page and contains the
    number; moves beyond ±30% in a month are held for a human;
-4. opens a pull request with an evidence table. Nothing is published until you merge.
+4. opens a pull request from the maintainer's GitHub account with an evidence table.
+   Nothing is published until it is merged.
 
-Setup: a `MINIMAX_API_KEY` repository secret: a subscription key (Token Plan / M Plan,
-`sk-cp-…`, which includes search and the M3.1 Flash Preview model) or a pay-as-you-go key, and Settings → Actions → General → "Allow GitHub Actions to create and approve pull
-requests" (without it, the run files an issue with a compare link instead). Optional
-repository variables: `PRICE_AGENT_MODEL` (default `MiniMax-M3.1-Flash-Preview`, the model subscription keys include), `MINIMAX_API_HOST`
-(`https://api.minimaxi.com` for mainland-China keys). The agent speaks the OpenAI API, so
-any compatible endpoint works via `LLM_BASE_URL` / `LLM_API_KEY`, and `SEARCH_BACKEND=searxng`
-swaps the search for a SearXNG instance, e.g. to run it locally:
+The model is MiniMax (`MiniMax-M3.1-Flash-Preview`, included in Token Plan / M Plan
+subscription keys, with MiniMax's web search). If MiniMax is unreachable it falls back to
+the local llama.cpp model and SearXNG. The key stays on the machine, never on GitHub:
 
-    LLM_BASE_URL=http://127.0.0.1:8080/v1 LLM_API_KEY=x SEARCH_BACKEND=searxng \
-    SEARXNG_URL=http://127.0.0.1:8888 python3 pipeline/price_agent.py
+    ~/.config/artificialacceleration/price-agent.env   (chmod 600)
+    MINIMAX_API_KEY=sk-cp-...
 
-If a run fails you get an issue, and the page flags the purchase prices as due for
-re-check once they are more than 45 days old, so they can never go stale silently.
+Install once (the machine has lingering enabled, so it runs without anyone logged in):
+
+    cp ops/systemd/aa-price-check.{service,timer} ~/.config/systemd/user/
+    systemctl --user daemon-reload && systemctl --user enable --now aa-price-check.timer
+
+Useful: `systemctl --user list-timers aa-price-check.timer` (next run),
+`systemctl --user start aa-price-check.service` (run now),
+`journalctl --user -u aa-price-check` (logs), `DRY_RUN=1 scripts/price_check_local.sh`
+(check without pushing). The timer is `Persistent`: if the machine is off on the 3rd, the
+check runs at the next boot.
+
+If a run fails it opens a GitHub issue and shows a desktop notification, and the page
+flags the purchase prices as due for re-check once they are over 45 days old, so they can
+never go stale silently. `.github/workflows/prices.yml` is a manual cloud alternative
+(needs a `MINIMAX_API_KEY` repository secret).
 
 ### What is automatic and what is editorial
 

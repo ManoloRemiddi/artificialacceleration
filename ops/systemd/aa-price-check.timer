@@ -1,0 +1,12 @@
+[Unit]
+Description=Monthly hardware price check for artificialacceleration.com
+
+[Timer]
+# 09:23 on the 3rd of every month. Persistent: if the machine was off then,
+# the check runs at the next boot instead of waiting a month.
+OnCalendar=*-*-03 09:23:00
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

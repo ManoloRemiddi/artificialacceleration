@@ -1,0 +1,11 @@
+[Unit]
+Description=Artificial Acceleration: monthly hardware price check (opens a PR to review)
+Documentation=file://%h/AI-Projects/artificialacceleration/README.md
+After=network-online.target gpu-llm-5090.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/AI-Projects/artificialacceleration/scripts/price_check_local.sh
+TimeoutStartSec=45min
+Nice=10
