@@ -41,7 +41,11 @@ def mark_html(lab_id):
 sys.path.insert(0, str(R / "scripts"))
 import acceleration_index as ACCEL      # noqa: E402
 
-NOTES = json.loads((R / "build" / "notes.json").read_text())
+def norm(name):
+    """Match release names however the API punctuates them: 'Max (0902)' == 'Max 0902'."""
+    return re.sub(r"[^a-z0-9]", "", (name or "").lower())
+
+NOTES = {norm(k): v for k, v in json.loads((R / "build" / "notes.json").read_text()).items()}
 DATA = json.loads((R / "data" / "releases.json").read_text())
 rows = DATA["rows"]
 labmap = {L["id"]: L for L in LABS}
@@ -55,7 +59,7 @@ for r in rows:
     page_rows.append({
         "d": r.get("date"), "lab": r["lab"], "m": r["release"],
         "ii": r.get("ii"), "gap": r.get("gap"),
-        "note": NOTES.get(r["release"], ""),
+        "note": NOTES.get(norm(r["release"]), ""),
         "est": 0,
     })
 page_rows.sort(key=lambda r: (r["d"], r["lab"]))

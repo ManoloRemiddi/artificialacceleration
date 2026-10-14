@@ -29,6 +29,37 @@ def base(n):
         n = n2
     return n
 
+# The hand-written "notable" lists in labs.json were compiled on this date. Releases
+# after it are judged by rule instead, so a new flagship reaches the timeline without
+# anyone editing JSON: it must score within AUTO_MARGIN index points of that lab's best
+# release so far, and not be named like a variant (Codex, mini, Flash-Lite, 27B, ...).
+# A lab's optional "not_notable" list vetoes the rule for a specific release.
+CURATED_THROUGH = "2026-09-24"
+AUTO_MARGIN = 3.0
+VARIANT = re.compile(r"\b(?:codex|mini|nano|lite|fast|turbo|preview|vision|code|omni|instruct|"
+                     r"\d+(?:\.\d+)?[bt]|a\d+b)\b", re.I)
+
+def norm(name):
+    """'Qwen3.8 Max (0902)' and 'Qwen3.8 Max 0902' are the same release."""
+    return re.sub(r"[^a-z0-9]", "", (name or "").lower())
+
+def mark_notable(out):
+    """Set r["notable"] on rows sorted by date: curated names first, then the rule."""
+    listed = {L["id"]: {norm(n) for n in L.get("notable", [])} for L in LABS}
+    vetoed = {L["id"]: {norm(n) for n in L.get("not_notable", [])} for L in LABS}
+    best = {}
+    for r in out:
+        lab, key, ii = r["lab"], norm(r["release"]), r.get("ii")
+        if key in listed[lab]:
+            r["notable"] = True
+        elif (r.get("date") or "") > CURATED_THROUGH and key not in vetoed[lab]:
+            r["notable"] = (ii is not None and ii >= best.get(lab, ii) - AUTO_MARGIN
+                            and not VARIANT.search(r["release"]))
+        else:
+            r["notable"] = False
+        if ii is not None:
+            best[lab] = max(best.get(lab, ii), ii)
+
 def main():
     src = pick_source()
     raw = json.loads(src.read_text())
@@ -49,13 +80,13 @@ def main():
         r["variant"] = r.get("release")
         r["release"] = base(r.get("release"))
         r["lab"] = L["id"]
-        r["notable"] = bool(r.get("release") in set(L.get("notable", [])))
         k = (L["id"], r["release"], r.get("date"))
         cur = best.get(k)
         if cur is None or (r.get("ii") or -1) > (cur.get("ii") or -1):
             best[k] = r
 
     out = sorted(best.values(), key=lambda r: (r.get("date") or "", r["lab"]))
+    mark_notable(out)
     # gap since the same lab's previous release
     prev = {}
     for r in out:

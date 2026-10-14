@@ -121,4 +121,9 @@ To force a refresh: *Actions → update-tracker → Run workflow*.
   re-runs a model the score changes and this page will pick the change up automatically.
 - **Editorial vs data.** `build/labs.json` decides which labs and which releases are
   "notable"; `build/notes.json` holds the hand-written lines. Data is automatic;
-  those two files are yours.
+  those two files are yours. Releases after the lists were compiled (24 Sep 2026) are
+  judged by rule in `scripts/build_data.py`: within 3 index points of that lab's best
+  so far and not named like a variant (Codex, mini, Flash-Lite, 27B...). Add a name to
+  a lab's `notable` list to force one in, or to `not_notable` to keep one out.
+- **The page's "now"** is the moment the data was fetched, so every axis ends at the
+  latest run and the header's "data as of" date shows when that was.

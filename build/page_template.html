@@ -464,7 +464,7 @@
   <header>
    <div class="headrow">
     <div class="headtext">
-    <div class="eyebrow">Release-cadence &amp; capability audit · compiled 24 Sep 2026</div>
+    <div class="eyebrow">Release-cadence &amp; capability audit · data as of <span class="asof">24 Sep 2026</span></div>
     <h1>Artificial Acceleration<br><span class="thin">Nine labs. <span id="tlwin">Four years</span>. Every release, dated.</span></h1>
     <p class="lede">
       Every frontier lab published calls to pace or throttle AI development in 2026 — while shipping faster than ever.
@@ -554,7 +554,7 @@
     <span id="srcLine"></span>
     <span class="attr">Benchmark data: <b>Artificial Analysis</b> — artificialanalysis.ai · index v4.3.2. Release dates cross-checked against each lab’s own announcement.</span>
     <span class="proj">A project of the <a href="https://resonantdao.com" target="_blank" rel="noopener">ResonantDAO</a></span>
-    <span>Compiled 24 Sep 2026 · verify before publishing</span>
+    <span>Data as of <span class="asof">24 Sep 2026</span> · refreshed every six hours</span>
   </footer>
 </div>
 
@@ -825,7 +825,10 @@ const measure = () => {
   CH = vh < 800 ? 300 : vh < 950 ? 370 : 470;   // provisional; refined by fitChart()
 };
 const laneH = () => (innerHeight >= 1200 ? 32 : innerHeight >= 820 ? 30 : 26);
-const NOW = new Date(Date.UTC(2026, 8, 24));
+/* the right edge of every axis: the moment this build fetched its data. A fixed date
+   here once hid every release that came after it, while the data kept arriving. */
+const NOW = DATA.meta.compiled ? new Date(DATA.meta.compiled + "T00:00:00Z")
+                               : new Date(Date.UTC(2026, 8, 24));
 const WINDOW_DAYS = { 3: 91, 6: 182, 12: 365, 24: 730, 48: 1461 };
 /* the tagline names the span on screen, so it cannot go stale when the window moves */
 const WINDOW_WORDS = { 3: "Three months", 6: "Six months", 12: "One year",
@@ -889,6 +892,7 @@ const D = s => new Date(s + "T00:00:00Z");
 const fmt = d => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" });
 const dayLabel = iso => D(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+document.querySelectorAll(".asof").forEach(el => el.textContent = dayLabel(DATA.meta.compiled || "2026-09-24"));
 
 function windowBounds() {
   const end = NOW;
