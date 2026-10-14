@@ -1,0 +1,48 @@
+{
+ "_about": "Hand-checked purchase prices. Rental prices are automatic (pipeline/fetch_hardware.py); these are not, because no keyless source publishes them and the shops forbid scraping. Re-check monthly, update 'checked', keep a source for every number. Prices in USD.",
+ "checked": "2026-10-14",
+ "home": [
+  {"name": "RTX 3090", "kind": "GPU · used", "mem_gb": 24, "bw_gbps": 936,
+   "launch": {"date": "2020-09", "price": 1499},
+   "now": {"price": 1325, "low": 1264, "high": 1386, "basis": "used, median of trackers"},
+   "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-3090"},
+  {"name": "RTX 4090", "kind": "GPU · used", "mem_gb": 24, "bw_gbps": 1008,
+   "launch": {"date": "2022-10", "price": 1599},
+   "now": {"price": 2850, "low": 2500, "high": 3217, "basis": "used, median of trackers"},
+   "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-4090"},
+  {"name": "RTX 5090", "kind": "GPU · new", "mem_gb": 32, "bw_gbps": 1792,
+   "launch": {"date": "2025-01", "price": 1999},
+   "now": {"price": 4950, "low": 4921, "high": 7444, "basis": "new, lowest listings"},
+   "src": "https://bestvaluegpu.com/history/new-and-used-rtx-5090-price-history-and-specs/"},
+  {"name": "RTX PRO 6000 Blackwell", "kind": "workstation GPU", "mem_gb": 96, "bw_gbps": 1597,
+   "launch": {"date": "2025-03", "price": 8565},
+   "now": {"price": 16000, "low": 15000, "high": 18000, "basis": "NVIDIA marketplace / retail"},
+   "src": "https://www.techspot.com/news/113460-nvidia-raises-rtx-pro-6000-blackwell-price-staggering.html"},
+  {"name": "DGX Spark (128 GB)", "kind": "desktop AI box", "mem_gb": 128, "bw_gbps": 273,
+   "launch": {"date": "2025-10", "price": 3999},
+   "now": {"price": 6950, "low": 6950, "high": 6950, "basis": "NVIDIA list price from 2 Oct 2026"},
+   "src": "https://aiweekly.co/alerts/nvidia-launches-64gb-dgx-spark-at-4999-as-128gb-hits-6950"},
+  {"name": "Framework Desktop (Ryzen AI Max+ 395, 128 GB)", "kind": "mini PC", "mem_gb": 128, "bw_gbps": 256,
+   "launch": {"date": "2025-08", "price": 1999},
+   "now": {"price": 2459, "low": 2459, "high": 2459, "basis": "Framework list price"},
+   "src": "https://www.pcworld.com/article/3031562/framework-raises-prices-yet-again-as-memory-costs-go-up.html"}
+ ],
+ "datacenter": [
+  {"name": "H100 SXM", "slug": "nvidia-h100", "mem_gb": 80, "bw_gbps": 3350, "buy_low": 25000, "buy_high": 35000,
+   "src": "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"},
+  {"name": "H200", "slug": "nvidia-h200", "mem_gb": 141, "bw_gbps": 4800, "buy_low": 30000, "buy_high": 55000,
+   "src": "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"},
+  {"name": "B200", "slug": "nvidia-b200", "mem_gb": 180, "bw_gbps": 8000, "buy_low": 30000, "buy_high": 50000,
+   "src": "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"},
+  {"name": "B300", "slug": "nvidia-b300", "mem_gb": 288, "bw_gbps": 8000, "buy_low": 50000, "buy_high": 60000,
+   "src": "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"},
+  {"name": "AMD MI300X", "slug": "amd-mi300x", "mem_gb": 192, "bw_gbps": 5300, "buy_low": null, "buy_high": null, "src": null},
+  {"name": "AMD MI355X", "slug": "amd-mi355x", "mem_gb": 288, "bw_gbps": 8000, "buy_low": null, "buy_high": null, "src": null}
+ ],
+ "racks": [
+  {"name": "GB300 NVL72", "what": "72 GPUs, one rack", "low": 3700000, "high": 6500000,
+   "src": "https://www.spheron.network/blog/gb300-nvl72-vs-gb200-nvl72-pricing-availability-2026/"},
+  {"name": "Vera Rubin NVL72", "what": "72 GPUs, shipping late 2026", "low": 5000000, "high": 7800000,
+   "src": "https://finance.yahoo.com/sectors/technology/articles/price-nvidias-vera-rubin-nvl72-100000086.html"}
+ ]
+}

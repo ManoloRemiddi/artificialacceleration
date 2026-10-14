@@ -43,6 +43,22 @@ def norm(name):
     """'Qwen3.8 Max (0902)' and 'Qwen3.8 Max 0902' are the same release."""
     return re.sub(r"[^a-z0-9]", "", (name or "").lower())
 
+def is_open(L, name):
+    """Open weights or not. The API does not say, so this is our call, by rule per lab
+    (labs.json "weights"): a default, then name patterns that flip it."""
+    w = L.get("weights", {})
+    if w.get("open_if") and re.search(w["open_if"], name or ""):
+        return True
+    if w.get("closed_if") and re.search(w["closed_if"], name or ""):
+        return False
+    return bool(w.get("default"))
+
+def blended(r):
+    """Price per 1M tokens at a 3:1 input:output mix. The API reports 0 for unpriced
+    models (not yet on an API, or free previews), which must not read as 'free'."""
+    pi, po = r.get("price_in") or 0, r.get("price_out") or 0
+    return round((3 * pi + po) / 4, 4) if (pi > 0 or po > 0) else None
+
 def mark_notable(out):
     """Set r["notable"] on rows sorted by date: curated names first, then the rule."""
     listed = {L["id"]: {norm(n) for n in L.get("notable", [])} for L in LABS}
@@ -80,6 +96,11 @@ def main():
         r["variant"] = r.get("release")
         r["release"] = base(r.get("release"))
         r["lab"] = L["id"]
+        r["region"] = L.get("region")
+        r["open"] = is_open(L, r["release"])
+        r["price"] = blended(r)
+        if not r.get("tps"):
+            r["tps"] = None
         k = (L["id"], r["release"], r.get("date"))
         cur = best.get(k)
         if cur is None or (r.get("ii") or -1) > (cur.get("ii") or -1):

@@ -9,11 +9,14 @@ live dataset. build/notes.json only supplies optional human-written colour for a
 releases; build/sections.py supplies the fixed editorial sections.
 """
 import json, pathlib, sys, html, re
-from datetime import date
+from datetime import date, timedelta
+from statistics import median, mean
 
 R = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(R / "build"))
 import sections as SEC
+import extras
+import hardware_section
 
 def esc(t): return html.escape(str(t), quote=False)
 def to_date(s):
@@ -47,7 +50,8 @@ def norm(name):
 
 NOTES = {norm(k): v for k, v in json.loads((R / "build" / "notes.json").read_text()).items()}
 DATA = json.loads((R / "data" / "releases.json").read_text())
-rows = DATA["rows"]
+rows = extras.assign_slugs(DATA["rows"])
+STATEMENTS = json.loads((R / "build" / "statements.json").read_text())
 labmap = {L["id"]: L for L in LABS}
 
 def lab_var(lab_id):
@@ -69,7 +73,8 @@ for r in rows:
     page_rows.append({
         "d": r.get("date"), "lab": r["lab"], "m": r["release"],
         "ii": r.get("ii"), "gap": r.get("gap"),
-        "note": NOTES.get(norm(r["release"]), ""),
+        "open": bool(r.get("open")), "price": r.get("price"),
+        "note": NOTES.get(norm(r["release"]), ""), "u": r["page"],
         "est": 0,
     })
 page_rows.sort(key=lambda r: (r["d"], r["lab"]))
@@ -79,10 +84,14 @@ page_rows.sort(key=lambda r: (r["d"], r["lab"]))
 # November 2025. Anything longer than a year has to draw on the full record, so
 # the page carries both. Short keys keep the payload small.
 def _stream_row(r):
-    row = {"d": r["date"], "l": r["lab"], "m": r["release"],
+    row = {"d": r["date"], "l": r["lab"], "m": r["release"], "u": r["page"],
            "i": (round(r["ii"], 1) if r.get("ii") is not None else None)}
     if r.get("estimated"):
         row["e"] = 1
+    if r.get("open"):
+        row["o"] = 1
+    if r.get("price") is not None:
+        row["p"] = r["price"]
     return row
 
 
@@ -95,14 +104,89 @@ if len(page_rows) < 20:
 # ---- sections, generated from the same data ----
 def sections_html():
     return "".join([
-      '<section id="cluster"><div class="sechead"><span class="num">03</span><h2>Three launches in 36 hours</h2>'
+      '<section id="due"><div class="sechead"><span class="num">03</span><h2>Who\u2019s due</h2>'
+      '<span class="sub">Each lab\u2019s typical gap between notable releases, against the days since its last one. '
+      'A forecast, scored against its own history: the \u00b1 is how far it has missed on average.</span></div>%s</section>' % whos_due(),
+      '<section id="cluster"><div class="sechead"><span class="num">04</span><h2>Three launches in 36 hours</h2>'
       '<span class="sub">Anthropic shipped <b>90 minutes before</b> OpenAI. Exactly one hour of that gap is public \u2014 xAI and Anthropic publish no release hour.</span></div>'
       '<div class="panel pad">%s</div></section>' % cluster_svg(),
-      '<section id="streams"><div class="sechead"><span class="num">04</span><h2>Lab by lab: the release stream</h2>'
+      '<section id="streams"><div class="sechead"><span class="num">05</span><h2>Lab by lab: the release stream</h2>'
       '<span class="sub">Every notable release, in order, with the gap since that lab\u2019s previous one. Filled bars are faster than the lab\u2019s own median.</span></div>%s</section>' % stream_cards(),
-      '<section id="evidence"><div class="sechead"><span class="num">05</span><h2>The words, and what came next</h2>'
+      '<section id="evidence"><div class="sechead"><span class="num">06</span><h2>The words, and what came next</h2>'
       '<span class="sub">What each lab said about pacing, and what shipped immediately afterwards.</span></div>%s</section>' % evidence_cards(),
+      hardware_section.render(),
     ])
+
+
+def as_of_date():
+    return date.fromisoformat((DATA.get("generated_utc") or date.today().isoformat())[:10])
+
+
+def whos_due():
+    """Cadence forecast per lab, from notable releases only (the ones people wait for).
+    Expected next = last release + the lab's median gap. Scored by backtest: every past
+    release is 'predicted' from the median of the gaps before it, and the average miss
+    is shown, so a lab with an erratic rhythm wears a wide error bar."""
+    today = as_of_date()
+    items = []
+    for L in LABS:
+        rel = sorted((r for r in rows if r["lab"] == L["id"] and r.get("notable")), key=lambda r: r["date"])
+        if len(rel) < 3:
+            continue
+        ds = [to_date(r["date"]) for r in rel]
+        gaps = [(b - a).days for a, b in zip(ds, ds[1:])]
+        med = int(round(median(gaps)))
+        since = (today - ds[-1]).days
+        errs = [abs(gaps[k] - median(gaps[:k])) for k in range(2, len(gaps))]
+        items.append(dict(L=L, last=rel[-1], med=med, since=since, due=med - since,
+                          eta=ds[-1] + timedelta(days=med), mae=round(mean(errs)) if errs else None, n=len(errs)))
+    items.sort(key=lambda it: it["due"])
+    scale = max(max(it["since"], it["med"]) for it in items) * 1.08
+    o = ['<div class="panel pad due">']
+    for it in items:
+        L, last = it["L"], it["last"]
+        if it["due"] < 0:
+            status, cls = "overdue by %d day%s" % (-it["due"], "" if it["due"] == -1 else "s"), "late"
+        elif it["due"] == 0:
+            status, cls = "due today", "now"
+        else:
+            status, cls = "due in ~%d day%s" % (it["due"], "" if it["due"] == 1 else "s"), ""
+        acc = ("\u00b1%dd over %d check%s" % (it["mae"], it["n"], "" if it["n"] == 1 else "s")) if it["mae"] is not None else "too few releases to score"
+        o.append(
+            '<div class="duerow %s" style="--c:%s">'
+            '<div class="duelab">%s<span><b>%s</b><a href="m/%s/">%s</a> \u00b7 %s</span></div>'
+            '<div class="duebar" role="img" aria-label="%d days since last release; typical gap %d days">'
+            '<span class="fill" style="width:%.1f%%"></span><span class="med" style="left:%.1f%%"><i>median %dd</i></span></div>'
+            '<div class="duestat"><b>%s</b><span>expected \u2248 %s \u00b7 %s</span></div></div>'
+            % (cls, lab_var(L["id"]), mark_html(L["id"]), esc(L["short"]), last["page"], esc(last["release"]),
+               ("today" if it["since"] == 0 else "1 day ago" if it["since"] == 1 else "%d days ago" % it["since"]),
+               it["since"], it["med"], min(it["since"], scale) / scale * 100, it["med"] / scale * 100,
+               it["med"], status, it["eta"].strftime("%-d %b"), acc))
+    o.append('</div>')
+    return "".join(o)
+
+
+def said_then_shipped():
+    """The promise ledger, computed: for each dated call to slow down, what that lab and
+    the other eight shipped next, read off the live record."""
+    o = ['<div class="card ledger"><h4>Said, then shipped \u2014 computed from the record</h4><table>'
+         '<thead><tr><th>Said</th><th>That lab\u2019s next release</th><th>All nine labs, next 30 days</th></tr></thead><tbody>']
+    for st in STATEMENTS:
+        t0 = to_date(st["d"])
+        mine = sorted((r for r in rows if r["lab"] == st["lab"] and to_date(r["date"]) > t0), key=lambda r: r["date"])
+        nxt = mine[0] if mine else None
+        win = [r for r in rows if t0 < to_date(r["date"]) <= t0 + timedelta(days=30)]
+        o.append('<tr><td><span class="dt">%s</span>%s</td><td>%s</td><td><b>%d</b> releases, <b>%d</b> notable</td></tr>' % (
+            dayl(st["d"]), esc(st["short"]),
+            ('<a href="m/%s/">%s</a> <span class="delta">+%dd</span>' % (nxt["page"], esc(nxt["release"]), (to_date(nxt["date"]) - t0).days))
+            if nxt else "nothing yet", len(win), sum(1 for r in win if r.get("notable"))))
+    o.append('</tbody></table><p class="foot">Edit build/statements.json to add a statement; the rest is counted automatically.</p></div>')
+    return "".join(o)
+
+
+def dayl(iso):
+    d = to_date(iso)
+    return "%d %s %d" % (d.day, d.strftime("%b"), d.year)
 
 
 def svg_logo(lab_id, x, y, size=24):
@@ -209,7 +293,7 @@ def stream_cards():
     return "".join(o)
 
 def evidence_cards():
-    o = ['<div class="evgrid">']
+    o = ['<div class="evgrid">', said_then_shipped()]
     for e in SEC.EVIDENCE:
         o.append('<div class="card" style="--c:%s"><h4>%s</h4>' % (lab_var(e["colour"]), esc(e["title"])))
         for q, a in e.get("quotes", []):
@@ -245,9 +329,10 @@ def main():
                "rows": page_rows,
                "stream": stream_rows,
                "accel": ACCEL_IDX,
-               "statements": SEC.STATEMENTS,
+               "statements": STATEMENTS,
                "sections": sections_html(),
                "meta": {"compiled": DATA.get("generated_utc", "")[:10],
+                        "generated": DATA.get("generated_utc", ""),
                         "index_version": "Artificial Analysis Intelligence Index v4.3.2",
                         "source": "artificialanalysis.ai"}}
     out = tpl.replace("/*__LABVARS__*/", lab_css()).replace("__PAYLOAD__", json.dumps(payload))
@@ -257,6 +342,7 @@ def main():
     site = R / "site"
     site.mkdir(exist_ok=True)
     (site / "index.html").write_text(out)
+    extras.write_all(site, rows, LABS, mark_html, NOTES, ACCEL_IDX, (DATA.get("generated_utc") or "")[:10])
     print(f"index.html written: {len(out)} bytes, {len(page_rows)} curated rows, "
           f"{len(stream_rows)} stream rows")
 

@@ -4,6 +4,11 @@
   "name": "OpenAI",
   "short": "OpenAI",
   "product": "GPT series",
+  "region": "US",
+  "weights": {
+   "default": false,
+   "open_if": "^gpt-oss"
+  },
   "hex": "#10a37f",
   "hex_light": "#008b68",
   "mark": "<svg viewBox=\"0 0 24 24\" fill=\"#10a37f\"><path d=\"M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4L12 2.8Zm0 3.3L6.8 9v6.1L12 17.9l5.2-2.8V9L12 6.1Z\"/></svg>",
@@ -27,6 +32,10 @@
   "name": "Anthropic",
   "short": "Anthropic",
   "product": "Claude · Fable · Mythos",
+  "region": "US",
+  "weights": {
+   "default": false
+  },
   "hex": "#d97757",
   "hex_light": "#c2571f",
   "mark": "<svg viewBox=\"0 0 24 24\"><g stroke=\"#d97757\" stroke-width=\"2.4\" stroke-linecap=\"round\"><path d=\"M12 12 12 3\"/><path d=\"M12 12 19.8 7.5\"/><path d=\"M12 12 19.8 16.5\"/><path d=\"M12 12 12 21\"/><path d=\"M12 12 4.2 16.5\"/><path d=\"M12 12 4.2 7.5\"/></g></svg>",
@@ -50,6 +59,11 @@
   "name": "Google",
   "short": "Google",
   "product": "Gemini · Gemma",
+  "region": "US",
+  "weights": {
+   "default": false,
+   "open_if": "Gemma"
+  },
   "hex": "#4285f4",
   "hex_light": "#2c6fdc",
   "mark": "<svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M20.5 12A8.5 8.5 0 1 1 17 5.3\" stroke=\"#4285f4\" stroke-width=\"2.5\" stroke-linecap=\"round\"/><path d=\"M12 12h8.5\" stroke=\"#4285f4\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></svg>",
@@ -70,6 +84,11 @@
   "name": "xAI",
   "short": "xAI",
   "product": "Grok",
+  "region": "US",
+  "weights": {
+   "default": false,
+   "open_if": "^Grok-1$"
+  },
   "hex": "#cbd5e1",
   "hex_light": "#232a36",
   "mark": "<svg viewBox=\"0 0 24 24\" fill=\"#cbd5e1\"><path d=\"M17.6 3h3.1l-6.9 7.9L22 21h-6.1l-4.3-5.6L6.6 21H3.4l7.3-8.4L2.6 3h6.2l4 5.3L17.6 3Zm-1.1 16.1h1.7L7 4.8H5.2l11.3 14.3Z\"/></svg>",
@@ -88,6 +107,11 @@
   "name": "Meta",
   "short": "Meta",
   "product": "Muse",
+  "region": "US",
+  "weights": {
+   "default": true,
+   "closed_if": "^Muse"
+  },
   "hex": "#2ecbec",
   "hex_light": "#0085a5",
   "mark": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#0081fb\" stroke-width=\"2.1\"><path d=\"M2.6 17.4c0-4.6 2.6-8.4 5.3-8.4 2 0 3.1 1.7 4.1 3.6 1-1.9 2.1-3.6 4.1-3.6 2.7 0 5.3 3.8 5.3 8.4\"/></svg>",
@@ -106,6 +130,10 @@
   "name": "DeepSeek",
   "short": "DeepSeek",
   "product": "V / R series",
+  "region": "CN",
+  "weights": {
+   "default": true
+  },
   "hex": "#b490fb",
   "hex_light": "#815cc2",
   "mark": "<svg viewBox=\"0 0 24 24\" fill=\"#8b7cf6\"><path d=\"M4 15.5c4.6 0 8.4-2 10.6-5.4.7-1.1 2-1.9 3.4-1.9 1.3 0 2.2.7 2.2 1.9 0 2.5-3.6 6.1-7.6 6.1H8.4c-1.4 0-2.6.5-3.4 1.4l-.6-.6c-.3-.3-.4-.8-.4-1.5Z\"/><circle cx=\"17.4\" cy=\"11.2\" r=\"1.05\" fill=\"#0e1018\"/></svg>",
@@ -125,6 +153,11 @@
   "name": "Alibaba",
   "short": "Alibaba",
   "product": "Qwen",
+  "region": "CN",
+  "weights": {
+   "default": false,
+   "open_if": "\\b\\d+(?:\\.\\d+)?[BT]\\b|Coder Next"
+  },
   "hex": "#f494c6",
   "hex_light": "#b8458c",
   "mark": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#a855f7\" stroke-width=\"2.2\"><path d=\"M8 5h8M8 19h8\" stroke-linecap=\"round\"/><path d=\"M12 5v14\"/><path d=\"M6.5 8.5 12 12l5.5-3.5\"/><path d=\"M6.5 15.5 12 12l5.5 3.5\"/></svg>",
@@ -144,6 +177,10 @@
   "name": "Moonshot",
   "short": "Moonshot",
   "product": "Kimi",
+  "region": "CN",
+  "weights": {
+   "default": true
+  },
   "hex": "#d63a5a",
   "hex_light": "#d42a3c",
   "mark": "<svg viewBox=\"0 0 24 24\"><path d=\"M15.5 3A9 9 0 1 0 15.5 21 9.7 9.7 0 0 1 15.5 3Z\" fill=\"#e0455e\"/></svg>",
@@ -162,6 +199,11 @@
   "name": "Z.ai",
   "short": "Z.ai",
   "product": "GLM",
+  "region": "CN",
+  "weights": {
+   "default": true,
+   "closed_if": "Turbo"
+  },
   "hex": "#d0b74a",
   "hex_light": "#8b7300",
   "mark": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#14b8a6\" stroke-width=\"2.2\"><rect x=\"4\" y=\"4\" width=\"10\" height=\"10\" rx=\"1.6\"/><rect x=\"10\" y=\"10\" width=\"10\" height=\"10\" rx=\"1.6\"/></svg>",

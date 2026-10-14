@@ -1,0 +1,16 @@
+[
+ {
+  "d": "2026-06-05",
+  "lab": "anthropic",
+  "short": "Anthropic: “temporary pause”",
+  "text": "Anthropic floats a worldwide “temporary pause” on AI development.",
+  "src": "Quartz / The Guardian"
+ },
+ {
+  "d": "2026-08-07",
+  "lab": "openai",
+  "short": "OpenAI: “slow down” on Astra",
+  "text": "OpenAI says it will “slow down development on Astra” to scale up security and testing first.",
+  "src": "Axios"
+ }
+]

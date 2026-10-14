@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write                # to commit refreshed data
+  issues: write                  # to open (and later close) an issue when a run fails
   pages: write                   # to publish
   id-token: write                # required by deploy-pages
 
@@ -41,7 +42,11 @@ jobs:
           python3 pipeline/fetch.py
           python3 scripts/build_data.py
 
+      - name: Fetch GPU rental prices (never fails the run)
+        run: python3 pipeline/fetch_hardware.py || echo "::warning::GPU rental fetch failed; using the committed file"
+
       - name: Rebuild the page
+        # the runner image ships Google Chrome, which renders the social card (og.png)
         run: python3 build/build_page.py
 
       - name: Commit only if the data actually changed
@@ -55,6 +60,10 @@ jobs:
           git show HEAD:data/releases.json > "$RUNNER_TEMP/prev.json" 2>/dev/null \
             || echo '{"rows": []}' > "$RUNNER_TEMP/prev.json"
           CHANGED=$(python3 scripts/data_changed.py "$RUNNER_TEMP/prev.json")
+          # a new week of GPU rental prices is news too (the file carries no timestamp)
+          if ! git diff --quiet -- data/gpu_rental.json 2>/dev/null || [ -n "$(git ls-files --others -- data/gpu_rental.json)" ]; then
+            CHANGED=true
+          fi
           echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
 
           if [ "$CHANGED" = "false" ]; then
@@ -88,6 +97,32 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: site            # only the built page — never the pipeline or data files
+
+      # One issue, not one per failure: a broken run opens it (or comments on it), and
+      # the next good run closes it. The page shows its own banner once data is 24h old,
+      # which also covers the case GitHub stops scheduling the workflow altogether.
+      - name: Report a failed run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          n=$(gh issue list --repo "${{ github.repository }}" --state open --search "in:title Refresh job failing" --json number -q '.[0].number')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --repo "${{ github.repository }}" --body "Failed again: $url"
+          else
+            gh issue create --repo "${{ github.repository }}" --title "Refresh job failing" \
+              --body "The scheduled refresh failed: $url. The site keeps serving the last good build; it shows a stale-data banner once that is 24 hours old. This issue closes itself on the next successful run."
+          fi
+
+      - name: Close the failure issue once a run succeeds
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --repo "${{ github.repository }}" --state open --search "in:title Refresh job failing" --json number -q '.[].number'); do
+            gh issue close "$n" --repo "${{ github.repository }}" --comment "Recovered: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          done
 
   publish:
     needs: refresh

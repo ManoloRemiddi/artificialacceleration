@@ -16,18 +16,6 @@ CLUSTER = [
       note="Half of GPT-5.6 pricing, Astra-level reliability, and no Terra tier this generation."),
 ]
 
-# ---- dated calls to slow down, marked on the timeline ----
-# The page counts what every tracked lab shipped in the 30 days after each one, from
-# the live data, so the "and what came next" half can never drift from the record.
-STATEMENTS = [
- dict(d="2026-06-05", lab="anthropic", short="Anthropic: \u201ctemporary pause\u201d",
-      text="Anthropic floats a worldwide \u201ctemporary pause\u201d on AI development.",
-      src="Quartz / The Guardian"),
- dict(d="2026-08-07", lab="openai", short="OpenAI: \u201cslow down\u201d on Astra",
-      text="OpenAI says it will \u201cslow down development on Astra\u201d to scale up security and testing first.",
-      src="Axios"),
-]
-
 # ---- the deceleration ledger: what was said, and what shipped next ----
 EVIDENCE = [
  dict(colour="anthropic", title="The strongest receipt", quotes=[

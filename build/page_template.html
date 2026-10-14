@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2310a37f'/%3E%3Cpath d='M16 6l7 20h-4l-1.4-4.4h-5.2L11 26H7L14 6h2zm.9 6.6l-1.8 5.6h3.6l-1.8-5.6z' fill='%23fff'/%3E%3C/svg%3E">
 <title>Artificial Acceleration — Frontier Release &amp; Intelligence Tracker</title>
+<meta name="description" content="Every release from nine frontier AI labs, dated: release cadence, intelligence scores, the cost of intelligence, the US–China and open–closed gaps, and an Acceleration Index. Rebuilt every six hours.">
+<link rel="canonical" href="https://artificialacceleration.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Artificial Acceleration">
+<meta property="og:title" content="Artificial Acceleration — nine frontier labs, every release dated">
+<meta property="og:description" content="Release cadence, intelligence, the cost of intelligence and an Acceleration Index for nine frontier AI labs. Rebuilt every six hours.">
+<meta property="og:url" content="https://artificialacceleration.com/">
+<meta property="og:image" content="https://artificialacceleration.com/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" type="application/atom+xml" title="Artificial Acceleration: notable releases" href="feed.xml">
 <style>
   /*__LABVARS__*/
   :root{
@@ -261,6 +272,112 @@
   .lg svg.stp{color:var(--dim);flex:0 0 auto}
   .lg .pt.sm{width:5px;height:5px;background:var(--dim);opacity:.6}
   .lg .pt.ring{width:11px;height:11px;border:1.6px solid var(--dim);background:none}
+  /* two-group colours for "the gaps": their own validated pair per theme, not lab hues */
+  :root{--ga:#7aa2ff;--gb:#ff7a63}
+  [data-theme="light"]{--ga:#2557d6;--gb:#c2410c}
+  #chartpanel.gap-weights{--ga:#c9d1e3;--gb:#34d399}
+  [data-theme="light"] #chartpanel.gap-weights{--ga:#3a4356;--gb:#047857}
+  .gline.ga{stroke:var(--ga);stroke-width:2.4}.gline.gb{stroke:var(--gb);stroke-width:2.4}
+  .frec.ga{stroke:var(--ga)}.frec.gb{stroke:var(--gb)}
+  .gapfill{fill:color-mix(in srgb,var(--ink) 9%,transparent)}
+  .gapmin{stroke:var(--dim);stroke-width:1;stroke-dasharray:2 2}
+  .gapnow{stroke:var(--ink);stroke-width:1.4}
+  .gaptxt{fill:var(--dim);font-family:var(--mono);font-size:10.5px;paint-order:stroke;stroke:var(--panel);stroke-width:4px}
+  .gaptxt.now{fill:var(--ink);font-weight:700;font-size:11.5px}
+  .lg .sw.ga{width:18px;height:2.5px;background:var(--ga)}.lg .sw.gb{width:18px;height:2.5px;background:var(--gb)}
+  .lg .sw.gf{width:14px;height:10px;border-radius:2px;background:color-mix(in srgb,var(--ink) 14%,transparent)}
+  .seg[hidden]{display:none}
+  .seg.mini{flex-basis:auto}.seg.mini button{font-size:11.5px;padding:4px 10px}
+  /* stale data: plain, unmissable, not alarming */
+  .stale{margin:14px 0 0;padding:10px 14px;border-radius:10px;font-size:14px;color:var(--ink);
+    background:color-mix(in srgb,var(--alert) 14%,var(--panel));border:1px solid color-mix(in srgb,var(--alert) 45%,transparent)}
+  /* since your last visit */
+  .since{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:12px 0 0;padding:9px 40px 9px 14px;position:relative;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;font-size:13.5px;color:var(--dim)}
+  .since[hidden]{display:none}
+  .sincecap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .since b{color:var(--ink)}
+  .newchip{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);
+    color:var(--ink);text-decoration:none;font-size:12.5px;background:var(--chipbg)}
+  .newchip:hover{border-color:var(--c)}
+  .newchip i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+  .since .more{font-size:12px;color:var(--faint)}
+  .since .moved{padding-left:10px;border-left:1px solid var(--line)}
+  .sincex{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--faint);font-size:18px;cursor:pointer}
+  .sincex:hover{color:var(--ink)}
+  .dot .tip .t4{display:block;margin-top:4px;font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .lanes .dot[data-u]{cursor:pointer}
+  .dtable td a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--faint)}
+  /* who's due */
+  .due{display:grid;gap:2px}
+  .duerow{display:grid;grid-template-columns:minmax(220px,1.3fr) 2fr minmax(200px,1fr);align-items:center;gap:16px;padding:8px 4px;border-top:1px solid var(--line2)}
+  .duerow:first-child{border-top:0}
+  .duelab{display:flex;align-items:center;gap:10px;min-width:0}
+  .duelab .logo{width:22px;height:22px;flex:0 0 22px}.duelab .logo svg,.duelab .logo img{width:22px;height:22px}
+  .duelab span{font-size:12.5px;color:var(--dim);min-width:0}
+  .duelab b{display:block;font-size:14px;color:var(--ink)}
+  .duelab a{color:var(--dim);text-decoration:none;border-bottom:1px dotted var(--faint)}
+  .duebar{position:relative;height:10px;border-radius:5px;background:var(--line2)}
+  .duebar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:color-mix(in srgb,var(--c) 70%,transparent);
+    transform-origin:left;animation:progfill 700ms cubic-bezier(.25,.6,.3,1) both}
+  .duebar .med{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);transform:translateX(-1px)}
+  .duebar .med i{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font:normal 9.5px var(--mono);color:var(--faint);white-space:nowrap}
+  .duerow:first-child .duebar .med i{top:auto;bottom:-15px}
+  .duestat b{display:block;font-size:14px;color:var(--ink)}
+  .duestat span{font-size:12px;color:var(--faint);font-family:var(--mono)}
+  .duerow.late .duestat b{color:var(--alert)}
+  @media (max-width:760px){
+    .duerow{grid-template-columns:1fr;gap:6px}
+    .duebar{margin-bottom:12px}
+    .duebar .med i,.duerow:first-child .duebar .med i{top:auto;bottom:-15px}
+  }
+  /* the computed promise ledger */
+  .card.ledger{grid-column:1/-1}
+  .ledger table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .ledger th{text-align:left;font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:4px 8px}
+  .ledger td{padding:7px 8px;border-top:1px solid var(--line2);vertical-align:top}
+  .ledger td .dt{display:block;font:11px var(--mono);color:var(--faint)}
+  .ledger a{color:var(--ink)}
+  .ledger .delta{font:11px var(--mono);color:var(--alert)}
+  footer .flinks a{color:var(--dim)}
+  footer .embed summary{cursor:pointer;color:var(--dim)}
+  footer .embed pre{white-space:pre-wrap;word-break:break-all;background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:11.5px;color:var(--dim)}
+  /* section 07: hardware */
+  :root{--hw-nv:#8fd14f;--hw-amd:#ff6b5e}
+  [data-theme="light"]{--hw-nv:#3f7d00;--hw-amd:#c8322a}
+  .hw .hwk{font-size:15px;margin:0 0 6px}
+  .hw b.up,.hw .up{color:var(--alert)} .hw b.down{color:var(--lab-openai)}
+  .hwh{font-size:14px;margin:18px 0 6px;color:var(--ink);font-weight:700}
+  .hwgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px}
+  .hwfig{margin:0}.hwfig figcaption{font-size:12.5px;color:var(--dim);margin-bottom:2px}
+  .hwchart{display:block;overflow:visible}
+  .hwline{fill:none;stroke-width:2;stroke-linejoin:round}
+  .hwlab{font-family:var(--mono);font-size:11px;font-weight:700}
+  .hwlab .thin{fill:var(--faint);font-weight:400}
+  .hwlab .v{fill:var(--ink)} .hwlab .up{fill:var(--alert)} .hwlab .down{fill:var(--lab-openai)}
+  .hwname{fill:var(--ink);font-size:13.5px;font-weight:700;font-family:var(--sans)}
+  .hwrange{stroke:var(--dim);stroke-width:6;stroke-linecap:round;opacity:.22}
+  .hwmove{stroke-width:2}.hwmove.up{stroke:var(--alert)}.hwmove.down{stroke:var(--lab-openai)}
+  .hwlaunch{fill:var(--panel);stroke:var(--dim);stroke-width:2}
+  .hwnow.up{fill:var(--alert)}.hwnow.down{fill:var(--lab-openai)}
+  .hwpct{font-family:var(--mono);font-size:12px;font-weight:700}.hwpct.up{fill:var(--alert)}.hwpct.down{fill:var(--lab-openai)}
+  .hwper{fill:var(--dim);font-family:var(--mono);font-size:12px}
+  .hwtable{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+  .hwtable th{text-align:left;font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:6px 8px}
+  .hwtable td{padding:7px 8px;border-top:1px solid var(--line2)}
+  .hwtable .n{text-align:right;white-space:nowrap}
+  .hwtable td.up{color:var(--alert)} .hwtable td.down{color:var(--lab-openai)}
+  .hwtable .src{font:10.5px var(--mono);color:var(--faint)}
+  .hwtable tr.rack td span{font-size:12px;color:var(--faint)}
+  .hw .note a{color:var(--dim)}
+  /* on a phone the charts keep a legible size and scroll sideways, like the main chart */
+  .hwscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:760px){
+    .hwgrid{grid-template-columns:1fr}
+    .hwscroll .hwchart{min-width:600px}
+    .hwscroll.wide .hwchart{min-width:900px}
+    .hwtable{min-width:640px;font-size:12px}
+  }
   /* the computed headline: the number the chart exists to show */
   .kicker{flex-basis:100%;font-size:14.5px;color:var(--dim);letter-spacing:-.005em;margin-top:1px}
   .kicker b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
@@ -531,6 +648,7 @@
   <div class="dgo"><button class="dtop" id="dtop" type="button">&#8593; Top</button></div>
 </nav>
 <div class="wrap">
+  <div class="stale" id="stale" role="status" hidden></div>
 
   <header>
    <div class="headrow">
@@ -555,6 +673,7 @@
     </div>
    </div>
   </header>
+  <div class="since" id="since" hidden></div>
 
   <!-- ================= CONTROLS ================= -->
   <div class="controls">
@@ -573,6 +692,8 @@
       <div class="seg" id="modeseg">
         <button class="on-mode" data-mode="rel" aria-pressed="true">Releases over time</button>
         <button class="on-mode" data-mode="cap" aria-pressed="false">Intelligence over time</button>
+        <button class="on-mode" data-mode="cost" aria-pressed="false">Cost of intelligence</button>
+        <button class="on-mode" data-mode="gap" aria-pressed="false">The gaps</button>
       </div>
     </div>
     <div class="ctl" style="flex:1;min-width:280px">
@@ -609,6 +730,10 @@
       <div class="charthead">
         <h2 id="chartTitle">Releases over time</h2>
         <span class="sub" id="chartSub"></span>
+        <div class="seg mini" id="gapseg" hidden>
+          <button data-gap="region" aria-pressed="true">US vs China</button>
+          <button data-gap="weights" aria-pressed="false">Closed vs open weights</button>
+        </div>
         <span class="kicker" id="chartKicker" aria-live="polite"></span>
       </div>
       <div class="scrollx"><svg class="chart" id="chart" width="1400" height="470"></svg></div>
@@ -628,6 +753,15 @@
     <span class="attr">Benchmark data: <b>Artificial Analysis</b> — artificialanalysis.ai · index v4.3.2. Release dates cross-checked against each lab’s own announcement.</span>
     <span class="proj">A project of the <a href="https://resonantdao.com" target="_blank" rel="noopener">ResonantDAO</a></span>
     <span>Data as of <span class="asof">24 Sep 2026</span> · refreshed every six hours</span>
+    <span class="flinks"><a href="feed.xml">Atom feed</a> · <a href="sitemap.xml">All release pages</a></span>
+    <details class="embed">
+      <summary>Embed the Acceleration Index</summary>
+      <p><img src="badge.svg" alt="Acceleration Index badge" height="22"></p>
+      <p>Badge (Markdown, README, newsletters):</p>
+      <pre>[![Acceleration Index](https://artificialacceleration.com/badge.svg)](https://artificialacceleration.com/)</pre>
+      <p>Widget (any web page):</p>
+      <pre>&lt;iframe src="https://artificialacceleration.com/embed/" width="360" height="110" style="border:0" title="Acceleration Index"&gt;&lt;/iframe&gt;</pre>
+    </details>
   </footer>
 </div>
 
@@ -817,8 +951,9 @@ function markHTML(id) {
 
     /* the section map is read off the page, so it cannot drift from the content */
     const targets = [
-      ["#tlpanel", "01 Timeline"], ["#chartpanel", "02 Charts"], ["#cluster", "03 Cluster"],
-      ["#streams", "04 Lab by lab"], ["#evidence", "05 The words"],
+      ["#tlpanel", "01 Timeline"], ["#chartpanel", "02 Charts"], ["#due", "03 Who\u2019s due"],
+      ["#cluster", "04 Cluster"], ["#streams", "05 Lab by lab"], ["#evidence", "06 The words"],
+      ["#hardware", "07 Hardware"],
     ].map(([sel, label]) => {
       const el = document.querySelector(sel);
       if (!el) return null;
@@ -859,7 +994,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* ---------------- state ---------------- */
-const S = { win: 48, mode: "rel", labs: new Set(DATA.labs.map(l => l.id)), focus: null, cursor: null };
+const S = { win: 48, mode: "rel", gap: "region", labs: new Set(DATA.labs.map(l => l.id)), focus: null, cursor: null };
 let resetReplay = () => {};                 // filled in by the replay control below
 /* the right edge of what is currently revealed: the scrub cursor, or now */
 const cutEnd = () => (S.cursor && S.cursor < NOW ? S.cursor : NOW);
@@ -946,9 +1081,13 @@ const NOTABLE_KEY = new Set(DATA.rows.map(r => r.lab + "|" + r.m + "|" + r.d));
 const FULL = (DATA.stream || []).map(r => ({
   d: r.d, lab: r.l, m: r.m, ii: r.i === undefined ? null : r.i,
   est: r.e ? 1 : 0, note: "", n: NOTABLE_KEY.has(r.l + "|" + r.m + "|" + r.d),
+  u: r.u, open: !!r.o, price: r.p === undefined ? null : r.p,
 }));
 const CURATED = DATA.rows.map(r => Object.assign({}, r, { n: true }));
 const plotRows = () => (S.win > 12 && FULL.length ? FULL : CURATED);
+/* cost and the gaps are about the whole field: a cheap model that beats a threshold
+   is rarely a "notable" one, so those two modes always read the full record */
+const fieldRows = () => (FULL.length ? FULL : CURATED);
 const byId = Object.fromEntries(DATA.labs.map(l => [l.id, l]));
 
 /* ---------- state changes morph rather than blink ----------
@@ -959,7 +1098,10 @@ const MORPH = !matchMedia("(prefers-reduced-motion: reduce)").matches
            && typeof document.startViewTransition === "function";
 function morph(fn) {
   if (!MORPH) { fn(); return null; }
-  return document.startViewTransition(fn);
+  /* a second click mid-transition skips the first one; that is expected, not an error */
+  const vt = document.startViewTransition(fn);
+  [vt.ready, vt.finished, vt.updateCallbackDone].forEach(pr => pr && pr.catch(() => {}));
+  return vt;
 }
 
 /* ---------------- helpers ---------------- */
@@ -1021,6 +1163,11 @@ document.querySelectorAll("#winseg button").forEach(b => b.onclick = () => {
   document.querySelectorAll("#winseg button").forEach(x => x.setAttribute("aria-pressed", x === b));
   morph(resetReplay);
 });
+document.querySelectorAll("#gapseg button").forEach(b => b.onclick = () => {
+  S.gap = b.dataset.gap;
+  document.querySelectorAll("#gapseg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  morph(sync);
+});
 document.querySelectorAll("#modeseg button").forEach(b => b.onclick = () => {
   S.mode = b.dataset.mode;
   document.querySelectorAll("#modeseg button").forEach(x => x.setAttribute("aria-pressed", x === b));
@@ -1079,17 +1226,19 @@ function drawTimeline() {
       el.dataset.lane = r.lab;
       el.setAttribute("data-key", r.lab + "|" + r.d);
       el.dataset.d = r.d;
+      if (r.u) el.dataset.u = r.u;
       el.setAttribute("aria-label",
         `${lab.short} ${r.m}, released ${dayLabel(r.d)}` +
         (r.n ? ", notable release" : ", from the full release record") +
         (r.ii ? `, intelligence index ${r.ii}${r.est ? " estimated" : ""}` : ", no index score") +
-        ". Enter isolates this lab.");
+        ". Enter isolates this lab; click opens its page.");
       if (!firstDot) firstDot = el;
       el.innerHTML = `<span class="tip">
           <span class="t1">${lab.short} &middot; ${dayLabel(r.d)}</span>
           <span class="t2">${r.m}</span>
           ${r.ii ? `<span class="sc"><b>${r.ii}</b> index${r.est ? " (est.)" : ""}</span>` : `<span class="sc">no index score</span>`}
           ${r.note ? `<span class="t3">${r.note}</span>` : ""}
+          ${r.u ? `<span class="t4">click for its page &rarr;</span>` : ""}
         </span>`;
       lane.appendChild(el);
     });
@@ -1371,7 +1520,7 @@ function placeLabels(svg, reqs, PADL, PADR, PADT, ph, railCut) {
     const t = document.createElementNS(NS, "text");
     t.setAttribute("class", "mlab");
     t.setAttribute("text-anchor", anchor);
-    t.setAttribute("data-lab", r.lab);
+    if (r.lab) t.setAttribute("data-lab", r.lab);
     /* mixed toward the theme ink so a pale brand colour stays legible on white */
     t.style.fill = `color-mix(in srgb, ${r.hex} 76%, ${INK()})`;
     t.textContent = r.text;
@@ -1392,7 +1541,7 @@ function placeLabels(svg, reqs, PADL, PADR, PADT, ph, railCut) {
   const leader = (it, x2, y2) => {
     const l = document.createElementNS(NS, "line");
     l.setAttribute("class", "lead");
-    l.setAttribute("data-lab", it.r.lab);
+    if (it.r.lab) l.setAttribute("data-lab", it.r.lab);
     l.style.stroke = it.r.hex;
     l.setAttribute("x1", it.r.cx.toFixed(1));
     l.setAttribute("y1", it.r.cy.toFixed(1));
@@ -1446,31 +1595,268 @@ function placeLabels(svg, reqs, PADL, PADR, PADT, ph, railCut) {
   });
 }
 
+const STAIR = `<svg class="stp" width="18" height="10" aria-hidden="true"><path d="M0 9H7V2H18" fill="none" stroke="currentColor" stroke-width="2"/></svg>`;
+const MODES = {
+  rel: {
+    title: "Releases over time", render: s => renderRel(s),
+    sub: () => `time on X · number of releases on Y · ${S.win > 12 ? "every release" : "notable releases"}`,
+    legend: () => `<span class="lg"><span class="sw bars"></span>bars = releases per ${BUCKET_DAYS[S.win] > 1 ? BUCKET_DAYS[S.win] + " days" : "day"}, stacked by lab</span>
+       <span class="lg"><span class="sw tr"></span>line = trailing ${S.trendDays}-day average, same scale</span>`,
+    note: () => S.win > 12
+       ? `<b>Counted:</b> every release Artificial Analysis lists in this window — the curated stream of names and notes only begins in November 2025, so the emphasised dots are the recent ones and the earlier stretch is the raw record. A four-year bar is total output, not output worth announcing.`
+       : `<b>Counted:</b> notable releases only — major generations and flagships. Minor size variants (4B, nano, Flash-Lite), re-uploads and hosting variants are excluded, so a bar is "how many models worth announcing", not raw API entries.`,
+  },
+  cap: {
+    title: "Intelligence over time", render: s => renderCap(s),
+    sub: () => "time on X · Artificial Analysis Intelligence Index on Y",
+    legend: () => `<span class="lg">${STAIR}staircase = that lab's best score so far</span>
+       <span class="lg"><span class="pt sm"></span>dot = a release</span>
+       <span class="lg"><span class="pt ring"></span>ring = a new all-time high</span>
+       <span class="lg">hover a lab to see its release-by-release path</span>`,
+    note: () => `<b>Reading it:</b> each staircase is a lab's best <b>max-effort</b> score to date. It steps up only when that lab beats its own record, so a tall, frequent staircase is a lab improving fast; cheaper models that score lower stay as dots beneath it. Scores are from index <b>v4.3.2</b> — comparable to each other, but historical values were re-measured on the current index, and those flagged <b>(est.)</b> are AA's own estimates. Effort levels are not identical across labs (Google publishes "high", others "max"/"xhigh"), so treat small gaps as noise.`,
+  },
+  cost: {
+    title: "Cost of intelligence", render: s => renderCost(s),
+    sub: () => "time on X · cheapest price per 1M tokens on Y (log scale) · every priced release",
+    legend: () => `<span class="lg">${STAIR}staircase = the cheapest model so far that scores at least that much</span>
+       <span class="lg"><span class="pt sm"></span>dot = a priced release</span>`,
+    note: () => `<b>Reading it:</b> each line answers "what is the cheapest way to buy this much intelligence?" — the lowest blended price (3 input : 1 output tokens) among models scoring at least the threshold. It only ever steps <b>down</b>, and the scale is logarithmic, so every gridline is 10× cheaper. Prices are today's list prices from Artificial Analysis, not the price on launch day: a model since cut in price pulls its line down from its release date. Unpriced models (preview, not on an API) are left out.`,
+  },
+  gap: {
+    title: "The gaps", render: s => renderGap(s),
+    sub: () => S.gap === "region" ? "best score of the US labs against the best of the Chinese labs" : "best closed-weight score against the best open-weight score",
+    legend: () => `<span class="lg"><span class="sw ga"></span>${GAPS[S.gap].a.label}</span>
+       <span class="lg"><span class="sw gb"></span>${GAPS[S.gap].b.label}</span>
+       <span class="lg"><span class="sw gf"></span>shading = the gap between them</span>`,
+    note: () => S.gap === "region"
+      ? `<b>Reading it:</b> each line is the best score anyone in that group had reached by that date. US: OpenAI, Anthropic, Google, xAI, Meta. China: DeepSeek, Alibaba (Qwen), Moonshot (Kimi), Z.ai. Labs switched off in the chips above drop out of their group.`
+      : `<b>Reading it:</b> each line is the best score reached by models of that kind by that date. Artificial Analysis does not publish licences, so open-weight status is <b>our classification</b>, by rule per lab (all of DeepSeek and Kimi; Meta's Llama line but not Muse; Qwen models published with a parameter count; Google's Gemma; OpenAI's gpt-oss; Z.ai except Turbo variants). It is the honest weak point of this view.`,
+  },
+};
 function drawChart() {
   const svg = document.getElementById("chart");
   svg.setAttribute("viewBox", `0 0 ${W} ${CH}`);
-  if (S.mode === "rel") renderRel(svg); else renderCap(svg);
+  const M = MODES[S.mode] || MODES.rel;
+  M.render(svg);
   paintChartFocus();
-  const tt = document.getElementById("chartTitle"), ss = document.getElementById("chartSub");
-  if (tt) tt.textContent = (S.mode === "rel") ? "Releases over time" : "Intelligence over time";
-  if (ss) ss.textContent = (S.mode === "rel")
-      ? `time on X · number of releases on Y · ${S.win > 12 ? "every release" : "notable releases"}`
-      : "time on X · Artificial Analysis Intelligence Index on Y";
+  document.getElementById("chartTitle").textContent = M.title;
+  document.getElementById("chartSub").textContent = M.sub();
+  document.getElementById("gapseg").hidden = S.mode !== "gap";
+  document.getElementById("chartpanel").classList.toggle("gap-weights", S.mode === "gap" && S.gap === "weights");
   drawKicker();
-  document.getElementById("legend").innerHTML = S.mode === "rel"
-    ? `<span class="lg"><span class="sw bars"></span>bars = releases per ${BUCKET_DAYS[S.win] > 1 ? BUCKET_DAYS[S.win] + " days" : "day"}, stacked by lab</span>
-       <span class="lg"><span class="sw tr"></span>line = trailing ${S.trendDays}-day average, same scale</span>`
-    : `<span class="lg"><svg class="stp" width="18" height="10" aria-hidden="true"><path d="M0 9H7V2H18" fill="none" stroke="currentColor" stroke-width="2"/></svg>staircase = that lab's best score so far</span>
-       <span class="lg"><span class="pt sm"></span>dot = a release</span>
-       <span class="lg"><span class="pt ring"></span>ring = a new all-time high</span>
-       <span class="lg">hover a lab to see its release-by-release path</span>`;
+  document.getElementById("legend").innerHTML = M.legend();
   fillTable();
-  document.getElementById("chartNote").innerHTML = S.mode === "rel"
-    ? (S.win > 12
-       ? `<b>Counted:</b> every release Artificial Analysis lists in this window — the curated stream of names and notes only begins in November 2025, so the emphasised dots are the recent ones and the earlier stretch is the raw record. A four-year bar is total output, not output worth announcing.`
-       : `<b>Counted:</b> notable releases only — major generations and flagships. Minor size variants (4B, nano, Flash-Lite), re-uploads and hosting variants are excluded, so a bar is "how many models worth announcing", not raw API entries.`)
-    : `<b>Reading it:</b> each staircase is a lab's best <b>max-effort</b> score to date. It steps up only when that lab beats its own record, so a tall, frequent staircase is a lab improving fast; cheaper models that score lower stay as dots beneath it. Scores are from index <b>v4.3.2</b> — comparable to each other, but historical values were re-measured on the current index, and those flagged <b>(est.)</b> are AA's own estimates. Effort levels are not identical across labs (Google publishes "high", others "max"/"xhigh"), so treat small gaps as noise.`;
+  document.getElementById("chartNote").innerHTML = M.note();
 }
+
+/* ---------- cost of intelligence: the price of a fixed level, falling ----------
+   For each threshold, the cheapest model released so far that reaches it. Ordinal
+   thresholds get one hue in steps (light = lower bar, strong = higher bar). */
+const COST_T = [20, 30, 40, 50];
+const costInk = T => `color-mix(in srgb, var(--ink) ${30 + COST_T.indexOf(T) * 23}%, var(--alert))`;
+function cheapestSteps(rows, T) {
+  let best = Infinity; const out = [];
+  rows.forEach(r => {
+    if (r.ii === null || r.ii < T || r.price === null || r.price <= 0) return;
+    if (r.price < best) { best = r.price; out.push(r); }
+  });
+  return out;
+}
+const priceTxt = v => v >= 100 ? `$${v.toFixed(0)}` : v >= 1 ? `$${v.toFixed(2)}` : v >= 0.1 ? `$${v.toFixed(2)}` : `$${v.toFixed(3)}`;
+function renderCost(svg) {
+  const [start, end] = windowBounds();
+  const H = CH, PADL = 56, PADB = 40, PADT = 18, PADR = RAILW;
+  const cut = cutEnd(), t0 = start.getTime(), t1 = Math.min(end.getTime(), cut.getTime());
+  const src = fieldRows().filter(r => S.labs.has(r.lab) && D(r.d).getTime() <= t1)
+    .map(r => Object.assign({ t: D(r.d).getTime() }, r)).sort((a, b) => a.t - b.t);
+  const priced = src.filter(r => r.price !== null && r.price > 0);
+  const pw = W - PADL - PADR, ph = H - PADB - PADT;
+  const x = t => PADL + ((Math.max(t, t0) - t0) / (end - start)) * pw;
+  const series = COST_T.map(T => ({ T, steps: cheapestSteps(src, T) })).filter(sr => sr.steps.length);
+  const vals = priced.filter(r => r.t >= t0).map(r => r.price)
+    .concat(series.flatMap(sr => sr.steps.filter(r => r.t >= t0 || r === sr.steps.filter(q => q.t < t0).pop()).map(r => r.price)));
+  const lo = Math.pow(10, Math.floor(Math.log10(Math.max(0.001, Math.min(...vals, 1)))));
+  const hi = Math.pow(10, Math.ceil(Math.log10(Math.max(...vals, 10))));
+  const y = v => PADT + ph - (Math.log10(v) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo)) * ph;
+  let h = "";
+  for (let v = lo; v <= hi * 1.001; v *= 10) {
+    h += `<line class="ax" x1="${PADL}" x2="${W - PADR}" y1="${y(v)}" y2="${y(v)}" opacity=".22"/>`;
+    h += `<text class="axl" x="${PADL - 8}" y="${y(v) + 3.5}" text-anchor="end">${priceTxt(v)}</text>`;
+    if (v * 3 < hi) h += `<line class="ax" x1="${PADL}" x2="${W - PADR}" y1="${y(v * 3)}" y2="${y(v * 3)}" opacity=".08"/>`;
+  }
+  tickMonths(start, end, monthStep()).forEach(tk => {
+    const xx = x(tk.t);
+    if (xx <= PADL - 4) return;
+    h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
+    h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${tk.label}</text>`;
+  });
+  priced.filter(r => r.t >= t0).forEach(r => {
+    h += `<circle class="pdot sub" data-lab="${r.lab}" cx="${x(r.t).toFixed(1)}" cy="${y(r.price).toFixed(1)}" r="2.6"
+            style="fill:${byId[r.lab].hex}"><title>${fmt(new Date(r.t))} · ${r.m} · ${byId[r.lab].short} · ${priceTxt(r.price)} per 1M · index ${r.ii ?? "—"}</title></circle>`;
+  });
+  const labels = [];
+  series.forEach(({ T, steps }) => {
+    const carry = steps.filter(r => r.t < t0).pop();
+    let d = carry ? `M${x(t0).toFixed(1)} ${y(carry.price).toFixed(1)}` : "", last = carry;
+    let rings = "";
+    steps.filter(r => r.t >= t0).forEach(r => {
+      const px = x(r.t).toFixed(1), py = y(r.price).toFixed(1);
+      d += d ? ` H${px} V${py}` : `M${px} ${py}`;
+      rings += `<circle class="frec" cx="${px}" cy="${py}" r="4.5" style="stroke:${costInk(T)}"><title>New cheapest at index ≥${T}: ${r.m} (${byId[r.lab].short}) · ${priceTxt(r.price)} · scores ${r.ii} · ${fmt(new Date(r.t))}</title></circle>`;
+      last = r;
+    });
+    if (!last) return;
+    d += ` H${x(t1).toFixed(1)}`;
+    h += `<path class="pline step" style="stroke:${costInk(T)}" pathLength="1" d="${d}"/>` + rings;
+    labels.push({ cx: x(t1), cy: y(last.price), hex: costInk(T), lab: "", text: `index ≥${T}`, score: priceTxt(last.price) });
+  });
+  h += `<text class="axl d" x="${PADL}" y="${PADT - 6}" text-anchor="start">cheapest blended price per 1M tokens, at each intelligence threshold</text>`;
+  if (!series.length) h += `<text class="axl" x="${W / 2}" y="${H / 2}" text-anchor="middle">no priced models in this window for the selected labs</text>`;
+  svg.innerHTML = h;
+  placeLabels(svg, labels, PADL, PADR, PADT, ph, W - PADR - 1);
+}
+
+/* ---------- the gaps: two frontiers, and the distance between them ---------- */
+const GAPS = {
+  region:  { a: { label: "US labs", test: r => byId[r.lab].region === "US" },
+             b: { label: "Chinese labs", test: r => byId[r.lab].region === "CN" } },
+  weights: { a: { label: "Closed weights", test: r => !r.open },
+             b: { label: "Open weights", test: r => r.open } },
+};
+function frontierSteps(rows) {
+  let top = -Infinity; const out = [];
+  rows.forEach(r => { if (r.ii !== null && r.ii > top) { top = r.ii; out.push(r); } });
+  return out;
+}
+const levelAt = (steps, t) => { let v = null; for (const r of steps) { if (r.t <= t) v = r.ii; else break; } return v; };
+function renderGap(svg) {
+  const [start, end] = windowBounds();
+  const H = CH, PADL = 46, PADB = 40, PADT = 18, PADR = RAILW;
+  const cut = cutEnd(), t0 = start.getTime(), t1 = Math.min(end.getTime(), cut.getTime());
+  const src = fieldRows().filter(r => S.labs.has(r.lab) && r.ii !== null && D(r.d).getTime() <= t1)
+    .map(r => Object.assign({ t: D(r.d).getTime() }, r)).sort((a, b) => a.t - b.t || b.ii - a.ii);
+  const G = GAPS[S.gap];
+  const A = frontierSteps(src.filter(G.a.test)), B = frontierSteps(src.filter(G.b.test));
+  const pw = W - PADL - PADR, ph = H - PADB - PADT;
+  const x = t => PADL + ((Math.max(t, t0) - t0) / (end - start)) * pw;
+  const seen = [A, B].flatMap(st => st.filter(r => r.t >= t0).map(r => r.ii)
+    .concat(levelAt(st, t0) ?? [])).filter(v => v !== null);
+  const vmin = seen.length ? Math.min(...seen) : 10, vmax = seen.length ? Math.max(...seen) : 60;
+  const lo = Math.max(0, Math.min(8, Math.floor((vmin - 4) / 5) * 5)), hi = Math.max(60, Math.ceil((vmax + 2) / 5) * 5);
+  const y = v => PADT + ph - ((v - lo) / (hi - lo)) * ph;
+  let h = "";
+  for (let v = Math.ceil(lo / 10) * 10; v <= hi; v += 10) {
+    h += `<line class="ax" x1="${PADL}" x2="${W - PADR}" y1="${y(v)}" y2="${y(v)}" opacity=".22"/>`;
+    h += `<text class="axl" x="${PADL - 8}" y="${y(v) + 3.5}" text-anchor="end">${v}</text>`;
+  }
+  tickMonths(start, end, monthStep()).forEach(tk => {
+    const xx = x(tk.t);
+    if (xx <= PADL - 4) return;
+    h += `<line class="ax" x1="${xx}" x2="${xx}" y1="${PADT + ph}" y2="${PADT + ph + 5}"/>`;
+    h += `<text class="axl" x="${xx}" y="${PADT + ph + 19}" text-anchor="middle">${tk.label}</text>`;
+  });
+  /* the shading: sample both step functions at every breakpoint, then trace the upper
+     one forward and the lower one back. Where both exist, and only there. */
+  const ts = [...new Set([t0, t1, ...A.concat(B).map(r => r.t).filter(t => t > t0 && t <= t1)])].sort((a, b) => a - b);
+  const both = ts.map(t => ({ t, a: levelAt(A, t), b: levelAt(B, t) })).filter(p => p.a !== null && p.b !== null);
+  if (both.length) {
+    let up = "", dn = [];
+    both.forEach((p, i) => {
+      const nx = (both[i + 1] || { t: t1 }).t;
+      const hiV = Math.max(p.a, p.b), loV = Math.min(p.a, p.b);
+      up += `${up ? "L" : "M"}${x(p.t).toFixed(1)} ${y(hiV).toFixed(1)} L${x(nx).toFixed(1)} ${y(hiV).toFixed(1)} `;
+      dn.unshift(`L${x(nx).toFixed(1)} ${y(loV).toFixed(1)} L${x(p.t).toFixed(1)} ${y(loV).toFixed(1)}`);
+    });
+    h += `<path class="gapfill" d="${up}${dn.join(" ")} Z"/>`;
+    /* the closest the two came inside the window, marked once */
+    /* early on every score is near zero and "closest" would mean nothing */
+    const live = both.filter(p => Math.max(p.a, p.b) >= 20);
+    const close = (live.length ? live : both).reduce((m, p) => (Math.abs(p.a - p.b) < Math.abs(m.a - m.b) ? p : m), (live.length ? live : both)[0]);
+    const cx = x(close.t);
+    h += `<line class="gapmin" x1="${cx.toFixed(1)}" x2="${cx.toFixed(1)}" y1="${y(Math.max(close.a, close.b)).toFixed(1)}" y2="${y(Math.min(close.a, close.b)).toFixed(1)}"/>`;
+    h += `<text class="gaptxt" x="${(cx + 6).toFixed(1)}" y="${(y(Math.min(close.a, close.b)) + 14).toFixed(1)}">closest: ${Math.abs(close.a - close.b).toFixed(1)} pts, ${fmt(new Date(close.t))}</text>`;
+  }
+  const labels = [];
+  [[A, "ga", G.a.label], [B, "gb", G.b.label]].forEach(([st, cls, label]) => {
+    if (!st.length) return;
+    const carry = levelAt(st, t0);
+    let d = carry !== null ? `M${x(t0).toFixed(1)} ${y(carry).toFixed(1)}` : "", rings = "";
+    st.filter(r => r.t >= t0).forEach(r => {
+      const px = x(r.t).toFixed(1), py = y(r.ii).toFixed(1);
+      d += d ? ` H${px} V${py}` : `M${px} ${py}`;
+      rings += `<circle class="frec ${cls}" cx="${px}" cy="${py}" r="4.5"><title>${label}: new best ${r.ii} · ${r.m} (${byId[r.lab].short}) · ${fmt(new Date(r.t))}</title></circle>`;
+    });
+    d += ` H${x(t1).toFixed(1)}`;
+    const last = st[st.length - 1];
+    h += `<path class="pline step gline ${cls}" pathLength="1" d="${d}"/>` + rings;
+    labels.push({ cx: x(t1), cy: y(last.ii), hex: `var(--${cls})`, lab: "", text: label, score: last.ii });
+  });
+  const ea = levelAt(A, t1), eb = levelAt(B, t1);
+  if (ea !== null && eb !== null) {
+    const ex = x(t1) - 10;
+    h += `<line class="gapnow" x1="${ex}" x2="${ex}" y1="${y(Math.max(ea, eb))}" y2="${y(Math.min(ea, eb))}"/>`;
+    h += `<text class="gaptxt now" x="${ex - 6}" y="${(y(Math.max(ea, eb)) + y(Math.min(ea, eb))) / 2 + 4}" text-anchor="end">${Math.abs(ea - eb).toFixed(1)} pts</text>`;
+  }
+  h += `<text class="axl d" x="${PADL}" y="${PADT - 6}" text-anchor="start">AI Intelligence Index · best score in each group so far</text>`;
+  svg.innerHTML = h;
+  placeLabels(svg, labels, PADL, PADR, PADT, ph, W - PADR - 1);
+}
+
+/* ---------- is this page still being refreshed? ----------
+   The job rebuilds every six hours, so a healthy page is never more than about nine
+   hours old (GitHub delays scheduled runs at busy times). Past a day, at least three
+   runs in a row have failed or not run, and a reader deserves to know before trusting
+   "now" on this page. Measured against the reader's own clock. */
+const STALE_HOURS = 24;
+(function staleGuard() {
+  const gen = Date.parse(DATA.meta.generated || "");
+  const box = document.getElementById("stale");
+  if (!box || !gen) return;
+  const hrs = (Date.now() - gen) / 3.6e6;
+  if (hrs < STALE_HOURS) return;
+  const age = hrs < 48 ? `${Math.round(hrs)} hours` : `${Math.round(hrs / 24)} days`;
+  box.innerHTML = `<b>This data is ${age} old.</b> The page normally refreshes every six hours, so the automatic update has stopped. Everything below is as of ${dayLabel(DATA.meta.generated.slice(0, 10))}.`;
+  box.hidden = false;
+})();
+
+/* ---------- since your last visit ----------
+   Remembers which releases this browser has already seen (keys only, locally, never
+   sent anywhere) and leads with what is new. The comparison is held for the session,
+   so a reload does not wipe the strip the moment it appears. */
+(function sinceLastVisit() {
+  const box = document.getElementById("since");
+  if (!box) return;
+  const keyOf = r => r.lab + "|" + r.m + "|" + r.d;
+  const top = FULL.filter(r => r.ii !== null).reduce((a, r) => (!a || r.ii > a.ii ? r : a), null);
+  const cur = { t: Date.now(), keys: FULL.map(keyOf), idx: DATA.accel ? DATA.accel.value : null, top: top ? top.ii : null };
+  let prev = null, held = null;
+  try { prev = JSON.parse(localStorage.getItem("aa-seen") || "null"); } catch (e) {}
+  try { held = JSON.parse(sessionStorage.getItem("aa-since") || "null"); } catch (e) {}
+  try { localStorage.setItem("aa-seen", JSON.stringify(cur)); } catch (e) {}
+  let diff = held;
+  if (!diff && prev && prev.keys && Date.now() - prev.t > 30 * 60 * 1000) {
+    const seen = new Set(prev.keys);
+    diff = { t: prev.t, fresh: FULL.filter(r => !seen.has(keyOf(r))).map(keyOf), idx: prev.idx, top: prev.top };
+    try { sessionStorage.setItem("aa-since", JSON.stringify(diff)); } catch (e) {}
+  }
+  if (!diff) return;
+  const fresh = FULL.filter(r => diff.fresh.includes(keyOf(r))).sort((a, b) => (a.d < b.d ? 1 : -1));
+  const idxMoved = diff.idx !== null && DATA.accel && diff.idx !== DATA.accel.value;
+  const topMoved = diff.top !== null && top && top.ii > diff.top;
+  if (!fresh.length && !idxMoved && !topMoved) return;
+  const when = new Date(diff.t).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  const chips = fresh.slice(0, 8).map(r => `<a class="newchip" href="m/${r.u}/" style="--c:${byId[r.lab].hex}"><i></i>${r.m}</a>`).join("");
+  box.innerHTML = `<span class="sincecap">Since your visit on ${when}</span>` +
+    (fresh.length ? `<b>${fresh.length}</b> new release${fresh.length > 1 ? "s" : ""} ${chips}${fresh.length > 8 ? `<span class="more">+${fresh.length - 8} more</span>` : ""}` : "") +
+    (idxMoved ? `<span class="moved">Acceleration Index <b>${diff.idx} &rarr; ${DATA.accel.value}</b></span>` : "") +
+    (topMoved ? `<span class="moved">Frontier <b>${diff.top} &rarr; ${top.ii}</b></span>` : "") +
+    `<button class="sincex" type="button" aria-label="Dismiss">&times;</button>`;
+  box.hidden = false;
+  box.querySelector(".sincex").onclick = () => {
+    box.hidden = true;
+    try { sessionStorage.setItem("aa-since", JSON.stringify({ t: diff.t, fresh: [], idx: null, top: null })); } catch (e) {}
+  };
+})();
 
 /* ---------- the headline above the chart: computed, never written by hand ----------
    The latest stretch of the window against the stretch of equal length before it,
@@ -1480,22 +1866,43 @@ const CMP_WORDS = { 45: "45 days", 91: "three months", 182: "six months", 365: "
 function drawKicker() {
   const k = document.getElementById("chartKicker");
   if (!k) return;
-  const P = CMP_DAYS[S.win] || 365, words = CMP_WORDS[P], cut = cutEnd().getTime();
+  const P = CMP_DAYS[S.win] || 365, words = CMP_WORDS[P], cut = cutEnd().getTime(), then = cut - P * day;
   const rows = plotRows().filter(r => S.labs.has(r.lab));
+  const field = fieldRows().filter(r => S.labs.has(r.lab)).map(r => Object.assign({ t: D(r.d).getTime() }, r))
+    .sort((a, b) => a.t - b.t || (b.ii ?? -1) - (a.ii ?? -1));
   if (S.mode === "rel") {
-    const n1 = rows.filter(r => { const t = D(r.d).getTime(); return t > cut - P * day && t <= cut; }).length;
-    const n0 = rows.filter(r => { const t = D(r.d).getTime(); return t > cut - 2 * P * day && t <= cut - P * day; }).length;
+    const n1 = rows.filter(r => { const t = D(r.d).getTime(); return t > then && t <= cut; }).length;
+    const n0 = rows.filter(r => { const t = D(r.d).getTime(); return t > cut - 2 * P * day && t <= then; }).length;
     const ratio = n0 ? n1 / n0 : 0;
     k.innerHTML = `<b>${n1}</b> releases in the last ${words}` + (n0
       ? ` &middot; <b class="${ratio >= 1 ? "up" : "down"}">${ratio.toFixed(1)}&times;</b> the ${words} before (${n0})` : "");
-  } else {
+  } else if (S.mode === "cap") {
     const scored = rows.filter(r => r.ii !== null && D(r.d).getTime() <= cut);
     const lead = scored.reduce((a, r) => (!a || r.ii > a.ii ? r : a), null);
-    const prev = scored.filter(r => D(r.d).getTime() <= cut - P * day).reduce((m, r) => Math.max(m, r.ii), -1);
+    const prev = scored.filter(r => D(r.d).getTime() <= then).reduce((m, r) => Math.max(m, r.ii), -1);
     if (!lead) { k.innerHTML = ""; return; }
     const gain = prev >= 0 ? lead.ii - prev : null;
     k.innerHTML = `Frontier <b>${lead.ii}</b> &middot; ${lead.m}` + (gain !== null
       ? ` &middot; <b class="${gain > 0 ? "up" : "down"}">${gain > 0 ? "+" : ""}${gain.toFixed(1)}</b> points in the last ${words}` : "");
+  } else if (S.mode === "cost") {
+    /* the highest bar that was already reachable a period ago, so the ratio is like for like */
+    const upto = t => field.filter(r => r.t <= t);
+    const pick = [...COST_T].reverse().find(T => cheapestSteps(upto(then), T).length) || COST_T.find(T => cheapestSteps(upto(cut), T).length);
+    if (!pick) { k.innerHTML = ""; return; }
+    const now = cheapestSteps(upto(cut), pick).pop(), was = cheapestSteps(upto(then), pick).pop();
+    const ratio = was ? was.price / now.price : null;
+    k.innerHTML = `Cheapest model scoring ≥${pick}: <b>${priceTxt(now.price)}</b> per 1M tokens &middot; ${now.m}` +
+      (ratio && ratio > 1.05 ? ` &middot; <b class="up">${ratio >= 10 ? ratio.toFixed(0) : ratio.toFixed(1)}&times; cheaper</b> than ${words} ago` :
+       ratio ? ` &middot; about the same price as ${words} ago` : "");
+  } else {
+    const G = GAPS[S.gap], upto = t => field.filter(r => r.t <= t && r.ii !== null);
+    const best = (t, test) => upto(t).filter(test).reduce((m, r) => Math.max(m, r.ii), -1);
+    const a1 = best(cut, G.a.test), b1 = best(cut, G.b.test), a0 = best(then, G.a.test), b0 = best(then, G.b.test);
+    if (a1 < 0 || b1 < 0) { k.innerHTML = ""; return; }
+    const g1 = a1 - b1, g0 = a0 >= 0 && b0 >= 0 ? a0 - b0 : null;
+    const lead = g1 >= 0 ? G.a.label : G.b.label;
+    k.innerHTML = `${lead} lead by <b>${Math.abs(g1).toFixed(1)}</b> points` + (g0 !== null
+      ? ` &middot; <b class="${Math.abs(g1) < Math.abs(g0) ? "down" : "up"}">${Math.abs(g1) < Math.abs(g0) ? "narrower" : "wider"}</b> than ${words} ago (${Math.abs(g0).toFixed(1)})` : "");
   }
 }
 
@@ -1509,7 +1916,7 @@ function fillTable() {
   wrap.innerHTML = `<table><caption>${rows.length} releases in view, newest first</caption>
     <thead><tr><th scope="col">Date</th><th scope="col">Lab</th><th scope="col">Model</th><th scope="col" class="num">Index</th><th scope="col">Notable</th></tr></thead><tbody>` +
     rows.map(r => `<tr><td>${r.d}</td><td><span class="sw" style="background:${byId[r.lab].hex}"></span>${byId[r.lab].short}</td>
-      <td>${r.m}</td><td class="num">${r.ii ?? "—"}</td><td>${r.n ? "yes" : ""}</td></tr>`).join("") + `</tbody></table>`;
+      <td>${r.u ? `<a href="m/${r.u}/">${r.m}</a>` : r.m}</td><td class="num">${r.ii ?? "—"}</td><td>${r.n ? "yes" : ""}</td></tr>`).join("") + `</tbody></table>`;
 }
 document.getElementById("dtable")?.addEventListener("toggle", fillTable);
 
@@ -1625,6 +2032,10 @@ function clampTip(dot) {
     break;
   }
 }
+addEventListener("click", e => {
+  const dot = e.target && e.target.closest ? e.target.closest("#lanes .dot") : null;
+  if (dot && dot.dataset.u && !e.defaultPrevented) location.href = `m/${dot.dataset.u}/`;
+});
 addEventListener("mouseover", e => {
   const dot = e.target && e.target.closest ? e.target.closest(".dot") : null;
   if (dot) clampTip(dot);
@@ -1679,6 +2090,8 @@ addEventListener("keydown", e => {
   if (e.key === "t" || e.key === "T") { scrollTo({ top: 0, behavior: "smooth" }); return; }
   if (e.key === "r" || e.key === "R") document.querySelector('#modeseg button[data-mode="rel"]').click();
   if (e.key === "i" || e.key === "I") document.querySelector('#modeseg button[data-mode="cap"]').click();
+  if (e.key === "c" || e.key === "C") document.querySelector('#modeseg button[data-mode="cost"]').click();
+  if (e.key === "g" || e.key === "G") document.querySelector('#modeseg button[data-mode="gap"]').click();
   const dot = e.target && e.target.closest ? e.target.closest(".dot") : null;
   if (dot && (e.key === "Enter" || e.key === " ")) {
     e.preventDefault();

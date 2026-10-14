@@ -9,11 +9,18 @@ No home server, no cron on your machine, no manual step.
 ## How it works
 
 ```
-Actions (every 6h + manual)            --> pipeline/fetch.py    pulls Artificial Analysis
-                                       --> pipeline/diff.py     compares to data/baseline.json
-                                       --> build/build_page.py  regenerates index.html
-                                       --> git commit + push    GitHub Pages redeploys
+Actions (every 6h + manual)  --> pipeline/fetch.py           pulls Artificial Analysis (models, scores, prices)
+                             --> scripts/build_data.py       one row per release: lab, region, open weights, notable
+                             --> pipeline/fetch_hardware.py  GPU rental prices (GetDeploying, CC BY 4.0, weekly)
+                             --> build/build_page.py         index.html + release pages, feed, sitemap, badge, embed, og.png
+                             --> git commit + push           only when releases or rental prices changed
+                             --> deploy-pages                always, so the page's "now" moves forward
 ```
+
+If a run fails, the job opens one GitHub issue ("Refresh job failing") and comments on it
+for each further failure; the next good run closes it. The page itself shows a banner
+once its data is more than 24 hours old (normally it is at most ~9: runs every 6 hours,
+plus GitHub's scheduling delay), which also covers GitHub pausing the schedule entirely.
 
 A commit only happens when the data actually changed, so the history doubles as the
 changelog and idle checks cost nothing.
@@ -58,13 +65,27 @@ Applied from 2026 data-visualisation guidance:
 
 | Path | Purpose |
 |---|---|
-| `.github/workflows/update.yml` | the scheduler |
+| `.github/workflows/update.yml` | the scheduler, failure issue, deploy |
 | `pipeline/fetch.py` | API client + variant grouping |
-| `build/dataset.py` | which labs we track, colours, marks |
-| `build/build_page.py` | renders `index.html` from the data |
+| `pipeline/fetch_hardware.py` | GPU rental prices → `data/gpu_rental.json` |
+| `scripts/build_data.py` | release rows, notable rule, region and open-weight rule |
+| `build/labs.json` | labs, colours (dark + light), region, open-weight rule, notable names |
+| `build/statements.json` | dated "we will slow down" statements (edit by hand; the rest is counted) |
+| `build/hardware.json` | hand-checked purchase prices, one source per number, re-check monthly |
+| `build/build_page.py` | renders `index.html` and the sections |
+| `build/extras.py` | release pages (`/m/<slug>/`), Atom feed, sitemap, badge, embed widget, social card |
+| `build/hardware_section.py` | section 07, the cost of running it yourself |
 | `data/releases.json` | current grouped dataset (committed) |
 | `data/baseline.json` | previous snapshot, for diffing |
-| `data/changelog.jsonl` | append-only record of what changed and when |
+| `data/changes.jsonl` | append-only record of what changed and when |
+
+### What is automatic and what is editorial
+
+Automatic: releases, scores, prices, the notable rule after 24 Sep 2026, every chart,
+"who's due", the said-then-shipped counts, GPU rental prices, the Acceleration Index.
+Editorial (yours): `labs.json` notable names and open-weight rules (the API publishes no
+licences), `statements.json`, `notes.json`, `sections.py` text, and `hardware.json`
+purchase prices (no keyless source exists and the shops forbid scraping).
 
 ---
 
