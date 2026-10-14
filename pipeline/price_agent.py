@@ -17,7 +17,8 @@ Standard library only.
 Configuration (environment):
   LLM_BASE_URL     OpenAI-compatible endpoint   default https://api.minimax.io/v1
   LLM_API_KEY      key for it                   default $MINIMAX_API_KEY
-  LLM_MODEL        model name                   default MiniMax-M3
+  LLM_MODEL        model name                   default MiniMax-M3.1-Flash-Preview, the one
+                   model MiniMax's subscription keys (Token Plan / M Plan) include
   SEARCH_BACKEND   minimax | searxng            default minimax
   MINIMAX_API_HOST search host                  default https://api.minimax.io
   SEARXNG_URL      e.g. http://127.0.0.1:8888   (searxng backend only)
@@ -39,7 +40,7 @@ UA = "artificialacceleration.com price check (+https://artificialacceleration.co
 
 LLM_BASE = os.environ.get("LLM_BASE_URL", "https://api.minimax.io/v1").rstrip("/")
 LLM_KEY = os.environ.get("LLM_API_KEY") or os.environ.get("MINIMAX_API_KEY", "")
-LLM_MODEL = os.environ.get("LLM_MODEL", "MiniMax-M3")
+LLM_MODEL = os.environ.get("LLM_MODEL", "MiniMax-M3.1-Flash-Preview")
 SEARCH = os.environ.get("SEARCH_BACKEND", "minimax")
 MM_HOST = os.environ.get("MINIMAX_API_HOST", "https://api.minimax.io").rstrip("/")
 SEARXNG = os.environ.get("SEARXNG_URL", "http://127.0.0.1:8888").rstrip("/")
@@ -151,6 +152,8 @@ def ask_model(prompt, budget=12000):
                          {"role": "user", "content": prompt}]}
     if "minimax" in LLM_BASE:
         body["reasoning_split"] = True          # keep the model's thinking out of the answer
+        if "M3.1" in LLM_MODEL:
+            body["reasoning_effort"] = "low"    # reading a price off a page needs little thought; spares the quota
     body.update(EXTRA)
     out = json.loads(http(f"{LLM_BASE}/chat/completions", body, {"Authorization": f"Bearer {LLM_KEY}"}, timeout=300))
     choice = out["choices"][0]

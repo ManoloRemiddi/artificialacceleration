@@ -3,7 +3,8 @@ name: monthly-price-check
 # Re-checks the hand-maintained purchase prices in build/hardware.json once a month and
 # opens a pull request with the evidence. Runs on GitHub's servers: no computer, login or
 # Claude account involved. The model is MiniMax (OpenAI-compatible API + its web search),
-# reached with the repository secret MINIMAX_API_KEY (a Token Plan key from minimax.io).
+# reached with the repository secret MINIMAX_API_KEY: a subscription key (Token Plan or M Plan,
+# sk-cp-...) or a pay-as-you-go key from minimax.io. About 40 requests a month.
 on:
   schedule:
     - cron: "23 7 3 * *"        # 07:23 UTC on the 3rd of every month
@@ -33,7 +34,7 @@ jobs:
         id: agent
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          LLM_MODEL: ${{ vars.PRICE_AGENT_MODEL || 'MiniMax-M3' }}
+          LLM_MODEL: ${{ vars.PRICE_AGENT_MODEL || 'MiniMax-M3.1-Flash-Preview' }}
           MINIMAX_API_HOST: ${{ vars.MINIMAX_API_HOST || 'https://api.minimax.io' }}
           LLM_BASE_URL: ${{ vars.MINIMAX_API_HOST || 'https://api.minimax.io' }}/v1
           REPORT_PATH: ${{ runner.temp }}/price-report.md

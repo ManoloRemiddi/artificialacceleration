@@ -93,10 +93,10 @@ involved:
    number; moves beyond ±30% in a month are held for a human;
 4. opens a pull request with an evidence table. Nothing is published until you merge.
 
-Setup: a `MINIMAX_API_KEY` repository secret (a Token Plan key from minimax.io; search needs
-it), and Settings → Actions → General → "Allow GitHub Actions to create and approve pull
+Setup: a `MINIMAX_API_KEY` repository secret: a subscription key (Token Plan / M Plan,
+`sk-cp-…`, which includes search and the M3.1 Flash Preview model) or a pay-as-you-go key, and Settings → Actions → General → "Allow GitHub Actions to create and approve pull
 requests" (without it, the run files an issue with a compare link instead). Optional
-repository variables: `PRICE_AGENT_MODEL` (default `MiniMax-M3`), `MINIMAX_API_HOST`
+repository variables: `PRICE_AGENT_MODEL` (default `MiniMax-M3.1-Flash-Preview`, the model subscription keys include), `MINIMAX_API_HOST`
 (`https://api.minimaxi.com` for mainland-China keys). The agent speaks the OpenAI API, so
 any compatible endpoint works via `LLM_BASE_URL` / `LLM_API_KEY`, and `SEARCH_BACKEND=searxng`
 swaps the search for a SearXNG instance, e.g. to run it locally:
