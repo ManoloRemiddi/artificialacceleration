@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI hardware tracker — prices by vendor and market · Artificial Acceleration</title>
+<meta name="description" content="What it costs to run AI yourself: home-lab and datacenter hardware from NVIDIA, AMD, Intel, Apple and Chinese vendors, with prices in the US, Europe, the UK, China and Japan over time.">
+<link rel="canonical" href="https://artificialacceleration.com/hardware/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Artificial Acceleration">
+<meta property="og:title" content="AI hardware tracker — prices by vendor and market">
+<meta property="og:description" content="Home-lab and datacenter AI hardware across vendors, with prices in five markets over time.">
+<meta property="og:url" content="https://artificialacceleration.com/hardware/">
+<meta property="og:image" content="https://artificialacceleration.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<script>try{var t=localStorage.getItem("aa-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+  :root{
+    --bg:#0a0b12;--panel:#141725;--panel2:#181c2b;--line:#2c3145;--line2:#222738;
+    --ink:#f2f5fc;--dim:#b3bcd2;--faint:#7f89a3;--alert:#ff5b5b;--good:#34d399;--chipbg:#12151f;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    /* markets: validated five-colour set; each also has its own marker shape */
+    --r-US:#6ea8fe;--r-EU:#f2c94c;--r-UK:#2dd4bf;--r-CN:#ff6b5e;--r-JP:#e879f9;
+    --v-NVIDIA:#8fd14f;--v-AMD:#ff6b5e;--v-Intel:#5cb8ff;--v-Apple:#c9d1e3;--v-China:#ffb454;--v-Cloud:#a5b4fc;--v-Tenstorrent:#9ca3af;
+  }
+  [data-theme="light"]{
+    --bg:#f4f6fb;--panel:#fff;--panel2:#f7f9fd;--line:#d3dae8;--line2:#e4e9f3;
+    --ink:#131824;--dim:#46516b;--faint:#6b7793;--alert:#c62b2b;--good:#047857;--chipbg:#eef1f8;
+    --r-US:#2563eb;--r-EU:#9a6700;--r-UK:#0d9488;--r-CN:#e11d48;--r-JP:#9333ea;
+    --v-NVIDIA:#3f7d00;--v-AMD:#c8322a;--v-Intel:#0068b5;--v-Apple:#3a4356;--v-China:#b45309;--v-Cloud:#4f46e5;--v-Tenstorrent:#4b5563;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 16px 48px}
+  .crumb{font:12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-decoration:none}
+  .crumb:hover{color:var(--ink)}
+  h1{font-size:clamp(28px,5vw,44px);line-height:1.08;margin:10px 0 6px;letter-spacing:-.025em;text-wrap:balance}
+  .lede{color:var(--dim);max-width:820px;margin:0}
+  .lede b{color:var(--ink)}
+  .bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);
+       padding:10px 0;margin:14px 0 6px;border-bottom:1px solid var(--line2);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .bar .cap{font:10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-right:4px}
+  .chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--chipbg);color:var(--ink);
+        border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+  .chip i{width:8px;height:8px;border-radius:50%;background:var(--c,var(--dim))}
+  .chip[aria-pressed="true"]{border-color:var(--ink);background:var(--panel)}
+  .chip[aria-pressed="false"]{opacity:.55}
+  section{margin-top:22px}
+  h2{font-size:18px;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-size:14px;margin:0 0 10px;max-width:860px}
+  .panel{background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:14px 16px}
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .tab{border:1px solid var(--line);background:none;color:var(--dim);border-radius:8px;padding:5px 10px;font-size:13px;cursor:pointer}
+  .tab[aria-pressed="true"]{color:var(--ink);border-color:var(--ink);background:var(--panel2)}
+  .tab small{color:var(--faint);margin-left:4px;font-family:var(--mono);font-size:10.5px}
+  .psel{display:none;width:100%;margin-bottom:10px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);
+        background:var(--panel2);color:var(--ink);font:14px var(--sans)}
+  @media (max-width:760px){ .tabs{display:none} .psel{display:block} }
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-left:auto}
+  .seg button{background:none;border:0;color:var(--dim);padding:5px 10px;font-size:12.5px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+  .kick{font-size:15px;color:var(--dim);margin:2px 0 8px}
+  .kick b{color:var(--ink)} .up{color:var(--alert)} .down{color:var(--good)}
+  .scroll{overflow-x:auto}
+  svg{display:block}
+  svg text{font-family:var(--mono)}
+  .ax{stroke:var(--line);stroke-width:1}
+  .axl{fill:var(--faint);font-size:11px}
+  .note{font-size:12.5px;color:var(--dim);margin:8px 0 0;line-height:1.5}
+  .note a{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+  th{text-align:left;font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:6px 8px;white-space:nowrap}
+  td{padding:7px 8px;border-top:1px solid var(--line2);vertical-align:top}
+  .n{text-align:right;white-space:nowrap}
+  td .src{font:10.5px var(--mono);color:var(--faint)}
+  td small{display:block;color:var(--faint);font-size:12px}
+  .mk{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+  .vend{display:inline-flex;align-items:center;gap:6px}
+  .vend i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+  .empty{color:var(--faint);font-size:13.5px;padding:18px 4px}
+  .hwline{fill:none;stroke-width:2}
+  .hwlab{font-family:var(--mono);font-size:11px;font-weight:700}
+  .hwlab .v{fill:var(--ink)} .hwlab .up{fill:var(--alert)} .hwlab .down{fill:var(--good)} .hwlab .thin{fill:var(--faint);font-weight:400}
+  .hwscroll{overflow-x:auto}
+  figure{margin:0} figcaption{font-size:12.5px;color:var(--dim);margin-bottom:2px}
+  :root{--hw-nv:var(--v-NVIDIA);--hw-amd:var(--v-AMD);--hw-intel:var(--v-Intel)}
+  footer{margin-top:30px;font-size:12.5px;color:var(--faint);line-height:1.6}
+  @media (max-width:760px){ .hide-m{display:none} table{font-size:12.5px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="crumb" href="../">&larr; Artificial Acceleration</a>
+  <h1>The AI hardware tracker</h1>
+  <p class="lede">What it costs to run AI yourself, from a desk to a data centre: <b>NVIDIA, AMD, Intel, Apple and China&rsquo;s chipmakers</b>,
+  with prices in <b>the US, Europe, the UK, China and Japan</b>, each converted to dollars at that day&rsquo;s exchange rate.
+  <span id="asof"></span></p>
+
+  <div class="bar" role="toolbar" aria-label="Filter by manufacturer">
+    <span class="cap">Manufacturer</span>
+    <span id="vchips"></span>
+  </div>
+
+  <section id="world">
+    <h2>Prices around the world</h2>
+    <p class="sub">The same machine in five markets, in US dollars at each date&rsquo;s exchange rate. Shelf prices in Europe, the UK, China and Japan
+    include VAT and US prices do not; switch to <b>without sales tax</b> for a like-for-like comparison.</p>
+    <div class="panel">
+      <div class="tabs" id="ptabs" role="tablist" aria-label="Product"></div>
+      <select class="psel" id="psel" aria-label="Product"></select>
+      <div class="row">
+        <p class="kick" id="wkick"></p>
+        <div class="seg" id="taxseg" role="group" aria-label="Tax">
+          <button data-tax="sold" aria-pressed="true">As sold</button>
+          <button data-tax="ex" aria-pressed="false">Without sales tax</button>
+        </div>
+      </div>
+      <div class="scroll"><svg id="wchart" width="100%" height="320" role="img" aria-label="Price over time by market"></svg></div>
+      <div class="scroll"><table id="wtable"></table></div>
+      <p class="note" id="wnote"></p>
+    </div>
+  </section>
+
+  <section id="launch">
+    <h2>Launch price &rarr; today, in the US</h2>
+    <p class="sub">The 2026 memory shortage reversed the usual curve: most machines cost more now than on launch day.</p>
+    <div class="panel"><div class="scroll"><svg id="lchart" width="100%" role="img" aria-label="Launch price against latest US price"></svg></div></div>
+  </section>
+
+  <section id="dc">
+    <h2>Datacenter accelerators</h2>
+    <p class="sub">The chips that train and serve frontier models, from US and Chinese vendors. Purchase prices are reported estimates
+    (no vendor publishes a list price); rent is the live weekly median where an open rental market exists.</p>
+    <div class="panel">
+      <div class="scroll"><table id="dtable"></table></div>
+      <p class="note" id="dnote"></p>
+    </div>
+  </section>
+
+  <section id="rent">
+    <h2>Renting it, by the hour</h2>
+    <div class="panel">__RENTAL__</div>
+  </section>
+
+  <footer>
+    Sources: purchase prices are checked monthly by an automated agent that must quote the page each number comes from, and reviewed
+    before publishing; every point links to its source. Rental prices: <a href="https://getdeploying.com/dataset">GetDeploying open dataset</a> (CC BY 4.0).
+    Exchange rates: European Central Bank reference rates via <a href="https://frankfurter.dev">frankfurter.dev</a>.
+    <span id="fchecked"></span> <a href="../">Back to the release tracker &rarr;</a>
+  </footer>
+</div>
+
+<script>
+const DATA = __DATA__;
+const $ = id => document.getElementById(id);
+const REG = ["US", "EU", "UK", "CN", "JP"];
+const SHAPE = { US: "circle", EU: "square", UK: "diamond", CN: "triangle", JP: "cross" };
+const S = { vendors: new Set(DATA.vendors), product: null, tax: "sold" };
+const money = v => v == null ? "—" : v >= 1e6 ? "$" + (v / 1e6).toFixed(1) + "M" : v >= 10000 ? "$" + Math.round(v / 1000) + "k"
+  : v >= 100 ? "$" + Math.round(v).toLocaleString("en-US") : "$" + v.toFixed(2);
+const local = (amt, cur) => { const sym = { USD: "$", EUR: "€", GBP: "£", CNY: "¥", JPY: "¥" }[cur] || cur + " ";
+  return sym + Math.round(amt).toLocaleString("en-US") + (cur === "CNY" ? " (CNY)" : cur === "JPY" ? " (JPY)" : ""); };
+const D = s => new Date((s.length === 7 ? s + "-15" : s) + "T00:00:00Z").getTime();
+const dayLabel = s => new Date(D(s)).toLocaleDateString("en-GB", { day: s.length > 7 ? "numeric" : undefined, month: "short", year: "numeric", timeZone: "UTC" });
+const CLOUD = ["Google", "AWS", "Microsoft"];
+const vendorGroup = v => (DATA.cn_vendors.includes(v) ? "China" : CLOUD.includes(v) ? "Cloud" : v);
+const vcol = v => `var(--v-${vendorGroup(v)})`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function marker(shape, x, y, r, color) {
+  const st = `style="fill:${color};stroke:var(--panel);stroke-width:1.5"`;
+  if (shape === "square") return `<rect x="${x - r}" y="${y - r}" width="${2 * r}" height="${2 * r}" ${st}/>`;
+  if (shape === "diamond") return `<path d="M${x} ${y - r * 1.3}L${x + r * 1.3} ${y}L${x} ${y + r * 1.3}L${x - r * 1.3} ${y}Z" ${st}/>`;
+  if (shape === "triangle") return `<path d="M${x} ${y - r * 1.3}L${x + r * 1.2} ${y + r}L${x - r * 1.2} ${y + r}Z" ${st}/>`;
+  if (shape === "cross") return `<path d="M${x - r} ${y - r}L${x + r} ${y + r}M${x + r} ${y - r}L${x - r} ${y + r}" style="stroke:${color};stroke-width:3;fill:none"/>`;
+  return `<circle cx="${x}" cy="${y}" r="${r}" ${st}/>`;
+}
+const keyMarker = (reg) => `<svg class="mk" viewBox="-6 -6 12 12" width="11" height="11" aria-hidden="true">${marker(SHAPE[reg], 0, 0, 4, `var(--r-${reg})`)}</svg>`;
+
+/* ---------------- manufacturer filter ---------------- */
+(function chips() {
+  const groups = [...new Set(DATA.vendors.map(vendorGroup))];
+  $("vchips").innerHTML = groups.map(g => `<button class="chip" data-g="${g}" aria-pressed="true" style="--c:var(--v-${g})"><i></i>${g === "China" ? "Chinese vendors" : g === "Cloud" ? "Cloud chips (Google, AWS, Microsoft)" : g}</button>`).join(" ");
+  $("vchips").querySelectorAll(".chip").forEach(b => b.onclick = () => {
+    const all = [...$("vchips").querySelectorAll(".chip")];
+    const isOn = c => c.getAttribute("aria-pressed") === "true";
+    // with everything showing, a click isolates that manufacturer; after that, clicks
+    // add or remove one; switching the last one off brings everything back
+    if (all.every(isOn)) all.forEach(c => c.setAttribute("aria-pressed", String(c === b)));
+    else b.setAttribute("aria-pressed", String(!isOn(b)));
+    if (!all.some(isOn)) all.forEach(c => c.setAttribute("aria-pressed", "true"));
+    const groupsOn = all.filter(isOn).map(c => c.dataset.g);
+    S.vendors = new Set(DATA.vendors.filter(v => groupsOn.includes(vendorGroup(v))));
+    draw();
+  });
+})();
+
+/* ---------------- prices around the world ---------------- */
+function products() { return DATA.products.filter(p => S.vendors.has(p.vendor)); }
+function drawTabs() {
+  const ps = products();
+  if (!ps.find(p => p.id === S.product)) S.product = (ps.find(p => p.regions > 1) || ps[0] || {}).id || null;
+  $("ptabs").innerHTML = ps.map(p => `<button class="tab" role="tab" data-id="${p.id}" aria-pressed="${p.id === S.product}">${esc(p.short || p.name)}<small>${p.regions}/5</small></button>`).join("");
+  $("ptabs").querySelectorAll(".tab").forEach(b => b.onclick = () => { S.product = b.dataset.id; drawWorld(); drawTabs(); });
+  $("psel").innerHTML = ps.map(p => `<option value="${p.id}"${p.id === S.product ? " selected" : ""}>${esc(p.short || p.name)} (${p.regions}/5 markets)</option>`).join("");
+  $("psel").onchange = e => { S.product = e.target.value; drawWorld(); drawTabs(); };
+}
+function drawWorld() {
+  const p = DATA.products.find(x => x.id === S.product);
+  const svg = $("wchart"), tbl = $("wtable");
+  if (!p) { svg.innerHTML = ""; tbl.innerHTML = ""; $("wkick").textContent = ""; $("wnote").innerHTML = `<span class="empty">No products for this manufacturer yet.</span>`; return; }
+  const val = pt => S.tax === "ex" ? pt.usd_ex : pt.usd;
+  /* drawn at the real width, so text stays legible on a phone instead of being scaled down */
+  const W = Math.max(320, svg.clientWidth || 900), narrow = W < 560, H = narrow ? 260 : 320;
+  const PL = narrow ? 44 : 56, PR = narrow ? 92 : 150, PT = 16, PB = 28;
+  svg.setAttribute("height", H);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const pts = p.points.filter(pt => val(pt) != null);
+  const t0 = Math.min(...pts.map(pt => D(pt.d))), t1 = Math.max(DATA.as_of_ms, ...pts.map(pt => D(pt.d)));
+  const vmax = Math.max(...pts.map(val)) * 1.12, vmin = 0;
+  const x = t => PL + (t - t0) / Math.max(1, t1 - t0) * (W - PL - PR), y = v => PT + (H - PT - PB) * (1 - (v - vmin) / (vmax - vmin));
+  let h = "";
+  const step = [100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000].find(s => vmax / s <= 6) || 20000;
+  for (let v = 0; v <= vmax; v += step) {
+    h += `<line class="ax" x1="${PL}" x2="${W - PR}" y1="${y(v)}" y2="${y(v)}" opacity="${v ? .22 : 1}"/><text class="axl" x="${PL - 6}" y="${y(v) + 4}" text-anchor="end">${money(v)}</text>`;
+  }
+  /* ticks thin out with the span: quarters within ~18 months, half-years to 3 years, then years */
+  const yrs = new Date(t0).getUTCFullYear(), yre = new Date(t1).getUTCFullYear(), spanY = (t1 - t0) / 3.156e10;
+  const months = spanY <= 0.75 ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] : spanY <= 1.5 ? [0, 3, 6, 9] : spanY <= 3 ? [0, 6] : [0];
+  for (let yy = yrs; yy <= yre; yy++) for (const m of months) {
+    const t = Date.UTC(yy, m, 1); if (t < t0 || t > t1) continue;
+    const lab = m === 0 && months.length === 1 ? String(yy) : `${new Date(t).toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })} ’${String(yy).slice(2)}`;
+    h += `<line class="ax" x1="${x(t)}" x2="${x(t)}" y1="${PT}" y2="${H - PB}" opacity=".12"/><text class="axl" x="${x(t)}" y="${H - 8}" text-anchor="middle">${lab}</text>`;
+  }
+  const labels = [];
+  REG.forEach(r => {
+    const s = pts.filter(pt => pt.r === r).sort((a, b) => D(a.d) - D(b.d));
+    if (!s.length) return;
+    const col = `var(--r-${r})`;
+    /* observations close together are joined solid; across a long gap the line is dashed,
+       because nothing was observed in between and a flat step would claim the price held */
+    for (let i = 1; i < s.length; i++) {
+      const a = s[i - 1], b = s[i], gap = D(b.d) - D(a.d) > 125 * 864e5;
+      h += `<line x1="${x(D(a.d))}" y1="${y(val(a))}" x2="${x(D(b.d))}" y2="${y(val(b))}" class="hwline" style="stroke:${col}"${gap ? ' stroke-dasharray="4 4" opacity=".7"' : ""}/>`;
+    }
+    const last = s[s.length - 1];
+    if (D(last.d) < t1) h += `<line x1="${x(D(last.d))}" y1="${y(val(last))}" x2="${x(t1)}" y2="${y(val(last))}" class="hwline" style="stroke:${col}" stroke-dasharray="1 4" opacity=".6"/>`;
+    s.forEach(pt => {
+      h += `<g>${marker(SHAPE[r], x(D(pt.d)), y(val(pt)), 4.5, col)}<title>${DATA.regions[r].label} · ${dayLabel(pt.d)} · ${local(pt.amt, pt.cur)} = ${money(val(pt))}${S.tax === "ex" && pt.tax === "incl" ? " without VAT" : ""} · ${pt.basis}</title></g>`;
+    });
+    labels.push({ y: y(val(s[s.length - 1])), r, v: val(s[s.length - 1]) });
+  });
+  labels.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 15) labels[i].y = labels[i - 1].y + 15;
+  labels.forEach(l => { h += `<text class="hwlab" x="${W - PR + 10}" y="${l.y + 4}"><tspan style="fill:var(--r-${l.r})">${l.r}</tspan> <tspan class="v">${money(l.v)}</tspan></text>`; });
+  svg.innerHTML = h;
+
+  // table: latest per market, against the US. A market is compared with the US only when
+  // both prices are the same kind (list vs street) and were observed within 90 days of each
+  // other: an official list price set against a street price, or a 2025 price against a
+  // 2026 one, would be a false comparison.
+  const latest = REG.map(r => p.points.filter(pt => pt.r === r).sort((a, b) => D(a.d) - D(b.d)).pop()).filter(Boolean);
+  const us = latest.find(pt => pt.r === "US");
+  const kind = pt => /launch|msrp|official|list|price rise|configurator|announced|marketplace/i.test(pt.basis) ? "list" : "street";
+  const comparable = pt => us && pt.r !== "US" && kind(pt) === kind(us) && Math.abs(D(pt.d) - D(us.d)) <= 90 * 864e5;
+  tbl.innerHTML = `<thead><tr><th>Market</th><th class="n">Local price</th><th class="n">In US$</th><th class="n hide-m">Without tax</th><th class="n">vs US</th><th>Date · basis</th></tr></thead><tbody>` +
+    latest.map(pt => {
+      const vs = comparable(pt) && val(us) ? (val(pt) - val(us)) / val(us) * 100 : null;
+      return `<tr><td>${keyMarker(pt.r)}${DATA.regions[pt.r].label}<small>${DATA.regions[pt.r].note}</small></td><td class="n">${local(pt.amt, pt.cur)}</td>
+        <td class="n">${money(pt.usd)}</td><td class="n hide-m">${money(pt.usd_ex)}</td>
+        <td class="n ${vs == null ? "" : vs > 0 ? "up" : "down"}">${vs == null ? (pt.r === "US" ? "—" : `<small title="different kind of price or more than 90 days apart">not comparable</small>`) : (vs > 0 ? "+" : "") + vs.toFixed(0) + "%"}</td>
+        <td>${dayLabel(pt.d)} · ${esc(pt.basis)} ${pt.src ? `<a class="src" href="${esc(pt.src)}">source</a>` : ""}</td></tr>`;
+    }).join("") + `</tbody>`;
+  const missing = REG.filter(r => !latest.find(pt => pt.r === r)).map(r => DATA.regions[r].label);
+  const first = p.points.filter(pt => pt.r === "US").sort((a, b) => D(a.d) - D(b.d))[0];
+  const pool = latest.filter(pt => pt.usd_ex != null && (pt.r === "US" || comparable(pt)));
+  const cheapest = pool.length > 1 ? pool.sort((a, b) => a.usd_ex - b.usd_ex)[0] : null;
+  $("wkick").innerHTML = `<b>${esc(p.name)}</b>${p.mem_gb ? ` · ${p.mem_gb} GB` : ""}${p.bw_gbps ? ` · ${p.bw_gbps.toLocaleString("en-US")} GB/s` : ""}` +
+    (p.note ? ` · <i>${esc(p.note)}</i>` : "") +
+    (first && us && first !== us ? ` · US price <b class="${us.usd > first.usd ? "up" : "down"}">${us.usd > first.usd ? "+" : ""}${((us.usd - first.usd) / first.usd * 100).toFixed(0)}%</b> since ${dayLabel(first.d)}` : "") +
+    (cheapest ? ` · cheapest before tax: <b>${DATA.regions[cheapest.r].label}</b>` : "");
+  $("wnote").innerHTML = (missing.length ? `Not yet tracked here: ${missing.join(", ")}. The monthly check adds a dated price for every market it can verify, so these lines fill in over time. ` : "") +
+    `Each point is converted at the exchange rate of its own date, so a line can move because the currency moved, not only the price. Dashed: a long gap between observations.`;
+}
+
+/* ---------------- launch -> today (US) ---------------- */
+function drawLaunch() {
+  const rows = products().map(p => {
+    const us = p.points.filter(pt => pt.r === "US").sort((a, b) => D(a.d) - D(b.d));
+    return us.length > 1 ? { p, a: us[0], b: us[us.length - 1] } : null;
+  }).filter(Boolean).sort((m, n) => m.b.usd - n.b.usd);
+  const svg = $("lchart");
+  if (!rows.length) { svg.setAttribute("height", 40); svg.innerHTML = `<text class="axl" x="0" y="24">No US launch-and-today pair for this manufacturer yet.</text>`; return; }
+  const W = Math.max(760, svg.clientWidth || 1100), RH = 38, PL = Math.min(380, W * .34), PR = 150, PT = 26, H = PT + RH * rows.length + 28;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+  const vmax = Math.max(...rows.map(r => Math.max(r.a.usd, r.b.usd, r.b.high_usd || 0))) * 1.06;
+  const x = v => PL + v / vmax * (W - PL - PR);
+  const step = [500, 1000, 2000, 2500, 5000, 10000].find(s => vmax / s <= 8);
+  let h = "";
+  for (let v = 0; v <= vmax; v += step) h += `<line class="ax" x1="${x(v)}" x2="${x(v)}" y1="${PT - 8}" y2="${H - 24}" opacity=".18"/><text class="axl" x="${x(v)}" y="${H - 8}" text-anchor="middle">${v ? "$" + v / 1000 + "k" : "$0"}</text>`;
+  h += `<text class="axl" x="${PL}" y="12">○ launch   ● latest</text><text class="axl" x="${W - 6}" y="12" text-anchor="end">latest, per GB</text>`;
+  rows.forEach((r, i) => {
+    const cy = PT + RH * i + RH / 2, ch = (r.b.usd - r.a.usd) / r.a.usd * 100, cls = ch > 0 ? "up" : "down", col = ch > 0 ? "var(--alert)" : "var(--good)";
+    h += `<text x="0" y="${cy - 3}" style="fill:var(--ink);font:700 13px var(--sans)">${esc(r.p.short || r.p.name)}</text>`;
+    h += `<text class="axl" x="0" y="${cy + 12}"><tspan style="fill:${vcol(r.p.vendor)}">●</tspan> ${esc(r.p.vendor)}${r.p.mem_gb ? " · " + r.p.mem_gb + " GB" : ""}${r.p.bw_gbps ? " · " + r.p.bw_gbps.toLocaleString("en-US") + " GB/s" : ""}</text>`;
+    h += `<line x1="${x(r.a.usd)}" x2="${x(r.b.usd)}" y1="${cy}" y2="${cy}" style="stroke:${col};stroke-width:2"/>`;
+    h += `<circle cx="${x(r.a.usd)}" cy="${cy}" r="5" style="fill:var(--panel);stroke:var(--dim);stroke-width:2"><title>Launch ${dayLabel(r.a.d)}: ${money(r.a.usd)}</title></circle>`;
+    h += `<circle cx="${x(r.b.usd)}" cy="${cy}" r="6" style="fill:${col}"><title>${dayLabel(r.b.d)}: ${money(r.b.usd)} (${esc(r.b.basis)})</title></circle>`;
+    h += `<text x="${x(Math.max(r.a.usd, r.b.usd)) + 10}" y="${cy + 4}" class="${cls}" style="fill:${col};font:700 12px var(--mono)">${ch > 0 ? "+" : ""}${ch.toFixed(0)}%</text>`;
+    if (r.p.mem_gb) h += `<text class="axl" x="${W - 6}" y="${cy + 4}" text-anchor="end" style="font-size:12px">${money(r.b.usd / r.p.mem_gb)}/GB</text>`;
+  });
+  svg.innerHTML = h;
+}
+
+/* ---------------- datacenter ---------------- */
+function drawDC() {
+  const rows = DATA.accelerators.filter(a => S.vendors.has(a.vendor));
+  if (!rows.length) { $("dtable").innerHTML = `<tbody><tr><td class="empty">No datacenter parts for this manufacturer yet.</td></tr></tbody>`; return; }
+  $("dtable").innerHTML = `<thead><tr><th>Accelerator</th><th>Vendor</th><th class="n hide-m">Launch</th><th class="n">Memory</th><th class="n hide-m">Bandwidth</th>
+    <th class="n hide-m">FP8</th><th class="n">Buy (est.)</th><th class="n">Rent now</th><th class="hide-m">Note</th></tr></thead><tbody>` +
+    rows.map(a => `<tr><td><b>${esc(a.name)}</b>${a.what ? `<small>${esc(a.what)}</small>` : ""}</td>
+      <td><span class="vend" style="--c:${vcol(a.vendor)}"><i></i>${esc(a.vendor)}</span><small>${a.country === "CN" ? "China" : a.country === "US" ? "United States" : esc(a.country || "")}</small></td>
+      <td class="n hide-m">${a.launch ? dayLabel(a.launch) : "—"}</td>
+      <td class="n">${a.mem_gb ? a.mem_gb + " GB" : "—"}</td><td class="n hide-m">${a.bw_gbps ? (a.bw_gbps / 1000).toFixed(1) + " TB/s" : "—"}</td>
+      <td class="n hide-m">${a.fp8_tflops ? a.fp8_tflops.toLocaleString("en-US") + " TF" : "—"}</td>
+      <td class="n">${a.buy_lo ? (a.buy_hi && Math.abs(a.buy_hi - a.buy_lo) > 1 ? money(a.buy_lo) + "–" + money(a.buy_hi) : money(a.buy_lo)) : "not published"}${a.buy_src ? `<br><a class="src" href="${esc(a.buy_src)}">source${a.buy_date ? ", " + dayLabel(a.buy_date) : ""}</a>` : ""}</td>
+      <td class="n">${a.rent_now ? money(a.rent_now) + "/hr" : a.rent_note ? `<small>${esc(a.rent_note)}</small>` : "—"}${a.rent_yoy != null ? `<br><small class="${a.rent_yoy > 0 ? "up" : "down"}">${a.rent_yoy > 0 ? "+" : ""}${a.rent_yoy.toFixed(0)}% in a year</small>` : ""}</td>
+      <td class="hide-m"><small>${esc(a.notes || "")}</small></td></tr>`).join("") + `</tbody>`;
+  $("dnote").innerHTML = `Purchase estimates in other currencies are converted to dollars at the rate of their date. FP8 is dense throughput where the vendor publishes it. Chinese parts are mostly sold only inside China, and US export rules limit which NVIDIA parts can be sold there.`;
+}
+
+function draw() { drawTabs(); drawWorld(); drawLaunch(); drawDC(); }
+$("taxseg").querySelectorAll("button").forEach(b => b.onclick = () => {
+  S.tax = b.dataset.tax; $("taxseg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); drawWorld();
+});
+$("asof").textContent = `Data as of ${dayLabel(DATA.as_of)}.`;
+$("fchecked").textContent = `Purchase prices last checked ${dayLabel(DATA.checked)}.`;
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { drawWorld(); drawLaunch(); }, 150); });
+draw();
+</script>
+</body>
+</html>

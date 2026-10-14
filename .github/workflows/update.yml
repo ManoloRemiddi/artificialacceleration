@@ -42,8 +42,10 @@ jobs:
           python3 pipeline/fetch.py
           python3 scripts/build_data.py
 
-      - name: Fetch GPU rental prices (never fails the run)
-        run: python3 pipeline/fetch_hardware.py || echo "::warning::GPU rental fetch failed; using the committed file"
+      - name: Fetch GPU rental prices and exchange rates (never fail the run)
+        run: |
+          python3 pipeline/fetch_hardware.py || echo "::warning::GPU rental fetch failed; using the committed file"
+          python3 pipeline/fetch_fx.py       || echo "::warning::exchange-rate fetch failed; using the committed file"
 
       - name: Rebuild the page
         # the runner image ships Google Chrome, which renders the social card (og.png)

@@ -1,180 +1,2742 @@
 {
- "_about": "Hand-checked purchase prices. Rental prices are automatic (pipeline/fetch_hardware.py); these are not, because no keyless source publishes them and the shops forbid scraping. Re-check monthly, update 'checked', keep a source for every number. Prices in USD.",
+ "_about": "Hardware the tracker follows. products: home-lab / workstation machines with dated price points per market; accelerators: datacenter parts across vendors and countries with dated purchase estimates. Every number carries a source. Rental prices are automatic (pipeline/fetch_hardware.py); exchange rates too (pipeline/fetch_fx.py). The monthly price agent (pipeline/price_agent.py) appends new dated points; nothing is overwritten, so the history grows.",
+ "version": 2,
  "checked": "2026-10-14",
- "home": [
+ "regions": {
+  "US": {
+   "label": "United States",
+   "currency": "USD",
+   "vat": 0.0,
+   "note": "before sales tax"
+  },
+  "EU": {
+   "label": "Euro area (Germany)",
+   "currency": "EUR",
+   "vat": 0.19,
+   "note": "incl. 19% VAT"
+  },
+  "UK": {
+   "label": "United Kingdom",
+   "currency": "GBP",
+   "vat": 0.2,
+   "note": "incl. 20% VAT"
+  },
+  "CN": {
+   "label": "China",
+   "currency": "CNY",
+   "vat": 0.13,
+   "note": "incl. 13% VAT"
+  },
+  "JP": {
+   "label": "Japan",
+   "currency": "JPY",
+   "vat": 0.1,
+   "note": "incl. 10% tax"
+  }
+ },
+ "products": [
   {
+   "id": "rtx-3090",
    "name": "RTX 3090",
+   "vendor": "NVIDIA",
+   "segment": "home",
    "kind": "GPU · used",
    "mem_gb": 24,
    "bw_gbps": 936,
-   "launch": {
-    "date": "2020-09",
-    "price": 1499
-   },
-   "now": {
-    "price": 1325,
-    "low": 1264,
-    "high": 1386,
-    "basis": "used, median of trackers"
-   },
-   "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-3090"
+   "launch": "2020-09",
+   "prices": [
+    {
+     "date": "2020-09",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1499,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-3090"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1325,
+     "tax": "excl",
+     "basis": "used, median of trackers",
+     "low": 1264,
+     "high": 1386,
+     "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-3090"
+    }
+   ]
   },
   {
+   "id": "rtx-4090",
    "name": "RTX 4090",
+   "vendor": "NVIDIA",
+   "segment": "home",
    "kind": "GPU · used",
    "mem_gb": 24,
    "bw_gbps": 1008,
-   "launch": {
-    "date": "2022-10",
-    "price": 1599
-   },
-   "now": {
-    "price": 2850,
-    "low": 2500,
-    "high": 3217,
-    "basis": "used, median of trackers"
-   },
-   "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-4090"
+   "launch": "2022-10",
+   "prices": [
+    {
+     "date": "2022-10",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1599,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-4090"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "US",
+     "currency": "USD",
+     "amount": 2850,
+     "tax": "excl",
+     "basis": "used, median of trackers",
+     "low": 2500,
+     "high": 3217,
+     "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-4090"
+    }
+   ]
   },
   {
-   "name": "RTX 5090",
+   "id": "rtx-5090",
+   "name": "GeForce RTX 5090 (32 GB)",
+   "vendor": "NVIDIA",
+   "segment": "home",
    "kind": "GPU · new",
    "mem_gb": 32,
    "bw_gbps": 1792,
-   "launch": {
-    "date": "2025-01",
-    "price": 1999
-   },
-   "now": {
-    "price": 4950,
-    "low": 4921,
-    "high": 7444,
-    "basis": "new, lowest listings"
-   },
-   "src": "https://bestvaluegpu.com/history/new-and-used-rtx-5090-price-history-and-specs/"
+   "launch": "2025-01-30",
+   "prices": [
+    {
+     "date": "2025-01-30",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 16499,
+     "tax": "incl",
+     "basis": "launch price (RTX 5090 D, China variant)",
+     "src": "https://www.ithome.com/0/827/998.htm"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 16499,
+     "tax": "incl",
+     "basis": "official price (RTX 5090 D v2, China variant)",
+     "src": "https://www.nvidia.cn/geforce/graphics-cards/50-series/"
+    },
+    {
+     "date": "2025-01-30",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2329,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.club386.com/?p=102356"
+    },
+    {
+     "date": "2025-05-12",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2600,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://heise.de/-10573710"
+    },
+    {
+     "date": "2025-06-04",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2380,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://heise.de/-10573710"
+    },
+    {
+     "date": "2025-08-21",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2250,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://heise.de/-10573710"
+    },
+    {
+     "date": "2026-01-13",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2500,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/artikel/grafikkarten/gaming-grafikkarten-preisanstieg-anfang-2026.95780/"
+    },
+    {
+     "date": "2026-07-31",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 4250,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/grafikkarten/grafikkarten-preise-die-geforce-rtx-5090-kostet-jetzt-mindestens-4-250-euro.98665/"
+    },
+    {
+     "date": "2026-09-16",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 5300,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/grafikkarten/geforce-rtx-5090-euro-steigende-preise-und-knappe-lager-speisen-eol-geruechte.99437/"
+    },
+    {
+     "date": "2026-10-07",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 5999,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/grafikkarten/kaum-noch-lagerware-die-nvidia-geforce-rtx-5090-ist-quasi-verschwunden.99699/"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 6699,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/grafikkarten/verfuegbarkeit-und-preise-geforce-rtx-5090-und-5080-ab-heute-im-handel-erhaeltlich.91203/"
+    },
+    {
+     "date": "2026-09-18",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 948700,
+     "tax": "incl",
+     "basis": "lowest retail (one model)",
+     "src": "https://kakaku.com/item/K0001679253/pricehistory/"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 1129800,
+     "tax": "incl",
+     "basis": "lowest retail (one model)",
+     "src": "https://kakaku.com/item/K0001679253/pricehistory/"
+    },
+    {
+     "date": "2025-01-30",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1939,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.nvidia.com/en-gb/geforce/news/rtx-50-series-graphics-cards-gpu-laptop-announcements/"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 5399.99,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.scan.co.uk/shop/computer-hardware/gpu-nvidia-gaming/geforce-rtx-5090-graphics-cards"
+    },
+    {
+     "date": "2025-01-30",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1999,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://en.wikipedia.org/wiki/GeForce_RTX_50_series"
+    },
+    {
+     "date": "2025-06-23",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3000,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://www.pcgamesn.com/nvidia/rtx-5090-below-msrp-europe"
+    },
+    {
+     "date": "2026-01-03",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3000,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://en.gamegpu.com/news/zhelezo/newegg-obnovil-katalog-rtx-5090-stoyat-ot-usd3700"
+    },
+    {
+     "date": "2026-09-07",
+     "region": "US",
+     "currency": "USD",
+     "amount": 4200,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://hwbusters.com/?p=113479"
+    },
+    {
+     "date": "2026-10-11",
+     "region": "US",
+     "currency": "USD",
+     "amount": 4920.99,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://www.buysellram.com/blog/nvidia-consumer-gpu-market-update/"
+    }
+   ],
+   "note": "NVIDIA's own Founders Edition nominally stays at $1,999 / €2,099 but is rarely in stock; the lines track the cheapest card actually on sale. Reported end-of-life in Oct 2026"
   },
   {
-   "name": "RTX PRO 6000 Blackwell",
-   "kind": "workstation GPU",
-   "mem_gb": 96,
-   "bw_gbps": 1597,
-   "launch": {
-    "date": "2025-03",
-    "price": 8565
-   },
-   "now": {
-    "price": 16000,
-    "low": 15000,
-    "high": 18000,
-    "basis": "NVIDIA marketplace / retail"
-   },
-   "src": "https://www.techspot.com/news/113460-nvidia-raises-rtx-pro-6000-blackwell-price-staggering.html"
+   "name": "GeForce RTX 5080 (16 GB)",
+   "vendor": "NVIDIA",
+   "segment": "home",
+   "mem_gb": 16,
+   "bw_gbps": 960,
+   "launch": "2025-01-30",
+   "kind": "GPU · new",
+   "id": "rtx-5080",
+   "prices": [
+    {
+     "date": "2025-01-30",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 8299,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.ithome.com/0/827/998.htm"
+    },
+    {
+     "date": "2026-10-10",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 12000,
+     "tax": "incl",
+     "basis": "market price",
+     "src": "https://news.mydrivers.com/1/1156/1156484.htm"
+    },
+    {
+     "date": "2025-01-30",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1169,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.club386.com/?p=102356"
+    },
+    {
+     "date": "2025-05-12",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1130,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://heise.de/-10573710"
+    },
+    {
+     "date": "2025-06-04",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1080,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://heise.de/-10573710"
+    },
+    {
+     "date": "2025-08-21",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1030,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://heise.de/-10573710"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1639,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/grafikkarten/verfuegbarkeit-und-preise-geforce-rtx-5090-und-5080-ab-heute-im-handel-erhaeltlich.91203/"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 309800,
+     "tax": "incl",
+     "basis": "lowest retail (one model)",
+     "src": "https://kakaku.com/item/K0001673957/pricehistory/"
+    },
+    {
+     "date": "2025-01-30",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 979,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.nvidia.com/en-gb/geforce/news/rtx-50-series-graphics-cards-gpu-laptop-announcements/"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1359.98,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.scan.co.uk/shop/computer-hardware/gpu-nvidia-gaming/geforce-rtx-5080-graphics-cards"
+    },
+    {
+     "date": "2025-01-30",
+     "region": "US",
+     "currency": "USD",
+     "amount": 999,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://en.wikipedia.org/wiki/GeForce_RTX_50_series"
+    },
+    {
+     "date": "2026-07-30",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1250,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://hwbusters.com/news/an-rtx-5080-now-costs-more-than-an-rtx-5090-did-at-launch/"
+    },
+    {
+     "date": "2026-10-11",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1450,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://www.buysellram.com/blog/nvidia-consumer-gpu-market-update/"
+    }
+   ]
   },
   {
+   "name": "GeForce RTX 5070 Ti (16 GB)",
+   "vendor": "NVIDIA",
+   "segment": "home",
+   "mem_gb": 16,
+   "bw_gbps": 896,
+   "launch": "2025-02-20",
+   "kind": "GPU · new",
+   "id": "rtx-5070-ti",
+   "prices": [
+    {
+     "date": "2026-10-14",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 6299,
+     "tax": "incl",
+     "basis": "official price",
+     "src": "https://www.nvidia.cn/geforce/graphics-cards/50-series/"
+    },
+    {
+     "date": "2025-02-20",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 879,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.computerbase.de/news/grafikkarten/grafikkarten-preise-die-geforce-rtx-5090-kostet-jetzt-mindestens-4-250-euro.98665/"
+    },
+    {
+     "date": "2025-05-12",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 840,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://heise.de/-10573710"
+    },
+    {
+     "date": "2025-08-21",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 780,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://heise.de/-10573710"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1251.08,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/grafikkarten/verfuegbarkeit-und-preise-geforce-rtx-5090-und-5080-ab-heute-im-handel-erhaeltlich.91203/"
+    },
+    {
+     "date": "2025-02-20",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 729,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.nvidia.com/en-gb/geforce/news/rtx-50-series-graphics-cards-gpu-laptop-announcements/"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1139.99,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.scan.co.uk/shop/computer-hardware/gpu-nvidia-gaming/geforce-rtx-5070-ti-graphics-cards"
+    },
+    {
+     "date": "2025-02-20",
+     "region": "US",
+     "currency": "USD",
+     "amount": 749,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://en.wikipedia.org/wiki/GeForce_RTX_50_series"
+    },
+    {
+     "date": "2026-08-08",
+     "region": "US",
+     "currency": "USD",
+     "amount": 887,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://www.buysellram.com/blog/nvidia-consumer-gpu-market-update/"
+    },
+    {
+     "date": "2026-10-11",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1007.98,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://www.buysellram.com/blog/nvidia-consumer-gpu-market-update/"
+    }
+   ]
+  },
+  {
+   "id": "dgx-spark-128",
    "name": "DGX Spark (128 GB)",
+   "vendor": "NVIDIA",
+   "segment": "home",
    "kind": "desktop AI box",
    "mem_gb": 128,
    "bw_gbps": 273,
-   "launch": {
-    "date": "2025-10",
-    "price": 3999
-   },
-   "now": {
-    "price": 6950,
-    "low": 6950,
-    "high": 6950,
-    "basis": "NVIDIA list price from 2 Oct 2026"
-   },
-   "src": "https://aiweekly.co/alerts/nvidia-launches-64gb-dgx-spark-at-4999-as-128gb-hits-6950"
+   "launch": "2025-10-15",
+   "prices": [
+    {
+     "date": "2025-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 3689,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://glukhov.org/hardware/ai/nvidia-dgx-spark-prices/"
+    },
+    {
+     "date": "2026-10-06",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 5799,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.betterclaw.io/blog/dgx-spark-alternativen"
+    },
+    {
+     "date": "2025-10-15",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 899980,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://glukhov.org/hardware/ai/nvidia-dgx-spark-prices/"
+    },
+    {
+     "date": "2026-07-13",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 984980,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.issoh.co.jp/tech/details/9498/"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 1219800,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://search.kakaku.com/DGX%20Spark/"
+    },
+    {
+     "date": "2025-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 3699.97,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://glukhov.org/hardware/ai/nvidia-dgx-spark-prices/"
+    },
+    {
+     "date": "2026-02-27",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 3699.98,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://forums.developer.nvidia.com/t/dgx-spark-price-increase/361640"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 5249,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.scan.co.uk/search?q=dgx+spark"
+    },
+    {
+     "date": "2025-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3999,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://gadget.phileweb.com/?p=111620"
+    },
+    {
+     "date": "2026-02-23",
+     "region": "US",
+     "currency": "USD",
+     "amount": 4699,
+     "tax": "excl",
+     "basis": "NVIDIA price rise",
+     "src": "https://forums.developer.nvidia.com/t/2-23-2026-price-change-announcement/361713"
+    },
+    {
+     "date": "2026-10-02",
+     "region": "US",
+     "currency": "USD",
+     "amount": 6950,
+     "tax": "excl",
+     "basis": "NVIDIA price rise",
+     "src": "https://www.theregister.com/a/5300622"
+    }
+   ]
   },
   {
+   "name": "ASUS Ascent GX10 (NVIDIA GB10, 128 GB)",
+   "vendor": "NVIDIA",
+   "segment": "home",
+   "mem_gb": 128,
+   "bw_gbps": 273,
+   "launch": "2025-10-15",
+   "kind": "desktop AI box",
+   "id": "asus-gx10",
+   "prices": [
+    {
+     "date": "2025-10-14",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 3499,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.computerbase.de/news/pc-systeme/mini-ai-supercomputer-nvidia-und-partner-liefern-dgx-spark-mit-gb10-endlich-aus.94659/"
+    },
+    {
+     "date": "2026-01-22",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2999,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/artikel/pc-systeme/nvidia-dgx-spark-asus-ascent-gx10-test.94895/"
+    },
+    {
+     "date": "2026-03-09",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 3300,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://forums.developer.nvidia.com/t/dgx-spark-price-increase/361640"
+    },
+    {
+     "date": "2026-10-02",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 5599,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/pc-systeme/speicher-zu-teuer-nvidia-dgx-spark-gibt-es-bald-auch-mit-der-haelfte-ram.99624/"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 1463276,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://search.kakaku.com/DGX%20Spark/"
+    },
+    {
+     "date": "2026-02-27",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 2799.98,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://forums.developer.nvidia.com/t/dgx-spark-price-increase/361640"
+    },
+    {
+     "date": "2025-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 2999,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://www.starryhope.com/minipcs/models/asus-ascent-gx10/"
+    },
+    {
+     "date": "2026-08-18",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3999,
+     "tax": "excl",
+     "basis": "ASUS list price",
+     "src": "https://macmyths.com/nvidia-gb10-grace-blackwell-explained-asus-ascent-gx10-launch-specs-and-buying-advice/"
+    }
+   ]
+  },
+  {
+   "name": "DGX Spark (64 GB)",
+   "vendor": "NVIDIA",
+   "segment": "home",
+   "mem_gb": 64,
+   "bw_gbps": 273,
+   "launch": "2026-10-23",
+   "note": "partner systems only, on sale from 23 Oct 2026",
+   "kind": "desktop AI box",
+   "id": "dgx-spark-64",
+   "prices": [
+    {
+     "date": "2026-10-02",
+     "region": "US",
+     "currency": "USD",
+     "amount": 4999,
+     "tax": "excl",
+     "basis": "announced MSRP",
+     "src": "https://blogs.nvidia.com/blog/local-ai-dgx-spark-64gb-sync/"
+    }
+   ]
+  },
+  {
+   "id": "rtx-pro-6000",
+   "name": "RTX PRO 6000 Blackwell (96 GB)",
+   "vendor": "NVIDIA",
+   "segment": "workstation",
+   "kind": "workstation GPU",
+   "mem_gb": 96,
+   "bw_gbps": 1792,
+   "launch": "2025-03-18",
+   "prices": [
+    {
+     "date": "2025-05-05",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 11000,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/grafikkarten/rtx-pro-6000-nvidias-96-gb-workstation-grafikkarte-kostet-11-000-euro.92474/"
+    },
+    {
+     "date": "2026-06-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 18151,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/grafikkarten/grafikkarten-mit-viel-vram-rtx-pro-6000-und-rtx-5090-kosten-aktuell-deutlich-mehr.97921/"
+    },
+    {
+     "date": "2026-08-13",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 17699,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.computerbase.de/news/grafikkarten/rtx-pro-6000-nvidia-erhoeht-den-preis-der-staerksten-blackwell-gpu-erneut.98826/"
+    },
+    {
+     "date": "2025-07-25",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 1629980,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.gdm.or.jp/crew/2025/0725/597765"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 3433148,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://search.kakaku.com/RTX%20PRO%206000%20Blackwell/"
+    },
+    {
+     "date": "2025-03-18",
+     "region": "US",
+     "currency": "USD",
+     "amount": 8565,
+     "tax": "excl",
+     "basis": "first retail listing",
+     "src": "https://www.computerbase.de/news/grafikkarten/grafikkarten-mit-viel-vram-rtx-pro-6000-und-rtx-5090-kosten-aktuell-deutlich-mehr.97921/"
+    },
+    {
+     "date": "2026-06-12",
+     "region": "US",
+     "currency": "USD",
+     "amount": 13250,
+     "tax": "excl",
+     "basis": "NVIDIA marketplace",
+     "src": "https://letsdatascience.com/news/nvidia-raises-rtx-pro-6000-blackwell-price-9ad18ce1"
+    },
+    {
+     "date": "2026-08-12",
+     "region": "US",
+     "currency": "USD",
+     "amount": 16000,
+     "tax": "excl",
+     "basis": "NVIDIA marketplace",
+     "src": "https://letsdatascience.com/news/nvidia-raises-rtx-pro-6000-blackwell-price-again-6d1ae9ff"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "US",
+     "currency": "USD",
+     "amount": 15999,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/us/gpus/rtx-pro-6000-blackwell"
+    }
+   ],
+   "note": "NVIDIA never published a launch MSRP; the first point is the early US retail price"
+  },
+  {
+   "name": "AMD Radeon RX 9070 XT (16 GB)",
+   "vendor": "AMD",
+   "segment": "home",
+   "mem_gb": 16,
+   "bw_gbps": 640,
+   "launch": "2025-03-06",
+   "id": "amd-rx-9070-xt",
+   "prices": [
+    {
+     "date": "2026-10-14",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 702,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/germany/gpus/radeon-rx-9070-xt"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 133601,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/japan/gpus/radeon-rx-9070-xt"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 719,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/uk/gpus/radeon-rx-9070-xt"
+    },
+    {
+     "date": "2025-03-06",
+     "region": "US",
+     "currency": "USD",
+     "amount": 599,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://gpuprix.com/us/gpus/radeon-rx-9070-xt"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "US",
+     "currency": "USD",
+     "amount": 800,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/us/gpus/radeon-rx-9070-xt"
+    }
+   ]
+  },
+  {
+   "name": "GMKtec EVO-X2 (Ryzen AI Max+ 395, 128 GB)",
+   "vendor": "AMD",
+   "segment": "home",
+   "mem_gb": 128,
+   "bw_gbps": 256,
+   "launch": "2025-05",
+   "id": "gmktec-evo-x2-128",
+   "prices": [
+    {
+     "date": "2025-04-15",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 14999,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.notebookcheck.it/Il-mini-PC-Strix-Halo-GMKtec-EVO-X2-viene-lanciato-con-un-prezzo-molto-elevato.994610.0.html"
+    },
+    {
+     "date": "2025-04-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1999,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://liliputing.com/gmk-evo-x2-mini-pc-with-ryzen-ai-max-395-ships-in-may-up-for-pre-order-now-for-1499-and-up/"
+    },
+    {
+     "date": "2025-05-07",
+     "region": "US",
+     "currency": "USD",
+     "amount": 2000,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://liliputing.com/gmk-evo-x2-mini-pc-with-ryzen-ai-max-395-ships-in-may-up-for-pre-order-now-for-1499-and-up/"
+    },
+    {
+     "date": "2026-08-11",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3649.99,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://computingforgeeks.com/ryzen-ai-max-395-mini-pc-comparison/"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3649.99,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://www.newegg.com/gmktec-barebone-systems-mini-pc-amd-ryzen-ai-max-395-evo-x2-128-2t/p/2SW-007C-00016"
+    }
+   ]
+  },
+  {
+   "id": "framework-desktop-128",
    "name": "Framework Desktop (Ryzen AI Max+ 395, 128 GB)",
+   "vendor": "AMD",
+   "segment": "home",
    "kind": "mini PC",
    "mem_gb": 128,
    "bw_gbps": 256,
-   "launch": {
-    "date": "2025-08",
-    "price": 1999
-   },
-   "now": {
-    "price": 2459,
-    "low": 2459,
-    "high": 2459,
-    "basis": "Framework list price"
-   },
-   "src": "https://www.pcworld.com/article/3031562/framework-raises-prices-yet-again-as-memory-costs-go-up.html"
+   "launch": "2025-08",
+   "prices": [
+    {
+     "date": "2025-02-25",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2329,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://heise.de/-11139932"
+    },
+    {
+     "date": "2026-01-13",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2769,
+     "tax": "incl",
+     "basis": "official store",
+     "src": "https://heise.de/-11139932"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 3889,
+     "tax": "incl",
+     "basis": "official store",
+     "src": "https://frame.work/de/en/products/desktop-diy-amd-aimax300/configuration/new"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 3449,
+     "tax": "incl",
+     "basis": "official store",
+     "src": "https://frame.work/gb/en/products/desktop-diy-amd-aimax300/configuration/new"
+    },
+    {
+     "date": "2025-02-25",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1999,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://www.pcworld.com/article/3031562/framework-raises-prices-yet-again-as-memory-costs-go-up.html"
+    },
+    {
+     "date": "2025-12-30",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1999,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://web.archive.org/web/20251230160156/https://frame.work/products/desktop-diy-amd-aimax300/configuration/new"
+    },
+    {
+     "date": "2026-01-13",
+     "region": "US",
+     "currency": "USD",
+     "amount": 2459,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://www.pcworld.com/article/3031562/framework-raises-prices-yet-again-as-memory-costs-go-up.html"
+    },
+    {
+     "date": "2026-02-11",
+     "region": "US",
+     "currency": "USD",
+     "amount": 2599,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://web.archive.org/web/20260303170651/https://frame.work/products/desktop-diy-amd-aimax300/configuration/new"
+    },
+    {
+     "date": "2026-03-09",
+     "region": "US",
+     "currency": "USD",
+     "amount": 2699,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://web.archive.org/web/20260319072402/https://frame.work/products/desktop-diy-amd-aimax300/configuration/new"
+    },
+    {
+     "date": "2026-04-06",
+     "region": "US",
+     "currency": "USD",
+     "amount": 2999,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://web.archive.org/web/20260410130557/https://frame.work/products/desktop-diy-amd-aimax300/configuration/new"
+    },
+    {
+     "date": "2026-05-27",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3159,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://web.archive.org/web/20260609214757/https://frame.work/products/desktop-diy-amd-aimax300/configuration/new"
+    },
+    {
+     "date": "2026-06-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3449,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://web.archive.org/web/20260625160524/https://frame.work/products/desktop-diy-amd-aimax300/configuration/new"
+    },
+    {
+     "date": "2026-08-11",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3449,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://computingforgeeks.com/ryzen-ai-max-395-mini-pc-comparison/"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3449,
+     "tax": "excl",
+     "basis": "official store",
+     "src": "https://frame.work/products/desktop-diy-amd-aimax300/configuration/new"
+    }
+   ]
+  },
+  {
+   "name": "AMD Radeon AI PRO R9700 (32 GB)",
+   "vendor": "AMD",
+   "segment": "workstation",
+   "mem_gb": 32,
+   "bw_gbps": 640,
+   "launch": "2025-10-27",
+   "id": "amd-radeon-ai-pro-r9700",
+   "prices": [
+    {
+     "date": "2026-10-13",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1569,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/germany/gpus/radeon-ai-pro-r9700"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 240802,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/japan/gpus/radeon-ai-pro-r9700"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1700,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/uk/gpus/radeon-ai-pro-r9700"
+    },
+    {
+     "date": "2025-10-27",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1299,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://www.phoronix.com/news/AMD-Radeon-AI-PRO-R9700-1299"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1700,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/us/gpus/radeon-ai-pro-r9700"
+    }
+   ]
+  },
+  {
+   "name": "Framework Desktop (Ryzen AI Max+ PRO 495, 192 GB)",
+   "vendor": "AMD",
+   "segment": "workstation",
+   "mem_gb": 192,
+   "bw_gbps": 273,
+   "launch": "2026-09-30",
+   "id": "framework-desktop-495-192",
+   "prices": [
+    {
+     "date": "2026-10-14",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 7659,
+     "tax": "incl",
+     "basis": "official store",
+     "src": "https://frame.work/de/en/products/desktop-diy-amd-aimax400/configuration/new"
+    },
+    {
+     "date": "2026-10-14",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 6799,
+     "tax": "incl",
+     "basis": "official store",
+     "src": "https://frame.work/gb/en/products/desktop-diy-amd-aimax400/configuration/new"
+    },
+    {
+     "date": "2026-09-30",
+     "region": "US",
+     "currency": "USD",
+     "amount": 6799,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://hwbusters.com/news/framework-desktop-goes-to-192gb-with-gorgon-halo-and-the-price-nearly-doubles-to-6799/"
+    }
+   ]
+  },
+  {
+   "name": "Intel Arc B580 (12 GB)",
+   "vendor": "Intel",
+   "segment": "home",
+   "mem_gb": 12,
+   "bw_gbps": 456,
+   "launch": "2024-12-13",
+   "id": "arc-b580",
+   "prices": [
+    {
+     "date": "2024-12-13",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 289,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.gamestar.de/artikel/arc-b580-intel-battlemage-gpu-preis-uvp,3424635.html"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 405,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/germany/gpus/arc-b580"
+    },
+    {
+     "date": "2024-12-13",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 49800,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://ascii.jp/elem/000/004/240/4240762/"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 65739,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/zh/japan/gpus/arc-b580"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 347,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/uk/gpus/arc-b580"
+    },
+    {
+     "date": "2024-12-13",
+     "region": "US",
+     "currency": "USD",
+     "amount": 249,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://tweaktown.com/news/101905/intel-arc-b580-limited-edition-battlemage-graphics-card-spotted-for-250-more-specs-emerge/index.html"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "US",
+     "currency": "USD",
+     "amount": 330,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/us/gpus/arc-b580"
+    }
+   ]
+  },
+  {
+   "name": "Intel Arc Pro B50 (16 GB)",
+   "vendor": "Intel",
+   "segment": "workstation",
+   "mem_gb": 16,
+   "bw_gbps": 224,
+   "launch": "2025-09",
+   "id": "arc-pro-b50",
+   "prices": [
+    {
+     "date": "2026-10-13",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 569,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/germany/gpus/arc-pro-b50"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 123800,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/japan/gpus/arc-pro-b50"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 483,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/uk/gpus/arc-pro-b50"
+    },
+    {
+     "date": "2025-09",
+     "region": "US",
+     "currency": "USD",
+     "amount": 349,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://geeks3d.com/20250903/intel-arc-pro-b50-workstation-graphics-card-launched"
+    },
+    {
+     "date": "2025-11-06",
+     "region": "US",
+     "currency": "USD",
+     "amount": 349,
+     "tax": "excl",
+     "basis": "street price",
+     "src": "https://www.storagereview.com/review/intel-arc-pro-b50-gpu-review-an-affordable-low-power-workstation-gpu"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "US",
+     "currency": "USD",
+     "amount": 639,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/us/gpus/arc-pro-b50"
+    }
+   ]
+  },
+  {
+   "id": "arc-pro-b60",
+   "prices": [
+    {
+     "date": "2026-01-13",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 5199,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://3dnews.ru/1135203/gunnir-i-sparkle-vipustili-professionalnie-videokarti-intel-arc-pro-b60-po-tsene-ot-745/print"
+    },
+    {
+     "date": "2025-11",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 769,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://pausehardware.com/intel-arc-pro-b60-24-go-europe-prix-date/"
+    },
+    {
+     "date": "2026-06-29",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 685,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/germany/gpus/arc-pro-b60"
+    },
+    {
+     "date": "2026-10-03",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 734,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/de/germany/gpus/arc-pro-b60"
+    },
+    {
+     "date": "2026-06-29",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 118515,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/japan/gpus/arc-pro-b60"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 151828,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/japan/gpus/arc-pro-b60"
+    },
+    {
+     "date": "2026-06-29",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 620,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/uk/gpus/arc-pro-b60"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 666,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/uk/gpus/arc-pro-b60"
+    },
+    {
+     "date": "2026-01-12",
+     "region": "US",
+     "currency": "USD",
+     "amount": 799,
+     "tax": "excl",
+     "basis": "partner MSRP",
+     "src": "https://3dnews.ru/1135203/gunnir-i-sparkle-vipustili-professionalnie-videokarti-intel-arc-pro-b60-po-tsene-ot-745/print"
+    },
+    {
+     "date": "2026-06-24",
+     "region": "US",
+     "currency": "USD",
+     "amount": 659.99,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://pausehardware.com/arc-pro-b65-newegg-prix/"
+    },
+    {
+     "date": "2026-06-29",
+     "region": "US",
+     "currency": "USD",
+     "amount": 600,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/us/gpus/arc-pro-b60"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "US",
+     "currency": "USD",
+     "amount": 650,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/us/gpus/arc-pro-b60"
+    }
+   ],
+   "name": "Intel Arc Pro B60 (24 GB)",
+   "vendor": "Intel",
+   "segment": "workstation",
+   "mem_gb": 24,
+   "bw_gbps": 456,
+   "launch": "2025-11"
+  },
+  {
+   "id": "arc-pro-b70",
+   "prices": [
+    {
+     "date": "2026-07-09",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1249.9,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://www.igorslab.de/community/posts/338647/"
+    },
+    {
+     "date": "2026-10-03",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1507,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/de/germany/gpus/arc-pro-b70"
+    },
+    {
+     "date": "2026-06-19",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 224800,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://akiba-pc.watch.impress.co.jp/docs/news/news/2118377.html"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 259800,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/japan/gpus/arc-pro-b70"
+    },
+    {
+     "date": "2026-10-03",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1400,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/zh/uk/gpus/arc-pro-b70"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1320,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/uk/gpus/arc-pro-b70"
+    },
+    {
+     "date": "2026-03-25",
+     "region": "US",
+     "currency": "USD",
+     "amount": 949,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://hothardware.com/news/intel-arc-pro-b70-b65-cards-debut"
+    },
+    {
+     "date": "2026-06-24",
+     "region": "US",
+     "currency": "USD",
+     "amount": 999.99,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://pausehardware.com/arc-pro-b65-newegg-prix/"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1300,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/us/gpus/arc-pro-b70"
+    }
+   ],
+   "name": "Intel Arc Pro B70 (32 GB)",
+   "vendor": "Intel",
+   "segment": "workstation",
+   "mem_gb": 32,
+   "bw_gbps": 608,
+   "launch": "2026-03-25"
+  },
+  {
+   "name": "Intel Arc Pro B65 (32 GB)",
+   "vendor": "Intel",
+   "segment": "workstation",
+   "mem_gb": 32,
+   "bw_gbps": 608,
+   "launch": "2026-03-25",
+   "id": "arc-pro-b65",
+   "prices": [
+    {
+     "date": "2026-10-13",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1497,
+     "tax": "incl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/germany/gpus/arc-pro-b65"
+    },
+    {
+     "date": "2026-03-25",
+     "region": "US",
+     "currency": "USD",
+     "amount": 799,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://gpuprix.com/us/gpus/arc-pro-b65"
+    },
+    {
+     "date": "2026-10-13",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1200,
+     "tax": "excl",
+     "basis": "lowest retail",
+     "src": "https://gpuprix.com/us/gpus/arc-pro-b65"
+    }
+   ]
+  },
+  {
+   "name": "Mac Studio M3 Ultra (512 GB)",
+   "vendor": "Apple",
+   "segment": "home",
+   "mem_gb": 512,
+   "bw_gbps": 819,
+   "launch": "2025-03-12",
+   "note": "512 GB option withdrawn by Apple on 5 Mar 2026",
+   "id": "mac-studio-m3-ultra-512",
+   "prices": [
+    {
+     "date": "2025-03-12",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 11874,
+     "tax": "incl",
+     "basis": "launch price (Apple DE configurator)",
+     "src": "https://www.macwelt.de/article/2627705/mac-studio-m4-max-m3-ultra.html"
+    },
+    {
+     "date": "2025-03-12",
+     "region": "US",
+     "currency": "USD",
+     "amount": 9499,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://www.servethehome.com/new-512gb-unified-memory-apple-mac-studio-is-the-local-ai-play/"
+    }
+   ],
+   "status": "discontinued"
+  },
+  {
+   "name": "Mac Studio M3 Ultra (96 GB)",
+   "vendor": "Apple",
+   "segment": "home",
+   "mem_gb": 96,
+   "bw_gbps": 819,
+   "launch": "2025-03-12",
+   "note": "replaced by the M5 Ultra in Aug 2026",
+   "id": "mac-studio-m3-ultra-96",
+   "prices": [
+    {
+     "date": "2025-03-12",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 32999,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.pingwest.com/w/302858"
+    },
+    {
+     "date": "2025-03-12",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 4999,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.macwelt.de/article/2627705/mac-studio-m4-max-m3-ultra.html"
+    },
+    {
+     "date": "2025-03-12",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 668800,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://gadget.phileweb.com/?p=97586"
+    },
+    {
+     "date": "2025-03-12",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 4199,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.techradar.com/pro/hurry-apple-mac-studio-just-hit-its-lowest-price-ever-with-gbp200-off-but-it-wont-last-forever"
+    },
+    {
+     "date": "2025-03-12",
+     "region": "US",
+     "currency": "USD",
+     "amount": 3999,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://everymac.com/systems/by_shipping/june-2026-apple-price-hike.html"
+    },
+    {
+     "date": "2026-06-25",
+     "region": "US",
+     "currency": "USD",
+     "amount": 5299,
+     "tax": "excl",
+     "basis": "Apple price rise",
+     "src": "https://www.macrumors.com/2026/06/25/apple-just-increased-prices/"
+    }
+   ],
+   "status": "discontinued"
+  },
+  {
+   "name": "Mac Studio M4 Max (36 GB)",
+   "vendor": "Apple",
+   "segment": "home",
+   "mem_gb": 36,
+   "bw_gbps": 410,
+   "launch": "2025-03-12",
+   "note": "replaced by the M5 Max in Aug 2026",
+   "id": "mac-studio-m4-max-36",
+   "prices": [
+    {
+     "date": "2025-03-12",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 16499,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-china.html"
+    },
+    {
+     "date": "2025-03-12",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2499,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.apple.com/de/newsroom/2025/03/apple-unveils-new-mac-studio-the-most-powerful-mac-ever/"
+    },
+    {
+     "date": "2025-03-12",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 328800,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.apple.com/jp/newsroom/2025/03/apple-unveils-new-mac-studio-the-most-powerful-mac-ever/"
+    },
+    {
+     "date": "2026-06-25",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 419800,
+     "tax": "incl",
+     "basis": "Apple price rise",
+     "src": "https://gigazine.net/gsc_news/en/20260626-apple-raise-price/"
+    },
+    {
+     "date": "2025-03-12",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 2099,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.apple.com/uk/newsroom/2025/03/apple-unveils-new-mac-studio-the-most-powerful-mac-ever/"
+    },
+    {
+     "date": "2025-03-12",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1999,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://everymac.com/systems/by_shipping/june-2026-apple-price-hike.html"
+    },
+    {
+     "date": "2026-06-25",
+     "region": "US",
+     "currency": "USD",
+     "amount": 2499,
+     "tax": "excl",
+     "basis": "Apple price rise",
+     "src": "https://www.macrumors.com/2026/06/25/apple-just-increased-prices/"
+    }
+   ],
+   "status": "discontinued"
+  },
+  {
+   "name": "Mac Studio M5 Max (36 GB)",
+   "vendor": "Apple",
+   "segment": "home",
+   "mem_gb": 36,
+   "bw_gbps": 460,
+   "launch": "2026-09-22",
+   "id": "mac-studio-m5-max-36",
+   "prices": [
+    {
+     "date": "2026-08-27",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 19999,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://ithome.com/0/994/215.htm"
+    },
+    {
+     "date": "2026-08-25",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2999,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.apple.com/de/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/"
+    },
+    {
+     "date": "2026-08-25",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 419800,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.apple.com/jp/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/"
+    },
+    {
+     "date": "2026-08-25",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 2499,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.apple.com/uk/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/"
+    },
+    {
+     "date": "2026-08-25",
+     "region": "US",
+     "currency": "USD",
+     "amount": 2499,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://www.apple.com/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/"
+    }
+   ]
+  },
+  {
+   "name": "Mac Studio M5 Ultra (96 GB)",
+   "vendor": "Apple",
+   "segment": "home",
+   "mem_gb": 96,
+   "bw_gbps": 1200,
+   "launch": "2026-09-22",
+   "id": "mac-studio-m5-ultra-96",
+   "prices": [
+    {
+     "date": "2026-08-27",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 46999,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://ithome.com/0/994/215.htm"
+    },
+    {
+     "date": "2026-08-25",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 6599,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.apple.com/de/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/"
+    },
+    {
+     "date": "2026-08-25",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 949800,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.apple.com/jp/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/"
+    },
+    {
+     "date": "2026-08-25",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 5499,
+     "tax": "incl",
+     "basis": "launch price",
+     "src": "https://www.apple.com/uk/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/"
+    },
+    {
+     "date": "2026-08-25",
+     "region": "US",
+     "currency": "USD",
+     "amount": 5499,
+     "tax": "excl",
+     "basis": "launch MSRP",
+     "src": "https://www.apple.com/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/"
+    }
+   ]
+  },
+  {
+   "name": "Lisuan LX 7G100 (12 GB)",
+   "vendor": "Lisuan",
+   "segment": "home",
+   "mem_gb": 12,
+   "launch": "2026-05-20",
+   "id": "lisuan-7g100",
+   "prices": [
+    {
+     "date": "2026-05-20",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 3299,
+     "tax": "incl",
+     "basis": "official store (Founders Edition)",
+     "src": "https://www.ithome.com/0/978/229.htm"
+    },
+    {
+     "date": "2026-07-17",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 2688,
+     "tax": "incl",
+     "basis": "official price (retail edition)",
+     "src": "https://www.ithome.com/0/978/229.htm"
+    }
+   ]
+  },
+  {
+   "name": "Moore Threads MTT S80 (16 GB)",
+   "vendor": "Moore Threads",
+   "segment": "home",
+   "mem_gb": 16,
+   "bw_gbps": 448,
+   "launch": "2022-11",
+   "id": "mtt-s80",
+   "prices": [
+    {
+     "date": "2023-10-19",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 2999,
+     "tax": "incl",
+     "basis": "official store (card alone)",
+     "src": "https://www.ithome.com/0/726/152.htm"
+    },
+    {
+     "date": "2023-10-25",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 1199,
+     "tax": "incl",
+     "basis": "official store (promotion)",
+     "src": "https://tech.yahoo.com/general/articles/mtt-s80-graphics-card-drops-140635661.html"
+    },
+    {
+     "date": "2024-06-17",
+     "region": "CN",
+     "currency": "CNY",
+     "amount": 1399,
+     "tax": "incl",
+     "basis": "official store (promotion)",
+     "src": "https://www.ithome.com/0/775/630.htm"
+    }
+   ]
   }
  ],
- "datacenter": [
+ "accelerators": [
   {
-   "name": "H100 SXM",
-   "slug": "nvidia-h100",
+   "id": "h100",
+   "name": "NVIDIA H100 SXM",
+   "vendor": "NVIDIA",
+   "country": "US",
+   "segment": "datacenter",
    "mem_gb": 80,
    "bw_gbps": 3350,
-   "buy_low": 25000,
-   "buy_high": 35000,
-   "src": "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+   "rental_slug": "nvidia-h100",
+   "buy": [
+    {
+     "date": "2023-04-14",
+     "low": 39995,
+     "high": 46000,
+     "currency": "USD",
+     "src": "https://www.cnbc.com/2023/04/14/nvidias-h100-ai-chips-selling-for-more-than-40000-on-ebay.html"
+    },
+    {
+     "date": "2024-01-18",
+     "low": 25000,
+     "high": 30000,
+     "currency": "USD",
+     "src": "https://www.cnbc.com/2024/01/18/mark-zuckerberg-indicates-meta-is-spending-billions-on-nvidia-ai-chips.html"
+    },
+    {
+     "date": "2026-10-10",
+     "low": 27000,
+     "high": 40000,
+     "currency": "USD",
+     "src": "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+    }
+   ],
+   "rent": [],
+   "notes": "2023 eBay peak above $40k; used units now sell for about $14k. Rental fell through 2025, then rose again in 2026.",
+   "launch": "2022-09",
+   "fp16_tflops": 989,
+   "fp8_tflops": 1979
   },
   {
-   "name": "H200",
-   "slug": "nvidia-h200",
+   "id": "h200",
+   "name": "NVIDIA H200 SXM",
+   "vendor": "NVIDIA",
+   "country": "US",
+   "segment": "datacenter",
    "mem_gb": 141,
    "bw_gbps": 4800,
-   "buy_low": 30000,
-   "buy_high": 55000,
-   "src": "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+   "rental_slug": "nvidia-h200",
+   "buy": [
+    {
+     "date": "2026-10-10",
+     "low": 31000,
+     "high": 40000,
+     "currency": "USD",
+     "src": "https://intuitionlabs.ai/articles/data-center-gpu-prices"
+    }
+   ],
+   "rent": [],
+   "notes": "Sales to approved Chinese buyers allowed from early 2026 with a 25% US revenue share; trades at about $48k in Hong Kong (Sep 2026).",
+   "launch": "2024-03",
+   "fp16_tflops": 989,
+   "fp8_tflops": 1979
   },
   {
-   "name": "B200",
-   "slug": "nvidia-b200",
+   "id": "b200",
+   "name": "NVIDIA B200",
+   "vendor": "NVIDIA",
+   "country": "US",
+   "segment": "datacenter",
    "mem_gb": 180,
    "bw_gbps": 8000,
-   "buy_low": 30000,
-   "buy_high": 50000,
-   "src": "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+   "rental_slug": "nvidia-b200",
+   "buy": [
+    {
+     "date": "2024-03-19",
+     "low": 30000,
+     "high": 40000,
+     "currency": "USD",
+     "src": "https://www.cnbc.com/2024/03/19/nvidias-blackwell-ai-chip-will-cost-more-than-30000-ceo-says.html"
+    },
+    {
+     "date": "2026-10-14",
+     "low": 45000,
+     "high": 58750,
+     "currency": "USD",
+     "src": "https://www.amcompute.com/compare/b300-vs-b200"
+    }
+   ],
+   "rent": [],
+   "notes": "Jensen Huang quoted $30-40k at announcement (Mar 2024); street price in 2026 is higher. Not sold to China.",
+   "launch": "2024-12",
+   "fp16_tflops": 2250,
+   "fp8_tflops": 4500
   },
   {
-   "name": "B300",
-   "slug": "nvidia-b300",
+   "id": "b300",
+   "name": "NVIDIA B300 (Blackwell Ultra)",
+   "vendor": "NVIDIA",
+   "country": "US",
+   "segment": "datacenter",
    "mem_gb": 288,
    "bw_gbps": 8000,
-   "buy_low": 50000,
-   "buy_high": 60000,
-   "src": "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+   "rental_slug": "nvidia-b300",
+   "buy": [
+    {
+     "date": "2026-10-14",
+     "low": 50000,
+     "high": 65000,
+     "currency": "USD",
+     "src": "https://www.amcompute.com/compare/b300-vs-b200"
+    }
+   ],
+   "rent": [],
+   "notes": "Not sold to China; a B300 server traded there for about CNY 7M (~$1M) in Apr 2026, nearly double the US price.",
+   "launch": "2025-09",
+   "fp16_tflops": 2250,
+   "fp8_tflops": 4500
   },
   {
-   "name": "AMD MI300X",
-   "slug": "amd-mi300x",
+   "id": "mi300x",
+   "name": "AMD Instinct MI300X",
+   "vendor": "AMD",
+   "country": "US",
+   "segment": "datacenter",
    "mem_gb": 192,
    "bw_gbps": 5300,
-   "buy_low": null,
-   "buy_high": null,
-   "src": null
+   "rental_slug": "amd-mi300x",
+   "buy": [
+    {
+     "date": "2024-02",
+     "low": 10000,
+     "high": 15000,
+     "currency": "USD",
+     "src": "https://www.tomshardware.com/tech-industry/artificial-intelligence/nvidias-h100-ai-gpus-cost-up-to-four-times-more-than-amds-competing-mi300x-amds-chips-cost-dollar10-to-dollar15k-apiece-nvidias-h100-has-peaked-beyond-dollar40000"
+    }
+   ],
+   "rent": [],
+   "notes": "Citi estimate (about $10k for Microsoft, $15k for others); AMD has not confirmed it.",
+   "launch": "2023-12",
+   "fp16_tflops": 1307,
+   "fp8_tflops": 2615
   },
   {
-   "name": "AMD MI355X",
-   "slug": "amd-mi355x",
+   "id": "mi355x",
+   "name": "AMD Instinct MI355X",
+   "vendor": "AMD",
+   "country": "US",
+   "segment": "datacenter",
    "mem_gb": 288,
    "bw_gbps": 8000,
-   "buy_low": null,
-   "buy_high": null,
-   "src": null
-  }
- ],
- "racks": [
-  {
-   "name": "GB300 NVL72",
-   "what": "72 GPUs, one rack",
-   "low": 3700000,
-   "high": 6500000,
-   "src": "https://www.spheron.network/blog/gb300-nvl72-vs-gb200-nvl72-pricing-availability-2026/"
+   "rental_slug": "amd-mi355x",
+   "buy": [
+    {
+     "date": "2025-07-28",
+     "low": 25000,
+     "high": 30000,
+     "currency": "USD",
+     "src": "https://webull.com/news/13240855811023872"
+    }
+   ],
+   "rent": [],
+   "notes": "Rumoured price (analyst expectation, July 2025); not confirmed by AMD.",
+   "launch": "2025-06-12",
+   "fp16_tflops": 2517,
+   "fp8_tflops": 5033
   },
   {
-   "name": "Vera Rubin NVL72",
-   "what": "72 GPUs, shipping late 2026",
-   "low": 5000000,
-   "high": 7800000,
-   "src": "https://finance.yahoo.com/sectors/technology/articles/price-nvidias-vera-rubin-nvl72-100000086.html"
+   "id": "gb300-nvl72",
+   "name": "NVIDIA GB300 NVL72",
+   "vendor": "NVIDIA",
+   "country": "US",
+   "segment": "rack",
+   "what": "72 GPUs, one rack",
+   "buy": [
+    {
+     "date": "2026-08",
+     "low": 4950000,
+     "high": 5000000,
+     "currency": "USD",
+     "src": "https://www.datagravity.dev/p/how-much-does-an-nvidia-nvl72-cost"
+    }
+   ],
+   "rent": [],
+   "notes": "Transacted purchase orders just under $5.0M (Aug 2026); $8-8.6M installed with networking.",
+   "launch": "2025-07"
+  },
+  {
+   "id": "vr200-nvl72",
+   "name": "NVIDIA Vera Rubin NVL72",
+   "vendor": "NVIDIA",
+   "country": "US",
+   "segment": "rack",
+   "what": "72 GPUs, one rack",
+   "buy": [
+    {
+     "date": "2026-02",
+     "low": 3500000,
+     "high": 4000000,
+     "currency": "USD",
+     "src": "https://www.digitalcitizen.life/nvidias-vera-rubin-ai-rack-may-cost-7-8-million-as-memory-prices-surge/"
+    },
+    {
+     "date": "2026-05",
+     "low": 7800000,
+     "high": 7800000,
+     "currency": "USD",
+     "src": "https://wccftech.com/nvidia-vera-rubin-rack-hit-with-memory-price-surge-pushing-hbm4-lpddr5x-bill-to-2m-of-7-8m-total/amp/"
+    }
+   ],
+   "rent": [],
+   "notes": "Estimates doubled in three months as HBM4 memory prices surged (Morgan Stanley: memory is about $2M of the $7.8M).",
+   "launch": "2026-09"
+  },
+  {
+   "id": "mi325x",
+   "buy": [],
+   "rent": [],
+   "name": "AMD Instinct MI325X",
+   "vendor": "AMD",
+   "country": "US",
+   "segment": "datacenter",
+   "launch": "2024-10",
+   "mem_gb": 256,
+   "bw_gbps": 6000,
+   "fp16_tflops": 1307,
+   "fp8_tflops": 2615,
+   "rental_slug": "amd-mi325x",
+   "notes": "No purchase price reported."
+  },
+  {
+   "id": "mi455x",
+   "buy": [],
+   "rent": [],
+   "name": "AMD Instinct MI455X",
+   "vendor": "AMD",
+   "country": "US",
+   "segment": "datacenter",
+   "launch": "2026-07-23",
+   "mem_gb": 432,
+   "bw_gbps": 19600,
+   "fp16_tflops": 5033,
+   "fp8_tflops": 20133,
+   "notes": "Announced July 2026, shipping H2 2026, mainly inside the Helios rack. Bandwidth 19.6 TB/s per launch materials (datasheet says 23.3)."
+  },
+  {
+   "id": "helios",
+   "buy": [
+    {
+     "date": "2026-07-21",
+     "low": 5000000,
+     "high": 5500000,
+     "currency": "USD",
+     "src": "https://wccftech.com/amd-is-reportedly-pricing-its-helios-rack-40-above-nvidias-second-gen-rubin-confident-that-customers-will-pay-the-premium/"
+    }
+   ],
+   "rent": [],
+   "name": "AMD Helios rack",
+   "vendor": "AMD",
+   "country": "US",
+   "segment": "rack",
+   "launch": "2026-09",
+   "notes": "Futurum estimate, about 40% above NVIDIA's Rubin rack.",
+   "what": "72 × MI455X, one rack"
+  },
+  {
+   "id": "gaudi3",
+   "buy": [
+    {
+     "date": "2024-06",
+     "low": 15625,
+     "high": 15625,
+     "currency": "USD",
+     "src": "https://www.techradar.com/pro/intel-discloses-list-prices-of-its-gaudi-3-and-gaudi-2-ai-accelerators-and-were-in-for-a-shock-rivals-to-iconic-nvidias-h100-gpu-have-a-much-better-performance-per-dollar-ratio-but-will-it-matter"
+    }
+   ],
+   "rent": [
+    {
+     "date": "2025-03-31",
+     "price": 7.5,
+     "currency": "USD",
+     "provider": "IBM Cloud",
+     "src": "https://signal65.com/research/ai/intel-gaudi-3-accelerates-ai-at-scale-on-ibm-cloud/"
+    }
+   ],
+   "name": "Intel Gaudi 3",
+   "vendor": "Intel",
+   "country": "US",
+   "segment": "datacenter",
+   "launch": "2024-09",
+   "mem_gb": 128,
+   "bw_gbps": 3700,
+   "fp16_tflops": 1678,
+   "fp8_tflops": 1678,
+   "notes": "One of the few published list prices: $125,000 for an 8-chip kit (Computex 2024)."
+  },
+  {
+   "id": "crescent-island",
+   "buy": [],
+   "rent": [],
+   "name": "Intel Crescent Island",
+   "vendor": "Intel",
+   "country": "US",
+   "segment": "datacenter",
+   "launch": "2026-10",
+   "mem_gb": 160,
+   "notes": "Inference-only GPU with LPDDR5X; sampling planned H2 2026; no price or bandwidth disclosed."
+  },
+  {
+   "id": "tpu-v6e",
+   "buy": [],
+   "rent": [
+    {
+     "date": "2026-09-21",
+     "price": 2.7,
+     "currency": "USD",
+     "provider": "Google Cloud on-demand",
+     "src": "https://gpuperhour.com/blog/tpu-vs-gpu"
+    }
+   ],
+   "name": "Google TPU v6e Trillium",
+   "vendor": "Google",
+   "country": "US",
+   "segment": "cloud",
+   "launch": "2024-12",
+   "mem_gb": 32,
+   "bw_gbps": 1638,
+   "fp16_tflops": 918,
+   "notes": "Not sold; rented only on Google Cloud."
+  },
+  {
+   "id": "tpu7x",
+   "buy": [],
+   "rent": [
+    {
+     "date": "2026-09-21",
+     "price": 12.0,
+     "currency": "USD",
+     "provider": "Google Cloud on-demand",
+     "src": "https://gpuperhour.com/blog/tpu-vs-gpu"
+    }
+   ],
+   "name": "Google TPU7x Ironwood",
+   "vendor": "Google",
+   "country": "US",
+   "segment": "cloud",
+   "launch": "2026-04-22",
+   "mem_gb": 192,
+   "bw_gbps": 7380,
+   "fp16_tflops": 2307,
+   "fp8_tflops": 4614,
+   "notes": "Not sold; rented only on Google Cloud. Large customers pay far less (one estimate: about $1.60/hr for Anthropic)."
+  },
+  {
+   "id": "trainium2",
+   "buy": [],
+   "rent": [
+    {
+     "date": "2026-10-14",
+     "price": 2.235,
+     "currency": "USD",
+     "provider": "AWS Capacity Blocks",
+     "src": "https://aws.amazon.com/ec2/capacityblocks/pricing/"
+    }
+   ],
+   "name": "AWS Trainium2",
+   "vendor": "AWS",
+   "country": "US",
+   "segment": "cloud",
+   "launch": "2024-12-03",
+   "mem_gb": 96,
+   "bw_gbps": 2900,
+   "fp16_tflops": 667,
+   "fp8_tflops": 1299,
+   "notes": "Not sold; rented only on AWS."
+  },
+  {
+   "id": "maia200",
+   "buy": [],
+   "rent": [],
+   "name": "Microsoft Maia 200",
+   "vendor": "Microsoft",
+   "country": "US",
+   "segment": "cloud",
+   "launch": "2026-01-26",
+   "mem_gb": 216,
+   "bw_gbps": 7000,
+   "fp8_tflops": 5050,
+   "notes": "Microsoft's own chip, used inside Azure; neither sold nor rented."
+  },
+  {
+   "id": "tenstorrent-p150a",
+   "buy": [
+    {
+     "date": "2026-10-14",
+     "low": 1399,
+     "high": 1399,
+     "currency": "USD",
+     "src": "https://tenstorrent.com/hardware/blackhole"
+    }
+   ],
+   "rent": [],
+   "name": "Tenstorrent Blackhole p150a",
+   "vendor": "Tenstorrent",
+   "country": "US",
+   "segment": "datacenter",
+   "launch": "2025-04",
+   "mem_gb": 32,
+   "bw_gbps": 512,
+   "fp8_tflops": 664,
+   "notes": "Published list price; sold directly, including to individuals."
+  },
+  {
+   "id": "gb200-nvl72",
+   "buy": [
+    {
+     "date": "2026-08",
+     "low": 2800000,
+     "high": 3400000,
+     "currency": "USD",
+     "src": "https://www.wing.vc/content/how-much-does-an-nvidia-nvl72-cost"
+    }
+   ],
+   "rent": [],
+   "name": "NVIDIA GB200 NVL72",
+   "vendor": "NVIDIA",
+   "country": "US",
+   "segment": "rack",
+   "launch": "2025-02",
+   "notes": "About $3M per rack.",
+   "what": "72 GPUs, one rack"
+  },
+  {
+   "id": "h20",
+   "buy": [
+    {
+     "date": "2024-02",
+     "low": 12000,
+     "high": 15000,
+     "currency": "USD",
+     "src": "https://www.thestandard.com.hk/finance/article/60076/New-Nvidia-AI-chip-to-match-Huawei-on-price"
+    },
+    {
+     "date": "2025-09-04",
+     "low": 10000,
+     "high": 12000,
+     "currency": "USD",
+     "src": "https://www.bnnbloomberg.ca/business/2025/09/04/chinese-firms-still-want-nvidia-chips-despite-government-pressure-not-to-buy-reuters-sources-say/"
+    }
+   ],
+   "rent": [
+    {
+     "date": "2026-10-14",
+     "price": 7.47,
+     "currency": "CNY",
+     "provider": "China market, 8-card servers (SMM)",
+     "src": "https://news.metal.com/en/newscontent/104156887-smm-computing-power-midday-comment-h20-central-china-long-term-agreement-available-for-lease-complete-machine-listed-at-283-million"
+    }
+   ],
+   "name": "NVIDIA H20 (China)",
+   "vendor": "NVIDIA",
+   "country": "US",
+   "segment": "datacenter",
+   "launch": "2024-02",
+   "mem_gb": 96,
+   "bw_gbps": 4000,
+   "fp16_tflops": 148,
+   "fp8_tflops": 296,
+   "notes": "Cut-down part for China. US licence required from Apr 2025, allowed again Jul 2025 with a 15% revenue share; Beijing then told firms to avoid it."
+  },
+  {
+   "id": "rtx-pro-6000d",
+   "buy": [
+    {
+     "date": "2025-09-16",
+     "low": 50000,
+     "high": 50000,
+     "currency": "CNY",
+     "src": "https://www.cp24.com/news/world/2025/09/16/nvidias-new-rtx6000d-chip-for-china-finds-little-favor-with-major-firms-sources-say/"
+    }
+   ],
+   "rent": [],
+   "name": "NVIDIA RTX PRO 6000D (China)",
+   "vendor": "NVIDIA",
+   "country": "US",
+   "segment": "datacenter",
+   "launch": "2025-09",
+   "mem_gb": 84,
+   "bw_gbps": 1398,
+   "notes": "Bandwidth set just under the export threshold; China's regulator told firms to stop ordering it (Sep 2025)."
+  },
+  {
+   "id": "ascend-910b",
+   "buy": [
+    {
+     "date": "2024-06-11",
+     "low": 120000,
+     "high": 120000,
+     "currency": "CNY",
+     "src": "https://www.trendforce.com/news/2024/06/11/news-huaweis-self-developed-ai-chip-challenges-nvidia-boasting-its-ascend-910b-to-be-equal-in-match-with-a100/"
+    },
+    {
+     "date": "2026-08-27",
+     "low": 95000,
+     "high": 95000,
+     "currency": "CNY",
+     "src": "https://news.metal.com/newscontent/104082769-smm-computing-power-midday-review-market-overall-sideways-domestic-computing-power-rental-and-procurement-prices-emerge"
+    }
+   ],
+   "rent": [
+    {
+     "date": "2026-09-07",
+     "price": 2.78,
+     "currency": "CNY",
+     "provider": "China market, 910B3 online (SMM)",
+     "src": "https://news.metal.com/newscontent/104099764-smm-computing-power-flash-30-units-of-910b3-available-for-online-rental-at-16000-yuan-3000-yuan-lower-than-relocatable-units"
+    }
+   ],
+   "name": "Huawei Ascend 910B",
+   "vendor": "Huawei",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2023-10",
+   "mem_gb": 64,
+   "bw_gbps": 1600,
+   "fp16_tflops": 320,
+   "notes": "China's mainstream domestic chip. US guidance (May 2025) says using it anywhere risks breaching US export rules. Rents are low and falling as newer chips arrive."
+  },
+  {
+   "id": "ascend-910c",
+   "buy": [
+    {
+     "date": "2026-01",
+     "low": 90000,
+     "high": 90000,
+     "currency": "CNY",
+     "src": "https://kuwaittimes.com/article/49537/business/chinas-ai-chipmakers-raise-prices-as-high-bandwidth-memory-shortage-bites/"
+    },
+    {
+     "date": "2026-09-10",
+     "low": 110000,
+     "high": 110000,
+     "currency": "CNY",
+     "src": "https://kuwaittimes.com/article/49537/business/chinas-ai-chipmakers-raise-prices-as-high-bandwidth-memory-shortage-bites/"
+    }
+   ],
+   "rent": [
+    {
+     "date": "2026-10-14",
+     "price": 10.59,
+     "currency": "CNY",
+     "provider": "China market, 128-server cluster (SMM)",
+     "src": "https://news.metal.com/newscontent/104099764-smm-computing-power-flash-30-units-of-910b3-available-for-online-rental-at-16000-yuan-3000-yuan-lower-than-relocatable-units"
+    }
+   ],
+   "name": "Huawei Ascend 910C",
+   "vendor": "Huawei",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2025-05",
+   "mem_gb": 128,
+   "bw_gbps": 3200,
+   "fp16_tflops": 800,
+   "notes": "Two 910B-class dies in one package. Price up over 20% in 2026 on the HBM memory shortage; about 600k targeted for 2026 (Bloomberg)."
+  },
+  {
+   "id": "ascend-950pr",
+   "buy": [
+    {
+     "date": "2026-03-27",
+     "low": 50000,
+     "high": 70000,
+     "currency": "CNY",
+     "src": "https://finance.yahoo.com/sectors/technology/articles/exclusive-huaweis-ai-chip-favour-065327884.html"
+    },
+    {
+     "date": "2026-09-10",
+     "low": 80000,
+     "high": 80000,
+     "currency": "CNY",
+     "src": "https://kuwaittimes.com/article/49537/business/chinas-ai-chipmakers-raise-prices-as-high-bandwidth-memory-shortage-bites/"
+    }
+   ],
+   "rent": [],
+   "name": "Huawei Ascend 950PR",
+   "vendor": "Huawei",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2026-04",
+   "mem_gb": 128,
+   "bw_gbps": 1600,
+   "fp8_tflops": 1000,
+   "notes": "Mass production from Apr 2026, about 750k units planned for 2026; ByteDance and Alibaba plan orders. Price up about 30% since January."
+  },
+  {
+   "id": "ascend-950dt",
+   "buy": [
+    {
+     "date": "2026-09-10",
+     "low": 250000,
+     "high": 250000,
+     "currency": "CNY",
+     "src": "https://kuwaittimes.com/article/49537/business/chinas-ai-chipmakers-raise-prices-as-high-bandwidth-memory-shortage-bites/"
+    }
+   ],
+   "rent": [],
+   "name": "Huawei Ascend 950DT",
+   "vendor": "Huawei",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2026-10",
+   "mem_gb": 144,
+   "bw_gbps": 4000,
+   "fp8_tflops": 1000,
+   "notes": "Huawei's own HBM; heart of the Atlas 950 SuperPoD (8,192 chips). Quotes rose 20-50% in two months."
+  },
+  {
+   "id": "huawei-cloudmatrix-384",
+   "buy": [
+    {
+     "date": "2025-07",
+     "low": 8000000,
+     "high": 8200000,
+     "currency": "USD",
+     "src": "https://www.theregister.com/2025/07/29/huawei_rackscale_boogeyman/"
+    }
+   ],
+   "rent": [],
+   "name": "Huawei CloudMatrix 384",
+   "vendor": "Huawei",
+   "country": "CN",
+   "segment": "rack",
+   "launch": "2025-03",
+   "notes": "About 3× the price of an NVIDIA NVL72 for similar total compute, using far more chips and power (about 560 kW).",
+   "what": "384 × Ascend 910C, 16 racks"
+  },
+  {
+   "id": "metax-c500",
+   "buy": [
+    {
+     "date": "2023-07-01",
+     "low": 56900,
+     "high": 56900,
+     "currency": "CNY",
+     "src": "https://static.sse.com.cn/stock/disclosure/announcement/c/202508/002078_20250827_OO1E.pdf"
+    },
+    {
+     "date": "2024-07-01",
+     "low": 47800,
+     "high": 47800,
+     "currency": "CNY",
+     "src": "https://static.sse.com.cn/stock/disclosure/announcement/c/202508/002078_20250827_OO1E.pdf"
+    },
+    {
+     "date": "2025-05-15",
+     "low": 44500,
+     "high": 44500,
+     "currency": "CNY",
+     "src": "https://static.sse.com.cn/stock/disclosure/announcement/c/202508/002078_20250827_OO1E.pdf"
+    }
+   ],
+   "rent": [],
+   "name": "MetaX Xiyun C500",
+   "vendor": "MetaX",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2024-02",
+   "mem_gb": 64,
+   "notes": "Average selling price per card from MetaX's IPO filing (excl. VAT): falling as volume grew from 272 cards (2023) to 6,649 (2024)."
+  },
+  {
+   "id": "metax-c550",
+   "buy": [
+    {
+     "date": "2024-07-01",
+     "low": 45500,
+     "high": 45500,
+     "currency": "CNY",
+     "src": "https://static.sse.com.cn/stock/disclosure/announcement/c/202508/002078_20250827_OO1E.pdf"
+    },
+    {
+     "date": "2025-05-15",
+     "low": 53400,
+     "high": 53400,
+     "currency": "CNY",
+     "src": "https://static.sse.com.cn/stock/disclosure/announcement/c/202508/002078_20250827_OO1E.pdf"
+    }
+   ],
+   "rent": [],
+   "name": "MetaX Xiyun C550",
+   "vendor": "MetaX",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2024-07",
+   "mem_gb": 64,
+   "notes": "Average selling price from MetaX's IPO filing (excl. VAT); rising in 2025."
+  },
+  {
+   "id": "moorethreads-mtt-s4000",
+   "buy": [
+    {
+     "date": "2024-07-01",
+     "low": 60212,
+     "high": 60212,
+     "currency": "CNY",
+     "src": "https://static.sse.com.cn/stock/disclosure/announcement/c/202509/002098_20250905_EBZW.pdf"
+    },
+    {
+     "date": "2025-04-01",
+     "low": 57954,
+     "high": 57954,
+     "currency": "CNY",
+     "src": "https://static.sse.com.cn/stock/disclosure/announcement/c/202509/002098_20250905_EBZW.pdf"
+    }
+   ],
+   "rent": [],
+   "name": "Moore Threads MTT S4000",
+   "vendor": "Moore Threads",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2023-12-19",
+   "mem_gb": 48,
+   "bw_gbps": 768,
+   "fp16_tflops": 102,
+   "notes": "Average selling price from Moore Threads' IPO filing (excl. VAT). On the US Entity List since Oct 2023."
+  },
+  {
+   "id": "enflame-s60",
+   "buy": [
+    {
+     "date": "2024-07-01",
+     "low": 14115,
+     "high": 14115,
+     "currency": "CNY",
+     "src": "https://static.sse.com.cn/stock/disclosure/announcement/c/202604/002175_20260416_BH8W.pdf"
+    },
+    {
+     "date": "2025-07-01",
+     "low": 13198,
+     "high": 13198,
+     "currency": "CNY",
+     "src": "https://static.sse.com.cn/stock/disclosure/announcement/c/202604/002175_20260416_BH8W.pdf"
+    }
+   ],
+   "rent": [],
+   "name": "Enflame S60",
+   "vendor": "Enflame",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2024-01",
+   "notes": "Inference card, Tencent's main supplier; company-wide average price per card from Enflame's prospectus (64,890 cards sold in 2025)."
+  },
+  {
+   "id": "cambricon-mlu590",
+   "buy": [],
+   "rent": [],
+   "name": "Cambricon MLU590",
+   "vendor": "Cambricon",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2024-09",
+   "notes": "No card price published. Revenue grew from CNY 1.18bn (2024) to 6.5bn (2025); about 116k cards shipped in 2025 (IDC). On the US Entity List since 2022."
+  },
+  {
+   "id": "kunlunxin-p800",
+   "buy": [],
+   "rent": [],
+   "name": "Kunlunxin P800",
+   "vendor": "Kunlunxin",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2024-07",
+   "notes": "Baidu's chip. No price published; about 116k shipped in 2025 (IDC)."
+  },
+  {
+   "id": "thead-ppu",
+   "buy": [],
+   "rent": [
+    {
+     "date": "2026-07-29",
+     "price": 4.34,
+     "currency": "CNY",
+     "provider": "China market, 8-card servers (SMM)",
+     "src": "https://news.metal.com/en/newscontent/104031701-smm-computing-power-daily-zhenwu-810e-monthly-rent-of-25000-enters-market-no-spot-h100-complete-machines-in-channels"
+    }
+   ],
+   "name": "Alibaba T-Head Zhenwu 810E",
+   "vendor": "Alibaba T-Head",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2026-01-29",
+   "notes": "Alibaba's in-house chip, mostly offered as Alibaba Cloud capacity; about 265k shipped in 2025 (IDC), second only to Huawei among Chinese vendors.",
+   "mem_gb": 96,
+   "bw_gbps": 2700
+  },
+  {
+   "id": "biren-br166",
+   "buy": [],
+   "rent": [],
+   "name": "Biren BR166",
+   "vendor": "Biren",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2025-08",
+   "notes": "Two BR106 dies in one package. No price published; revenue CNY 1.0bn in 2025. On the US Entity List since Oct 2023."
+  },
+  {
+   "id": "moorethreads-mtt-s5000",
+   "buy": [],
+   "rent": [],
+   "name": "Moore Threads MTT S5000",
+   "vendor": "Moore Threads",
+   "country": "CN",
+   "segment": "datacenter",
+   "launch": "2025-07",
+   "mem_gb": 80,
+   "bw_gbps": 1600,
+   "fp8_tflops": 1000,
+   "notes": "Adds FP8; vendor-claimed specs. No card price published; Moore Threads' revenue rose 147% in H1 2026."
   }
  ]
 }

@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
-Monthly price re-check for build/hardware.json, run by .github/workflows/prices.yml.
+Monthly price re-check for build/hardware.json (v2), run by scripts/price_check_local.sh.
 
-For every hand-checked price it:
+For every product in every market (US, Euro area, UK, China, Japan), and every datacenter
+part with a purchase estimate, it:
   1. searches the web            (MiniMax Token Plan search, or a SearXNG instance)
   2. fetches the candidate pages itself (skipping sites whose terms forbid scraping)
   3. asks a language model to read them and return the current price AND the exact
      sentence on the page that states it
   4. verifies in code: the quote must appear on the fetched page and contain the price;
      implausible jumps are held back for a human
-  5. writes the verified changes into hardware.json and a markdown report for the PR
+  5. APPENDS each verified price as a new dated point (nothing is overwritten, so the
+     history grows month by month) and writes a markdown report for the PR
 
 Nothing here publishes anything: the workflow opens a pull request, and a person merges.
 Standard library only.
@@ -133,7 +135,7 @@ def excerpt(text, name):
     lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
     scored = []
     for i, ln in enumerate(lines):
-        if not re.search(r"(\$|USD)\s?\d", ln):
+        if not re.search(r"(\$|€|£|¥|￥|USD|EUR|GBP|CNY|RMB|JPY)\s?\d|\d\s?(€|元|円|万|EUR|GBP|USD)", ln):
             continue
         ctx = " ".join(lines[max(0, i - 2): i + 3]).lower()
         scored.append((sum(w in ctx for w in words), i))
@@ -175,14 +177,21 @@ def norm(s):
     return re.sub(r"\s+", " ", s).strip()
 
 
-def amounts(text):
-    """Every dollar amount written in a piece of text, as numbers ($4,950 / $4.9k / $3.7M / 4,950 USD)."""
-    out = []
-    for m in re.finditer(r"\$\s?(\d[\d,]*(?:\.\d+)?)\s*(k|m|million|thousand)?|(\d[\d,]*(?:\.\d+)?)\s?(?:usd|dollars)", text, re.I):
-        num = float((m.group(1) or m.group(3)).replace(",", ""))
-        mult = (m.group(2) or "").lower()
-        num *= 1000 if mult in ("k", "thousand") else 1e6 if mult in ("m", "million") else 1
-        out.append(num)
+def numbers(text):
+    """Every number written in a piece of text, read every way it could be meant:
+    $4,950 / 4.950 € (German) / £1,299.99 / ¥16,499 / 1.65万 / 398,800円 / $3.7M / $27K."""
+    out = set()
+    pat = r"(\d{1,3}(?:[.,\s  ']\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d+)?)\s*(万|k|K|m|M|million|thousand|bn|billion)?"
+    for m in re.finditer(pat, text):
+        raw, mult = m.group(1), (m.group(2) or "").lower()
+        f = {"万": 1e4, "k": 1e3, "thousand": 1e3, "m": 1e6, "million": 1e6, "bn": 1e9, "billion": 1e9}.get(mult, 1)
+        compact = re.sub(r"[\s  ']", "", raw)
+        for cand in (compact.replace(",", ""),                              # 4,950.00
+                     compact.replace(".", "").replace(",", ".")):           # 4.950,00
+            try:
+                out.add(float(cand) * f)
+            except ValueError:
+                pass
     return out
 
 
@@ -194,7 +203,7 @@ def verify(ans, pages, keys):
     quote = norm(ans.get("quote"))
     if len(quote) < 12 or quote not in norm(pages[src]):
         return "the quoted sentence is not on the cited page"
-    found = amounts(quote)
+    found = numbers(quote)
     for k in keys:
         v = ans.get(k)
         if v is None:
@@ -206,66 +215,76 @@ def verify(ans, pages, keys):
 
 # ------------------------------------------------------------------ items
 
+MARKETS = {   # how to search each market, and what its shelf prices include
+    "US": {"words": "price USD", "lang": "", "tax": "excl"},
+    "EU": {"words": "Preis Euro", "lang": "German retail price in EUR, including VAT, from a German or EU shop or news source", "tax": "incl"},
+    "UK": {"words": "price UK £", "lang": "UK retail price in GBP including VAT", "tax": "incl"},
+    "CN": {"words": "价格 元", "lang": "mainland China retail price in CNY (yuan/RMB), e.g. JD.com or Chinese tech news", "tax": "incl"},
+    "JP": {"words": "価格 円", "lang": "Japan retail price in JPY including consumption tax, e.g. Japanese shops or kakaku coverage", "tax": "incl"},
+}
+FIRST_POINT_BAND = (0.6, 2.2)   # a market's first-ever price must sit within this band of the US price
+
+
 def tasks(hw):
-    """One task per hand-checked number group, with what the model must return."""
     month = date.today().strftime("%B %Y")
-    for h in hw["home"]:
-        used = "used" in h["kind"].lower()
-        yield {"kind": "home", "item": h, "name": h["name"],
-               "queries": [f'{h["name"]} {"used " if used else ""}price {month}', f'{h["name"]} price'],
-               "want": ("price", "low", "high"),
-               "ask": (f'the current {"USED street" if used else "lowest NEW retail"} price in US dollars of: {h["name"]} '
-                       f'({h["mem_gb"]} GB). Today it is recorded as ${h["now"]["price"]:,} (range ${h["now"].get("low", h["now"]["price"]):,}'
-                       f'-${h["now"].get("high", h["now"]["price"]):,}). Return {{"price": number or null, "low": number or null, '
-                       f'"high": number or null, "basis": "short note e.g. used median / list price", "source": "URL", '
-                       f'"quote": "exact sentence from that page", "confidence": "high|medium|low"}}. '
-                       f'price must be the typical current price; low/high only if the page gives a range.')}
-    for g in hw["datacenter"]:
-        if g.get("buy_low") is None:
+    regions = list(MARKETS)
+    for n, pr in enumerate(hw["products"]):
+        if pr.get("status") == "discontinued":
+            continue                                   # no longer sold: its history is complete
+        # markets it already has, plus the US, plus one new market a month in rotation: the
+        # coverage keeps growing while the number of searches stays bounded
+        have = {p["region"] for p in pr.get("prices", [])} | {"US"}
+        missing = [r for r in regions if r not in have]
+        if missing:
+            have.add(missing[(date.today().month + n) % len(missing)])
+        for reg, mk in ((r, MARKETS[r]) for r in regions if r in have):
+            cur = hw["regions"][reg]["currency"]
+            yield {"kind": "product", "item": pr, "region": reg, "currency": cur, "name": f"{pr['name']} · {reg}",
+                   "search_name": pr["name"],
+                   "queries": [f'{pr["name"]} {mk["words"]} {month}', f'{pr["name"]} {mk["words"]}'],
+                   "want": ("amount",),
+                   "ask": (f'the current price of {pr["name"]} ({pr["mem_gb"]} GB) in market {reg}: '
+                           f'{mk["lang"] or "US retail price in USD before sales tax (official store or lowest new retail)"}. '
+                           f'Return {{"amount": number in {cur} or null, "basis": "official store | MSRP | lowest retail | used", '
+                           f'"source": "URL", "quote": "exact sentence from that page that states the price", '
+                           f'"confidence": "high|medium|low"}}. The amount must be in {cur}, as written on the page.')}
+    for a in hw["accelerators"]:
+        if not a.get("buy"):
             continue
-        yield {"kind": "datacenter", "item": g, "name": g["name"],
-               "queries": [f'NVIDIA {g["name"]} GPU price per unit {month}', f'{g["name"]} GPU cost'],
-               "want": ("buy_low", "buy_high"),
-               "ask": (f'the current purchase price range in US dollars of ONE {g["name"]} datacenter GPU (not a server, not '
-                       f'rental per hour). Recorded now: ${g["buy_low"]:,}-${g["buy_high"]:,}. Return {{"buy_low": number or null, '
-                       f'"buy_high": number or null, "source": "URL", "quote": "exact sentence from that page", '
-                       f'"confidence": "high|medium|low"}}.')}
-    for r in hw.get("racks", []):
-        yield {"kind": "rack", "item": r, "name": r["name"],
-               "queries": [f'{r["name"]} rack price {month}', f'{r["name"]} cost per rack'],
+        last = sorted(a["buy"], key=lambda b: b["date"])[-1]
+        what = "one rack" if a["segment"] == "rack" else "ONE accelerator (not a server, not per-hour rental)"
+        yield {"kind": "accel", "item": a, "region": "-", "currency": last["currency"], "name": a["name"],
+               "search_name": a["name"],
+               "queries": [f'{a["name"]} price {month}', f'{a["name"]} cost per unit'],
                "want": ("low", "high"),
-               "ask": (f'the current price range in US dollars of one {r["name"]} rack ({r["what"]}). Recorded now: '
-                       f'${r["low"]:,}-${r["high"]:,}. Return {{"low": number or null, "high": number or null, "source": "URL", '
-                       f'"quote": "exact sentence from that page", "confidence": "high|medium|low"}}.')}
+               "ask": (f'the current purchase price range of {what}: {a["name"]} ({a["vendor"]}). Recorded now: '
+                       f'{last["low"]:,}-{(last.get("high") or last["low"]):,} {last["currency"]}. Return {{"low": number or null, '
+                       f'"high": number or null, "currency": "USD|CNY", "source": "URL", "quote": "exact sentence from that page", '
+                       f'"confidence": "high|medium|low"}}.')}
 
 
-def current(t):
-    i = t["item"]
-    if t["kind"] == "home":
-        return {"price": i["now"]["price"], "low": i["now"].get("low"), "high": i["now"].get("high")}
-    if t["kind"] == "datacenter":
-        return {"buy_low": i["buy_low"], "buy_high": i["buy_high"]}
-    return {"low": i["low"], "high": i["high"]}
+def last_point(t):
+    if t["kind"] == "product":
+        pts = sorted((p for p in t["item"]["prices"] if p["region"] == t["region"]), key=lambda p: p["date"])
+        return pts[-1] if pts else None
+    return sorted(t["item"]["buy"], key=lambda b: b["date"])[-1]
 
 
-def apply(t, ans):
-    i = t["item"]
-    if t["kind"] == "home":
-        p = float(ans["price"])
-        i["now"] = {"price": round(p), "low": round(float(ans.get("low") or p)), "high": round(float(ans.get("high") or p)),
-                    "basis": (ans.get("basis") or i["now"].get("basis", ""))[:60]}
-    elif t["kind"] == "datacenter":
-        i["buy_low"], i["buy_high"] = round(float(ans["buy_low"])), round(float(ans.get("buy_high") or ans["buy_low"]))
-    else:
-        i["low"], i["high"] = round(float(ans["low"])), round(float(ans.get("high") or ans["low"]))
-    i["src"] = ans["source"]
+def us_reference(t, rates):
+    """The latest US price in this product's currency for the market, to sanity-check a first point."""
+    us = sorted((p for p in t["item"]["prices"] if p["region"] == "US"), key=lambda p: p["date"])
+    if not us:
+        return None
+    per = rates.per_usd(t["currency"], date.today().isoformat()) if rates else None
+    return us[-1]["amount"] * per if per else None
 
 
-def check(t):
-    """Run one task. Returns a report row."""
+def check(t, rates):
+    """Run one task. Returns a report row; appends a point to the item if verified."""
     cands, seen = [], set()
-    if t["item"].get("src"):
-        cands.append(t["item"]["src"])
+    last = last_point(t)
+    if last and last.get("src"):
+        cands.append(last["src"])
     for q in t["queries"]:
         try:
             for _, url, _ in search(q):
@@ -285,71 +304,88 @@ def check(t):
         except Exception as e:
             log(f"  skip {url[:70]}: {type(e).__name__}")
             continue
-        ex = excerpt(text, t["name"])
+        ex = excerpt(text, t["search_name"])
         if not ex:
             continue
         pages[url] = text
         blocks.append(f"### PAGE {len(blocks) + 1}\nURL: {url}\n{ex}")
-    row = {"name": t["name"], "old": current(t), "status": "no data", "new": None, "source": None, "quote": None, "why": ""}
+    was = (last.get("amount") if t["kind"] == "product" else last.get("low")) if last else None
+    row = {"name": t["name"], "region": t["region"], "currency": t["currency"], "was": was, "status": "no data",
+           "now": None, "source": None, "quote": None, "why": ""}
     if not blocks:
         row["why"] = "no readable pages with prices"
         return row
     prompt = (f"Find {t['ask']}\nToday is {date.today():%d %B %Y}. Use only these pages; prefer the most recent "
-              f"and most specific one. If none states a current price, return nulls.\n\n" + "\n\n".join(blocks))
+              f"and most specific one. If none states a current price for exactly this product and market, return nulls.\n\n"
+              + "\n\n".join(blocks))
     try:
         ans = ask_model(prompt)
     except Exception as e:
         row["why"] = f"model error: {e}"[:160]
         return row
-    key = t["want"][0]
+    key = t["want"][0] if t["kind"] == "product" else "low"
     if ans.get(key) in (None, "", 0):
         row["why"] = "no current price found on the pages read"
         return row
-    # the headline number must be proven; a range bound the quote does not contain is
-    # dropped rather than sinking an otherwise verified price
+    if t["kind"] == "accel" and ans.get("currency") and ans["currency"] != t["currency"]:
+        t["currency"] = ans["currency"]
     bad = verify(ans, pages, [key])
-    if not bad:
-        for k in t["want"][1:]:
-            if ans.get(k) is not None and verify(ans, pages, [k]):
-                ans[k] = None
-    row.update(new={k: ans.get(k) for k in t["want"]}, source=ans.get("source"), quote=ans.get("quote"))
+    if not bad and t["kind"] == "accel" and ans.get("high") is not None and verify(ans, pages, ["high"]):
+        ans["high"] = None
+    new = float(ans[key])
+    row.update(now=new, source=ans.get("source"), quote=ans.get("quote"))
     if bad:
         row.update(status="rejected", why=bad)
         return row
-    old_v, new_v = float(row["old"][key]), float(ans[key])
-    ratio = new_v / old_v if old_v else 1
-    if ratio > SANE_UP or ratio < SANE_DOWN:
-        row.update(status="held", why=f"{(ratio - 1) * 100:+.0f}% in a month; left unchanged for a human to confirm")
-        return row
-    before = current(t)
-    apply(t, ans)
-    after = current(t)
-    moved = any(before.get(k) is not None and after.get(k) is not None
-                and abs(float(after[k]) - float(before[k])) > 0.005 * float(before[k]) for k in t["want"])
-    row["status"] = "updated" if moved else "confirmed"
+    ref = was if was else (us_reference(t, rates) if t["kind"] == "product" else None)
+    if ref:
+        ratio = new / float(ref)
+        band = (SANE_DOWN, SANE_UP) if was else FIRST_POINT_BAND
+        if ratio < band[0] or ratio > band[1]:
+            row.update(status="held", why=f"{(ratio - 1) * 100:+.0f}% against {'the last point' if was else 'the US price'}; "
+                                         f"left out for a human to confirm")
+            return row
+    today = date.today().isoformat()
+    if t["kind"] == "product":
+        t["item"]["prices"].append({"date": today, "region": t["region"], "currency": t["currency"], "amount": round(new, 2),
+                                    "tax": MARKETS[t["region"]]["tax"], "basis": (ans.get("basis") or "retail")[:40],
+                                    "src": ans["source"]})
+    else:
+        t["item"]["buy"].append({"date": today, "low": round(new), "high": round(float(ans.get("high") or new)),
+                                 "currency": t["currency"], "src": ans["source"]})
+    row["status"] = "new market" if was is None else ("updated" if abs(new - float(was)) > 0.005 * float(was) else "confirmed")
     return row
 
 
 # ------------------------------------------------------------------ report
 
-def money(v):
-    return "—" if v is None else (f"${v / 1e6:.1f}M" if v >= 1e6 else f"${v:,.0f}")
+SYM = {"USD": "$", "EUR": "€", "GBP": "£", "CNY": "¥", "JPY": "¥"}
+
+
+def money(v, cur="USD"):
+    if v is None:
+        return "—"
+    s = SYM.get(cur, cur + " ")
+    return f"{s}{v / 1e6:.1f}M" if v >= 1e6 else f"{s}{v:,.0f}" + ("" if cur in ("USD", "EUR", "GBP") else f" {cur}")
 
 
 def report(rows, checked):
-    icon = {"updated": "🟢 updated", "confirmed": "⚪ confirmed", "held": "🟠 held", "rejected": "🔴 rejected", "no data": "⚫ no data"}
+    icon = {"updated": "🟢 updated", "new market": "🔵 new market", "confirmed": "⚪ confirmed", "held": "🟠 held",
+            "rejected": "🔴 rejected", "no data": "⚫ no data"}
+    n = {k: sum(r["status"] == k for r in rows) for k in icon}
     out = [f"## Monthly price check · {checked}\n",
-           f"Model `{LLM_MODEL}` via `{urllib.parse.urlparse(LLM_BASE).netloc}`, search `{SEARCH}`. Every accepted price was "
-           "checked in code: the quoted sentence is on the cited page and contains the number. Moves over "
-           f"+{(SANE_UP - 1) * 100:.0f}% / -{(1 - SANE_DOWN) * 100:.0f}% are held for you.\n",
-           "| Item | Was | Now | Status | Evidence |", "|---|---|---|---|---|"]
-    for r in rows:
-        k = list(r["old"])[0]
-        was = money(r["old"][k]) + ((f" ({money(r['old'].get('low') or r['old'].get('buy_low'))}–"
-                                     f"{money(r['old'].get('high') or r['old'].get('buy_high'))})") if len(r["old"]) > 1 else "")
-        now = money(float(r["new"][k])) if r["new"] and r["new"].get(k) else "—"
-        ev = (f'[source]({r["source"]}): “{(r["quote"] or "")[:160]}”' if r["source"] else "") + (f" — {r['why']}" if r["why"] else "")
-        out.append(f"| {r['name']} | {was} | {now} | {icon[r['status']]} | {ev.replace('|', '/')} |")
+           f"Model `{LLM_MODEL}` via `{urllib.parse.urlparse(LLM_BASE).netloc}`, search `{SEARCH}`. "
+           f"**{n['updated']} updated, {n['new market']} new markets, {n['confirmed']} confirmed**, "
+           f"{n['held'] + n['rejected']} for review, {n['no data']} without data.\n",
+           "Every accepted price was checked in code: the quoted sentence is on the cited page and contains the number. "
+           "Each one is added as a new dated point, so the history grows; nothing is overwritten. Moves beyond ±30% "
+           "against the last point, and first prices far from the US price, are held for you.\n",
+           "| Item | Market | Last | Found | Status | Evidence |", "|---|---|---|---|---|---|"]
+    order = list(icon)
+    for r in sorted(rows, key=lambda r: (order.index(r["status"]), r["name"])):
+        ev = (f'[source]({r["source"]}): “{(r["quote"] or "")[:150]}”' if r["source"] else "") + (f" — {r['why']}" if r["why"] else "")
+        out.append(f"| {r['name'].split(' · ')[0]} | {r['region']} | {money(r['was'], r['currency'])} | "
+                   f"{money(r['now'], r['currency'])} | {icon[r['status']]} | {ev.replace('|', '/')} |")
     out.append("\nMerge to publish. Edit `build/hardware.json` in this branch first if anything looks wrong.")
     return "\n".join(out) + "\n"
 
@@ -358,7 +394,13 @@ def main():
     if not LLM_KEY:
         log("no LLM_API_KEY / MINIMAX_API_KEY set")
         return 1
+    sys.path.insert(0, str(ROOT / "build"))
+    import hwdata                                   # exchange rates, for first-point sanity checks
+    rates = hwdata.Rates()
     hw = json.loads(HW.read_text())
+    if hw.get("version") != 2:
+        log("hardware.json is not version 2; refusing to guess its layout")
+        return 1
     try:                                            # fail fast, and loudly, if the model is unreachable
         ask_model('Reply with {"ok": true}')
     except Exception as e:
@@ -369,20 +411,20 @@ def main():
         if ONLY and not any(o in t["name"].lower() for o in ONLY):
             continue
         log(f"{t['kind']}: {t['name']}")
-        rows.append(check(t))
+        rows.append(check(t, rates))
         log(f"  -> {rows[-1]['status']} {rows[-1]['why']}")
         time.sleep(1)
-    good = [r for r in rows if r["status"] in ("updated", "confirmed")]
+    good = [r for r in rows if r["status"] in ("updated", "confirmed", "new market")]
     if not good and all(r["status"] == "no data" for r in rows):
         log("nothing could be checked; leaving hardware.json alone")
         REPORT.write_text(report(rows, date.today().isoformat()))
         return 1
     if good:
-        hw["checked"] = date.today().isoformat()     # the date means "a human-reviewable check happened"
+        hw["checked"] = date.today().isoformat()
     HW.write_text(json.dumps(hw, indent=1, ensure_ascii=False) + "\n")
     REPORT.write_text(report(rows, date.today().isoformat()))
-    log(f"done: {sum(r['status'] == 'updated' for r in rows)} updated, {sum(r['status'] == 'confirmed' for r in rows)} confirmed, "
-        f"{sum(r['status'] in ('held', 'rejected') for r in rows)} for review, {sum(r['status'] == 'no data' for r in rows)} without data")
+    log("done: " + ", ".join(f"{sum(r['status'] == k for r in rows)} {k}" for k in
+                             ("updated", "new market", "confirmed", "held", "rejected", "no data")))
     return 0
 
 

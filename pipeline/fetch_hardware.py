@@ -22,7 +22,7 @@ UA = "artificialacceleration.com data job (+https://artificialacceleration.com)"
 TRACK = {
     "nvidia-a100": "datacenter", "nvidia-h100": "datacenter", "nvidia-h200": "datacenter",
     "nvidia-b200": "datacenter", "nvidia-b300": "datacenter", "amd-mi300x": "datacenter",
-    "amd-mi355x": "datacenter",
+    "amd-mi325x": "datacenter", "amd-mi355x": "datacenter", "intel-gaudi2": "datacenter",
     "nvidia-rtx-3090": "home", "nvidia-rtx-4090": "home", "nvidia-rtx-5090": "home",
     "nvidia-rtx-pro-6000": "home",
 }
@@ -49,7 +49,7 @@ def main():
             continue
         m = models.get(slug, {})
         series[slug] = {
-            "name": m.get("name", slug).replace("Nvidia ", "").replace("AMD ", "AMD "),
+            "name": m.get("name", slug).replace("Nvidia ", ""),
             "kind": kind,
             "released": m.get("release_date") or None,
             "vram_gb": float(m["vram_gb"]) if m.get("vram_gb") else None,

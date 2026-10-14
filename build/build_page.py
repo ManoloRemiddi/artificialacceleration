@@ -17,6 +17,7 @@ sys.path.insert(0, str(R / "build"))
 import sections as SEC
 import extras
 import hardware_section
+import hardware_page
 
 def esc(t): return html.escape(str(t), quote=False)
 def to_date(s):
@@ -268,6 +269,7 @@ def main():
     site.mkdir(exist_ok=True)
     (site / "index.html").write_text(out)
     extras.write_all(site, rows, LABS, mark_html, NOTES, ACCEL_IDX, (DATA.get("generated_utc") or "")[:10])
+    hardware_page.write(site, as_of_date())
     print(f"index.html written: {len(out)} bytes, {len(page_rows)} curated rows, "
           f"{len(stream_rows)} stream rows")
 

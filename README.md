@@ -74,14 +74,19 @@ Applied from 2026 data-visualisation guidance:
 | `build/hardware.json` | hand-checked purchase prices, one source per number, re-check monthly |
 | `build/build_page.py` | renders `index.html` and the sections |
 | `build/extras.py` | release pages (`/m/<slug>/`), Atom feed, sitemap, badge, embed widget, social card |
-| `build/hardware_section.py` | section 07, the cost of running it yourself |
+| `build/hardware_section.py` | section 04 on the main page: a summary of the hardware costs |
+| `build/hardware_page.py`, `build/hardware_template.html` | the full hardware tracker at `/hardware/`: every vendor, five markets, datacenter parts |
+| `build/hwdata.py` | the hardware data model (v2) and conversion to dollars at each price's own date |
+| `pipeline/fetch_fx.py` | weekly exchange rates (ECB via frankfurter.dev) → `data/fx.json` |
 | `data/releases.json` | current grouped dataset (committed) |
 | `data/baseline.json` | previous snapshot, for diffing |
 | `data/changes.jsonl` | append-only record of what changed and when |
 
 ### The monthly price agent
 
-`build/hardware.json` holds purchase prices no keyless source publishes. On the 3rd of
+`build/hardware.json` (v2) holds home-lab products with dated price points in five markets
+(US, Euro area, UK, China, Japan) and datacenter accelerators across vendors and countries,
+each number with a source. These are prices no keyless source publishes. On the 3rd of
 each month a systemd user timer on the maintainer's machine runs
 `scripts/price_check_local.sh`, which:
 

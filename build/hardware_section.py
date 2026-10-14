@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
-"""Section 07: what it costs to run it yourself.
+"""Section 04 on the main page: what it costs to run it yourself (a summary; the full
+tracker with every vendor and market is site/hardware/, built by hardware_page.py).
 
-Two sources, kept visibly apart:
+Sources, kept visibly apart:
   data/gpu_rental.json  automatic, weekly, GetDeploying open dataset (CC BY 4.0)
-  build/hardware.json   purchase prices, checked by hand with a source per number
+  build/hardware.json   purchase prices with a source per number (v2, see hwdata.py),
+                        re-checked monthly by the price agent
 
 Everything is drawn here as static SVG at build time; colours are CSS variables so
 the theme switch still applies.
 """
 import html, json, pathlib
 from datetime import date
+
+import hwdata
 
 R = pathlib.Path(__file__).resolve().parent.parent
 
@@ -49,12 +53,15 @@ def yoy(points):
 # ---- colour: one hue per vendor, stepped by generation (ordinal, so light -> strong) ----
 NV_STEPS = {"nvidia-a100": 34, "nvidia-h100": 52, "nvidia-h200": 68, "nvidia-b200": 84, "nvidia-b300": 100,
             "nvidia-rtx-3090": 40, "nvidia-rtx-4090": 60, "nvidia-rtx-5090": 80, "nvidia-rtx-pro-6000": 100}
-AMD_STEPS = {"amd-mi300x": 60, "amd-mi355x": 100}
+AMD_STEPS = {"amd-mi300x": 50, "amd-mi325x": 72, "amd-mi355x": 100}
+INTEL_STEPS = {"intel-gaudi2": 70, "intel-gaudi3": 100}
 
 
 def hue(slug):
     if slug in AMD_STEPS:
         return "color-mix(in srgb, var(--hw-amd) %d%%, var(--panel))" % AMD_STEPS[slug]
+    if slug in INTEL_STEPS:
+        return "color-mix(in srgb, var(--hw-intel) %d%%, var(--panel))" % INTEL_STEPS[slug]
     return "color-mix(in srgb, var(--hw-nv) %d%%, var(--panel))" % NV_STEPS.get(slug, 70)
 
 
@@ -87,7 +94,7 @@ def rental_chart(series, slugs, title, aria):
     labels = []
     for s, ps in pts.items():
         d = " ".join(("M" if i == 0 else "L") + "%.1f %.1f" % (x(p[0]), y(p[1])) for i, p in enumerate(ps))
-        dash = ' stroke-dasharray="5 3"' if s in AMD_STEPS else ""
+        dash = ' stroke-dasharray="5 3"' if s in AMD_STEPS else ' stroke-dasharray="1.5 2.5"' if s in INTEL_STEPS else ""
         o.append('<path class="hwline" d="%s" style="stroke:%s"%s/>' % (d, hue(s), dash))
         ch, _ = yoy(ps)
         last = ps[-1]
@@ -109,63 +116,94 @@ def rental_chart(series, slugs, title, aria):
     return '<figure class="hwfig"><figcaption>%s</figcaption><div class="hwscroll">%s</div></figure>' % (title, "".join(o))
 
 
-def dumbbell(home):
-    """Launch price -> today, one row per box people actually buy for a home lab."""
-    rows = sorted(home, key=lambda h: h["now"]["price"])
+FEATURED = ["rtx-5090", "rtx-5080", "rtx-pro-6000", "dgx-spark-128", "asus-gx10", "framework-desktop-128",
+            "gmktec-evo-x2-128", "amd-radeon-ai-pro-r9700", "arc-pro-b60", "arc-pro-b70", "mac-studio-m3-ultra-96", "rtx-3090"]
+
+
+def home_rows(hw, featured_only=False):
+    """US launch price and latest US price per product, the like-for-like pair."""
+    rows = []
+    for pr in hw["products"]:
+        if featured_only and pr["id"] not in FEATURED:
+            continue
+        first, last = hwdata.first_last(pr, "US")
+        if not first or first is last:
+            continue
+        rows.append({"name": pr["name"], "vendor": pr["vendor"], "kind": pr.get("kind") or pr["segment"],
+                     "mem_gb": pr.get("mem_gb"), "bw_gbps": pr.get("bw_gbps"), "launch": first, "now": last, "src": last.get("src")})
+    return rows
+
+
+def dumbbell(rows):
+    """Launch price -> today (US), one row per machine, across vendors."""
+    rows = sorted(rows, key=lambda h: h["now"]["amount"])
     W, RH, PL, PR, PT = 1360, 40, 420, 170, 30
     H = PT + RH * len(rows) + 30
-    vmax = max(max(h["now"].get("high", h["now"]["price"]), h["launch"]["price"]) for h in rows) * 1.06
+    vmax = max(max(h["now"].get("high") or h["now"]["amount"], h["launch"]["amount"]) for h in rows) * 1.06
     step = next(s for s in (1000, 2000, 2500, 5000, 10000) if vmax / s <= 8)
     x = lambda v: PL + v / vmax * (W - PL - PR)
     o = ['<div class="hwscroll wide"><svg class="hwchart" viewBox="0 0 %d %d" width="100%%" role="img" '
-         'aria-label="Launch price against today\'s price for home-lab AI hardware">' % (W, H)]
+         'aria-label="Launch price against today\'s price for home-lab AI hardware, US">' % (W, H)]
     v = 0
     while v <= vmax:
         o.append('<line class="ax" x1="%.1f" x2="%.1f" y1="%d" y2="%d" opacity=".18"/>' % (x(v), x(v), PT - 8, H - 26))
         o.append('<text class="axl" x="%.1f" y="%d" text-anchor="middle">%s</text>' % (x(v), H - 10, ("$%gk" % (v / 1000)) if v else "$0"))
         v += step
-    o.append('<text class="axl d" x="%d" y="14">launch price</text><text class="axl d" x="%d" y="14">● today</text>' % (PL, PL + 92))
+    o.append('<text class="axl d" x="%d" y="14">launch price</text><text class="axl d" x="%d" y="14">\u25cf today</text>' % (PL, PL + 92))
     o.append('<text class="axl d" x="%d" y="14" text-anchor="end">today, per GB</text>' % (W - 6))
     for i, h in enumerate(rows):
         cy = PT + RH * i + RH / 2
-        lp, np_ = h["launch"]["price"], h["now"]["price"]
+        lp, np_ = h["launch"]["amount"], h["now"]["amount"]
         ch = (np_ - lp) / lp * 100
-        lo, hi = h["now"].get("low", np_), h["now"].get("high", np_)
+        lo, hi = h["now"].get("low") or np_, h["now"].get("high") or np_
         o.append('<text class="hwname" x="0" y="%.1f">%s</text>' % (cy - 3, esc(h["name"])))
-        o.append('<text class="axl" x="0" y="%.1f">%s · %d GB · %s GB/s</text>' % (cy + 12, esc(h["kind"]), h["mem_gb"], format(h["bw_gbps"], ",")))
+        spec = " \u00b7 ".join(x for x in (esc(h["vendor"]), esc(h["kind"]), ("%d GB" % h["mem_gb"]) if h.get("mem_gb") else "",
+                                           ("%s GB/s" % format(h["bw_gbps"], ",")) if h.get("bw_gbps") else "") if x)
+        o.append('<text class="axl" x="0" y="%.1f">%s</text>' % (cy + 12, spec))
         if hi > lo:
             o.append('<line class="hwrange" x1="%.1f" x2="%.1f" y1="%.1f" y2="%.1f"/>' % (x(lo), x(hi), cy, cy))
         o.append('<line class="hwmove %s" x1="%.1f" x2="%.1f" y1="%.1f" y2="%.1f"/>' % ("up" if ch > 0 else "down", x(lp), x(np_), cy, cy))
         o.append('<circle class="hwlaunch" cx="%.1f" cy="%.1f" r="5"><title>Launch %s: %s</title></circle>' % (x(lp), cy, h["launch"]["date"], money(lp)))
-        o.append('<circle class="hwnow %s" cx="%.1f" cy="%.1f" r="6"><title>Today: %s (%s; range %s–%s)</title></circle>'
-                 % ("up" if ch > 0 else "down", x(np_), cy, money(np_), esc(h["now"]["basis"]), money(lo), money(hi)))
+        o.append('<circle class="hwnow %s" cx="%.1f" cy="%.1f" r="6"><title>%s: %s (%s)</title></circle>'
+                 % ("up" if ch > 0 else "down", x(np_), cy, h["now"]["date"], money(np_), esc(h["now"].get("basis", ""))))
         o.append('<text class="hwpct %s" x="%.1f" y="%.1f">%+.0f%%</text>' % ("up" if ch > 0 else "down", max(x(np_), x(hi)) + 10, cy + 4, ch))
-        o.append('<text class="hwper" x="%d" y="%.1f" text-anchor="end">%s/GB</text>' % (W - 6, cy + 4, money(np_ / h["mem_gb"])))
+        if h.get("mem_gb"):
+            o.append('<text class="hwper" x="%d" y="%.1f" text-anchor="end">%s/GB</text>' % (W - 6, cy + 4, money(np_ / h["mem_gb"])))
     o.append('</svg></div>')
     return "".join(o)
 
 
-def dc_table(dc, racks, series):
-    o = ['<div class="hwscroll"><table class="hwtable"><thead><tr><th>GPU</th><th class="n">Memory</th><th class="n">Bandwidth</th>'
-         '<th class="n">Buy (est.)</th><th class="n">Rent now</th><th class="n">vs a year ago</th>'
+def latest_buy(a):
+    return sorted(a.get("buy", []), key=lambda b: b["date"])[-1] if a.get("buy") else None
+
+
+def dc_table(accels, series, rates=None, limit_vendors=None):
+    """Datacenter parts: memory, purchase estimate, live rent (where a rental market exists)."""
+    rates = rates or hwdata.Rates()
+    o = ['<div class="hwscroll"><table class="hwtable"><thead><tr><th>Accelerator</th><th>Vendor</th><th class="n">Memory</th>'
+         '<th class="n">Bandwidth</th><th class="n">Buy (est.)</th><th class="n">Rent now</th><th class="n">vs a year ago</th>'
          '<th class="n">Break-even</th></tr></thead><tbody>']
-    for g in dc:
-        s = series.get(g["slug"])
+    for g in accels:
+        if limit_vendors and g["vendor"] not in limit_vendors:
+            continue
+        s = series.get(g.get("rental_slug") or "")
         rent = s["points"][-1][1] if s else None
         ch, _ = yoy(s["points"]) if s else (None, None)
-        buy = "%s–%s" % (money(g["buy_low"]), money(g["buy_high"])) if g.get("buy_low") else "not published"
-        be = ""
-        if g.get("buy_low") and rent:
-            months = (g["buy_low"] + g["buy_high"]) / 2 / rent / (24 * 30.4)
-            be = "≈ %.0f months" % months
-        o.append('<tr><td><b>%s</b>%s</td><td class="n">%d GB</td><td class="n">%.1f TB/s</td><td class="n">%s</td>'
-                 '<td class="n">%s/hr</td><td class="n %s">%s</td><td class="n">%s</td></tr>' % (
-                     esc(g["name"]), (' <a class="src" href="%s">source</a>' % esc(g["src"])) if g.get("src") else "",
-                     g["mem_gb"], g["bw_gbps"] / 1000, buy, money(rent) if rent else "—",
-                     "up" if (ch or 0) > 0 else "down", ("%+.0f%%" % ch) if ch is not None else "—", be or "—"))
-    for r in racks:
-        o.append('<tr class="rack"><td><b>%s</b> <a class="src" href="%s">source</a><br><span>%s</span></td><td></td><td></td>'
-                 '<td class="n">%s–%s</td><td></td><td></td><td></td></tr>' % (esc(r["name"]), esc(r["src"]), esc(r["what"]), money(r["low"]), money(r["high"])))
+        b = latest_buy(g)
+        lo = hi = None
+        if b:
+            lo = rates.to_usd(b["low"], b["currency"], b["date"]) if b.get("low") is not None else None
+            hi = rates.to_usd(b.get("high") or b["low"], b["currency"], b["date"]) if b.get("low") is not None else None
+        buy = ("%s\u2013%s" % (money(lo), money(hi)) if lo and hi and abs(hi - lo) > 1 else money(lo)) if lo else "not published"
+        be = "\u2248 %.0f months" % ((lo + hi) / 2 / rent / (24 * 30.4)) if (lo and rent and g["segment"] == "datacenter") else "\u2014"
+        name = '<b>%s</b>%s%s' % (esc(g["name"]), (' <a class="src" href="%s">source</a>' % esc(b["src"])) if b and b.get("src") else "",
+                                  ('<br><span>%s</span>' % esc(g["what"])) if g.get("what") else "")
+        o.append('<tr class="%s"><td>%s</td><td>%s</td><td class="n">%s</td><td class="n">%s</td><td class="n">%s</td>'
+                 '<td class="n">%s</td><td class="n %s">%s</td><td class="n">%s</td></tr>' % (
+                     "rack" if g["segment"] == "rack" else "", name, esc(g["vendor"]),
+                     ("%d GB" % g["mem_gb"]) if g.get("mem_gb") else "", ("%.1f TB/s" % (g["bw_gbps"] / 1000)) if g.get("bw_gbps") else "",
+                     buy, ("%s/hr" % money(rent)) if rent else "\u2014",
+                     "up" if (ch or 0) > 0 else "down", ("%+.0f%%" % ch) if ch is not None else "\u2014", be))
     o.append('</tbody></table></div>')
     return "".join(o)
 
@@ -186,10 +224,12 @@ def checked_note(hw, as_of):
 def render(as_of=None):
     as_of = as_of or date.today()
     hw = json.loads((R / "build" / "hardware.json").read_text())
+    rates = hwdata.Rates()
     rp = R / "data" / "gpu_rental.json"
     rental = json.loads(rp.read_text()) if rp.exists() else {"series": {}, "as_of": None}
     S = rental["series"]
-    dc_slugs = ["nvidia-a100", "nvidia-h100", "nvidia-h200", "nvidia-b200", "nvidia-b300", "amd-mi300x", "amd-mi355x"]
+    dc_slugs = ["nvidia-a100", "nvidia-h100", "nvidia-h200", "nvidia-b200", "nvidia-b300",
+                "amd-mi300x", "amd-mi325x", "amd-mi355x", "intel-gaudi2"]
     home_slugs = ["nvidia-rtx-3090", "nvidia-rtx-4090", "nvidia-rtx-5090", "nvidia-rtx-pro-6000"]
 
     # the headline, computed: what renting the workhorse and the newest part cost now vs a year ago
@@ -199,8 +239,8 @@ def render(as_of=None):
             ch, _ = yoy(S[s]["points"])
             if ch is not None:
                 head.append("%s <b>%s/hr</b> (<b class=\"%s\">%+.0f%%</b>)" % (S[s]["name"], money(S[s]["points"][-1][1]), "up" if ch > 0 else "down", ch))
-    home = hw["home"]
-    moves = [(((h["now"]["price"] - h["launch"]["price"]) / h["launch"]["price"] * 100), h["name"]) for h in home]
+    home = home_rows(hw, featured_only=True)
+    moves = [(((h["now"]["amount"] - h["launch"]["amount"]) / h["launch"]["amount"] * 100), h["name"]) for h in home]
     risen = [m for m in moves if m[0] > 0]
     cheaper = [n for c, n in moves if c <= 0]
     kicker = ("Renting a datacenter GPU costs more than a year ago: %s. " % ", ".join(head) if head else "")
@@ -213,6 +253,8 @@ def render(as_of=None):
          '<span class="sub">The hardware side of acceleration. Faster models need more memory and bandwidth, and in 2026 '
          'demand for both outran supply: prices went up, not down.</span></div>',
          '<div class="panel pad hw"><p class="kicker hwk">%s</p>' % kicker,
+         '<p class="hwmore"><a href="hardware/">Open the full hardware tracker \u2192</a> NVIDIA, AMD, Intel, Apple and '
+         'China\u2019s accelerators, and prices in the US, Europe, the UK, China and Japan over time.</p>',
          '<h3 class="hwh">Renting it, by the hour</h3><div class="hwgrid">',
          rental_chart(S, dc_slugs, "Datacenter GPUs · median on-demand $/GPU-hour",
                       "Weekly median on-demand rental price per GPU-hour for datacenter GPUs"),
@@ -225,8 +267,13 @@ def render(as_of=None):
          '<h3 class="hwh">Buying it for a home lab: launch price → today</h3>', dumbbell(home),
          '<p class="note">Memory is what decides which models fit; bandwidth decides how fast they answer. Today’s price '
          'is a street price with its range shown as a faint bar; sources: %s. %s</p>' % (
-             ", ".join('<a href="%s">%s</a>' % (esc(h["src"]), esc(h["name"].split(" (")[0])) for h in home), checked_note(hw, as_of)),
-         '<h3 class="hwh">Buying it for a company</h3>', dc_table(hw["datacenter"], hw.get("racks", []), S),
+             ", ".join('<a href="%s">%s</a>' % (esc(h["src"]), esc(h["name"].split(" (")[0])) for h in home if h.get("src")), checked_note(hw, as_of)),
+         '<h3 class="hwh">Buying it for a company</h3>', dc_table([a for a in hw["accelerators"] if a["vendor"] in ("NVIDIA", "AMD", "Intel")
+                   and a["segment"] in ("datacenter", "rack") and (a.get("buy") or a.get("rental_slug"))
+                   and a["id"] not in ("h20", "rtx-pro-6000d")], S, rates),
+         '<p class="hwmore"><a href="hardware/#dc">China\u2019s accelerators and the cloud-only chips \u2192</a> Huawei Ascend, '
+         'Cambricon, MetaX, Moore Threads and others, with prices from IPO filings and the China market; Google TPU and AWS '
+         'Trainium by the hour.</p>',
          '<p class="note">NVIDIA and AMD publish no list prices: purchase figures are reported ranges and differ by up to 2× '
          'between quotes. Break-even is the purchase midpoint divided by today’s median rent, running 24/7, before power, '
          'hosting and staff, so the real figure is longer. %s</p>' % checked_note(hw, as_of),
