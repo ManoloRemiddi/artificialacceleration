@@ -63,7 +63,7 @@ def rental_chart(series, slugs, title, aria):
     pts = {s: series[s]["points"] for s in slugs if s in series}
     if not pts:
         return ""
-    W, H, PL, PR, PT, PB = 640, 270, 44, 168, 16, 26
+    W, H, PL, PR, PT, PB = 660, 270, 44, 214, 16, 26
     d0 = min(date.fromisoformat(p[0][0]) for p in pts.values())
     d1 = max(date.fromisoformat(p[-1][0]) for p in pts.values())
     span = max(1, (d1 - d0).days)
@@ -195,7 +195,7 @@ def render():
             len(risen), len(moves), max(m[0] for m in moves))
         kicker += ("; only %s is cheaper." % " and ".join("a used " + n if "3090" in n else n for n in cheaper)) if cheaper else "."
 
-    o = ['<section id="hardware"><div class="sechead"><span class="num">07</span><h2>What it costs to run it yourself</h2>'
+    o = ['<section id="hardware"><div class="sechead"><span class="num">04</span><h2>What it costs to run it yourself</h2>'
          '<span class="sub">The hardware side of acceleration. Faster models need more memory and bandwidth, and in 2026 '
          'demand for both outran supply: prices went up, not down.</span></div>',
          '<div class="panel pad hw"><p class="kicker hwk">%s</p>' % kicker,

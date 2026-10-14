@@ -1,20 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Bottom sections: the Sept cluster, per-lab streams, the evidence ledger.
+"""Bottom sections: per-lab streams and the evidence ledger.
 Generated from the same dataset as the charts so nothing drifts."""
-
-# ---- the 21-22 Sep cluster: three labs, three launches ----
-ZSTART, ZHOURS = "2026-09-21T00:00:00Z", 48
-CLUSTER = [
- dict(lab="xai", name="Grok 4.7", h=10, dir="up",       w=176, ox=-40,
-      time="21 Sep · announced",
-      note="Musk's promised three-week turnaround, delivered on time. $2/$6, 500K context."),
- dict(lab="anthropic", name="Claude Opus 5.5", h=28, dir="down", w=180, ox=86,
-      time="22 Sep · morning",
-      note="Fable-5.1 capability at 40% lower running cost. First of the Claude 5.5 family."),
- dict(lab="openai", name="GPT-6 Sol + Luna", h=29.5, dir="up", w=184, ox=-16, shift=1,
-      time="22 Sep · 90 min later",
-      note="Half of GPT-5.6 pricing, Astra-level reliability, and no Terra tier this generation."),
-]
 
 # ---- the deceleration ledger: what was said, and what shipped next ----
 EVIDENCE = [

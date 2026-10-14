@@ -147,7 +147,6 @@
   .chart.focusing text.dimmed{opacity:.3}
   .chart.focusing .bar{transition:fill-opacity 160ms ease-out}
   .chart.focusing rect.bar.dimmed{fill-opacity:.42}
-  .dot.alert{background:var(--ink);box-shadow:0 0 0 2px var(--alert),0 0 12px 0 var(--alert)}
   /* idle tooltips are display:none so they cannot occupy layout or widen the page.
      Straight, compact, and deliberately quiet - it is an information card, not a badge. */
   .dot .tip{display:none;opacity:0;position:absolute;left:50%;bottom:145%;
@@ -180,7 +179,6 @@
   .tllegend .k-minor{width:5.5px;height:5.5px;border-radius:50%;background:var(--dim);opacity:.42}
   .tllegend .k-rail{width:24px;height:1px;
     background:linear-gradient(90deg,transparent,var(--dim) 25%,var(--dim) 75%,transparent);opacity:.55}
-  .tllegend .k-cluster{color:var(--alert);font-weight:700;font-size:11px;line-height:1}
   .tllegend .k-said{color:var(--ink);font-weight:700;font-size:14px;line-height:1}
   /* "we will slow down": a dated rule across the lanes, and the 30 days that followed */
   .said{position:absolute;top:0;width:0;border-left:1.5px dashed var(--c);opacity:.85;z-index:5;pointer-events:none}
@@ -204,15 +202,7 @@
   .lanes.aftering .dot:not(.hit){opacity:.1}
   .lanes.aftering .dot.hit{opacity:1}
   @media (max-width:900px){ .tllegend{margin-left:0} }
-  .band{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,color-mix(in srgb,var(--alert) 16%,transparent),color-mix(in srgb,var(--alert) 3%,transparent));
-        border-left:1px solid color-mix(in srgb,var(--alert) 40%,transparent);border-right:1px solid color-mix(in srgb,var(--alert) 40%,transparent);pointer-events:none;z-index:1}
-  .bandcap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-           font-size:11px;font-weight:700;color:var(--alert);cursor:help;line-height:1}
-  .bandcap .tip{display:none;position:absolute;right:0;bottom:140%;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;
-           width:max-content;max-width:250px;color:var(--ink);font-family:var(--sans);
-           font-size:12.5px;font-weight:500;letter-spacing:0;
-           transition:.13s;box-shadow:0 12px 30px rgba(0,0,0,.35);line-height:1.4;z-index:80}
-  .bandcap:hover .tip,.bandcap:focus .tip{display:block;animation:tipfade .12s ease-out both}
+
 
   /* ---------- charts ---------- */
   .charts{display:grid;grid-template-columns:1fr;gap:12px}
@@ -718,7 +708,6 @@
         <span class="ti"><span class="lk k-strong"></span>ringed = a notable release we write up</span>
         <span class="ti hide" id="lgMinor"><span class="lk k-minor"></span>small = everything else in the record</span>
         <span class="ti"><span class="lk k-rail"></span>line = that lab&rsquo;s release range</span>
-        <span class="ti hide" id="lgCluster"><span class="lk k-cluster">&#9670;</span>21&ndash;22 Sep cluster</span>
         <span class="ti hide" id="lgSaid"><span class="lk k-said">&#10077;</span>a lab said it would slow down &mdash; hover to see the next 30 days</span>
       </div>
     </div>
@@ -952,8 +941,7 @@ function markHTML(id) {
     /* the section map is read off the page, so it cannot drift from the content */
     const targets = [
       ["#tlpanel", "01 Timeline"], ["#chartpanel", "02 Charts"], ["#due", "03 Who\u2019s due"],
-      ["#cluster", "04 Cluster"], ["#streams", "05 Lab by lab"], ["#evidence", "06 The words"],
-      ["#hardware", "07 Hardware"],
+      ["#hardware", "04 Hardware"], ["#streams", "05 Lab by lab"], ["#evidence", "06 The words"],
     ].map(([sel, label]) => {
       const el = document.querySelector(sel);
       if (!el) return null;
@@ -1216,7 +1204,6 @@ function drawTimeline() {
       if (d < start || d > end || d > cut) return;
       xs.push(xFor(d.getTime()));
       const el = document.createElement("div");
-      const alerted = r.lab === "anthropic" && r.d === "2026-09-22";
       el.className = "dot " + (r.n ? "curated" : "minor");
       el.style.left = xFor(d.getTime()) + "px";
       el.style.setProperty("--c", lab.hex);
@@ -1259,7 +1246,7 @@ function drawTimeline() {
 
   if (firstDot) firstDot.tabIndex = 0;          // the board is one stop, not forty-six
 
-  // grid lines + September cluster band
+  // grid lines
   const lh = lanes.querySelectorAll(".lane").length * laneH() + 8;
   const addGrid = (ms, cls) => {
     const g = document.createElement("div");
@@ -1273,16 +1260,6 @@ function drawTimeline() {
     const jan = Date.UTC(yy, 0, 1);
     if (jan >= start.getTime() && jan <= end.getTime()) addGrid(jan, "y");
   }
-  const b0 = xFor(D("2026-09-21").getTime()), b1 = xFor(D("2026-09-23").getTime());
-  if (b1 > LABW && b0 < W && (!S.cursor || S.cursor >= D("2026-09-21"))) {
-    const band = document.createElement("div");
-    band.className = "band";
-    band.style.left = Math.max(b0, LABW) + "px";
-    band.style.width = Math.max(2, b1 - Math.max(b0, LABW)) + "px";
-    band.innerHTML = `<span class="bandcap" aria-label="two-day release cluster">◆<span class="tip">21–22 Sep · three labs, three frontier launches</span></span>`;
-    lanes.appendChild(band);
-  }
-
   /* What was said, against what shipped. Each dated call to slow down gets a marker;
      hovering it shades the next 30 days and leaves only those releases lit, with the
      count taken from the live record of all nine labs, never written by hand. */
@@ -1995,12 +1972,9 @@ function sync() {
   const tlwin = document.getElementById("tlwin");
   if (tlwin) tlwin.textContent = WINDOW_WORDS[S.win] || "One year";
 
-  /* the small-dot and cluster keys only appear when those things are drawn */
+  /* the small-dot key only appears when small dots are drawn */
   const lgMinor = document.getElementById("lgMinor");
   if (lgMinor) lgMinor.classList.toggle("hide", !src.some(r => !r.n));
-  const lgCluster = document.getElementById("lgCluster");
-  if (lgCluster) lgCluster.classList.toggle("hide",
-    !!S.cursor && S.cursor < D("2026-09-21"));
 
   document.getElementById("srcLine").textContent =
     `${labsOn.length}/${DATA.labs.length} labs · ${n} releases and ${s} index scores in view · ` +

@@ -107,14 +107,11 @@ def sections_html():
       '<section id="due"><div class="sechead"><span class="num">03</span><h2>Who\u2019s due</h2>'
       '<span class="sub">Each lab\u2019s typical gap between notable releases, against the days since its last one. '
       'A forecast, scored against its own history: the \u00b1 is how far it has missed on average.</span></div>%s</section>' % whos_due(),
-      '<section id="cluster"><div class="sechead"><span class="num">04</span><h2>Three launches in 36 hours</h2>'
-      '<span class="sub">Anthropic shipped <b>90 minutes before</b> OpenAI. Exactly one hour of that gap is public \u2014 xAI and Anthropic publish no release hour.</span></div>'
-      '<div class="panel pad">%s</div></section>' % cluster_svg(),
+      hardware_section.render(),
       '<section id="streams"><div class="sechead"><span class="num">05</span><h2>Lab by lab: the release stream</h2>'
       '<span class="sub">Every notable release, in order, with the gap since that lab\u2019s previous one. Filled bars are faster than the lab\u2019s own median.</span></div>%s</section>' % stream_cards(),
       '<section id="evidence"><div class="sechead"><span class="num">06</span><h2>The words, and what came next</h2>'
       '<span class="sub">What each lab said about pacing, and what shipped immediately afterwards.</span></div>%s</section>' % evidence_cards(),
-      hardware_section.render(),
     ])
 
 
@@ -188,78 +185,6 @@ def dayl(iso):
     d = to_date(iso)
     return "%d %s %d" % (d.day, d.strftime("%b"), d.year)
 
-
-def svg_logo(lab_id, x, y, size=24):
-    """Place a brand mark inside an SVG document (nested <svg> or <image>)."""
-    L = LOGOS.get(lab_id)
-    if not L:
-        return ""
-    if L.get("img"):
-        return ('<image x="%d" y="%d" width="%d" height="%d" href="%s" preserveAspectRatio="xMidYMid meet"/>'
-                % (x, y, size, size, L["img"]))
-    svg = L["svg"]
-    svg = re.sub(r'\swidth="[^"]*"', '', svg, count=1)
-    svg = re.sub(r'\sheight="[^"]*"', '', svg, count=1)
-    inner = ('<rect x="%d" y="%d" width="%d" height="%d" rx="4" fill="#ffffff"/>'
-             % (x - 1, y - 1, size + 2, size + 2)) if L.get("chip") else ""
-    svg = re.sub(r'<svg\b', '<svg x="%d" y="%d" width="%d" height="%d"' % (x, y, size, size), svg, count=1)
-    return inner + svg
-
-def cluster_svg():
-    """Compact swimlane: three releases on a shared 48-hour axis.
-    Replaces a 470px card layout that was mostly empty space."""
-    VW, VH = 1400, 196
-    X0, X1 = 336, 1390               # label column ends at X0
-    hours = 48
-    xh = lambda h: X0 + (h / hours) * (X1 - X0)
-    ROWS = [
-        ("xai",       "Grok 4.7",         12.0, "21 Sep",            "#d8dee9"),
-        ("anthropic", "Claude Opus 5.5",  33.0, "22 Sep",            "#d97757"),
-        ("openai",    "GPT-6 Sol + Luna", 34.5, "22 Sep",              "#10a37f"),
-    ]
-    ROWY = [64, 112, 160]
-
-    o = ['<svg viewBox="0 0 %d %d" width="100%%" role="img" aria-label="Three frontier releases across 21-22 September 2026">' % (VW, VH)]
-
-    # day columns
-    for h in (0, 24, 48):
-        o.append('<line x1="%.1f" y1="26" x2="%.1f" y2="%d" stroke="var(--line2)" stroke-dasharray="3 5"/>' % (xh(h), xh(h), VH - 12))
-    # axis
-    o.append('<line x1="%.1f" y1="26" x2="%.1f" y2="26" stroke="var(--line)"/>' % (xh(0), xh(48)))
-    for h, lb, anchor in [(0,"21 Sep","start"),(12,"12:00","middle"),(24,"22 Sep","middle"),(36,"12:00","middle"),(48,"23 Sep","end")]:
-        x = xh(h)
-        o.append('<line x1="%.1f" y1="22" x2="%.1f" y2="30" stroke="var(--line)"/>' % (x, x))
-        o.append('<text x="%.1f" y="18" fill="var(--faint)" font-family="ui-monospace,monospace" font-size="11.5" text-anchor="%s">%s</text>' % (x, anchor, lb))
-
-    # the 90-minute window, drawn as a soft band behind the two pins
-    lo, hi = xh(33.0), xh(34.5)
-    o.append('<rect x="%.1f" y="34" width="%.1f" height="%d" fill="var(--alert)" opacity="0.10"/>' % (lo - 6, (hi - lo) + 12, VH - 52))
-
-    for (lab, name, h, when, _c), y in zip(ROWS, ROWY):
-        L = labmap[lab]; x = xh(h)
-        # guide from the label column to the pin
-        o.append('<line x1="%d" y1="%d" x2="%.1f" y2="%d" style="stroke:%s" stroke-width="1" opacity="0.30"/>' % (X0, y, x, y, lab_var(lab)))
-        # label side
-        o.append(svg_logo(lab, 4, y - 12, 24))
-        o.append('<text x="%d" y="%d" fill="var(--ink)" font-family="Inter,sans-serif" font-size="14" font-weight="700">%s</text>'
-                 % (38, y - 1, esc(name)))
-        o.append('<text x="%d" y="%d" fill="var(--faint)" font-family="ui-monospace,monospace" font-size="11.5">%s</text>'
-                 % (38, y + 15, esc(L["short"])))
-        o.append('<text x="%d" y="%d" fill="var(--dim)" font-family="ui-monospace,monospace" font-size="11.5" text-anchor="end">%s</text>'
-                 % (X0 - 10, y + 4, esc(when)))
-        # the pin
-        o.append('<rect x="%.1f" y="%d" width="11" height="11" transform="translate(-5.5,-5.5) rotate(45 %.1f %d)" style="fill:%s"/>'
-                 % (x, y, x, y, lab_var(lab)))
-
-    # bracket the 90 minutes, labelled once, clear of everything
-    yb = 104
-    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-width="1" opacity="0.9"/>' % (lo, yb - 8, lo, yb + 8))
-    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-width="1" opacity="0.9"/>' % (hi, yb - 8, hi, yb + 8))
-    o.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="var(--alert)" stroke-dasharray="2 2" opacity="0.9"/>' % (lo, yb, hi, yb))
-    o.append('<text x="%.1f" y="%d" fill="var(--alert)" font-family="ui-monospace,monospace" font-size="11" font-weight="700">90 min</text>' % (hi + 8, yb + 4))
-
-    o.append('</svg>')
-    return "".join(o)
 
 def stream_cards():
     MAXG = 92
