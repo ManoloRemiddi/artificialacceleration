@@ -57,7 +57,7 @@ SANE_UP, SANE_DOWN = 1.3, 0.7   # a move beyond +30% / -30% in a month waits for
 
 
 def log(msg):
-    print(f"[{datetime.now(timezone.utc):%H:%M:%S}] {msg}", flush=True)
+    print(f"[{datetime.now():%H:%M:%S}] {msg}", flush=True)
 
 
 # ------------------------------------------------------------------ http
@@ -305,7 +305,13 @@ def check(t):
     if ans.get(key) in (None, "", 0):
         row["why"] = "no current price found on the pages read"
         return row
-    bad = verify(ans, pages, [k for k in t["want"] if ans.get(k) is not None])
+    # the headline number must be proven; a range bound the quote does not contain is
+    # dropped rather than sinking an otherwise verified price
+    bad = verify(ans, pages, [key])
+    if not bad:
+        for k in t["want"][1:]:
+            if ans.get(k) is not None and verify(ans, pages, [k]):
+                ans[k] = None
     row.update(new={k: ans.get(k) for k in t["want"]}, source=ans.get("source"), quote=ans.get("quote"))
     if bad:
         row.update(status="rejected", why=bad)
