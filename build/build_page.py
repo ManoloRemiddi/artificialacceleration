@@ -50,6 +50,16 @@ DATA = json.loads((R / "data" / "releases.json").read_text())
 rows = DATA["rows"]
 labmap = {L["id"]: L for L in LABS}
 
+def lab_var(lab_id):
+    """A lab's colour as a CSS variable, so the theme switch recolours everything."""
+    return "var(--lab-%s)" % lab_id
+
+def lab_css():
+    """Each theme has its own validated steps: the dark ones vanish on white."""
+    dark = ";".join("--lab-%s:%s" % (L["id"], L["hex"]) for L in LABS)
+    light = ";".join("--lab-%s:%s" % (L["id"], L.get("hex_light", L["hex"])) for L in LABS)
+    return ":root{%s}[data-theme=\"light\"]{%s}" % (dark, light)
+
 # ---- rows for the page: notable releases only, in date order ----
 page_rows = []
 for r in rows:
@@ -144,7 +154,7 @@ def cluster_svg():
     for (lab, name, h, when, _c), y in zip(ROWS, ROWY):
         L = labmap[lab]; x = xh(h)
         # guide from the label column to the pin
-        o.append('<line x1="%d" y1="%d" x2="%.1f" y2="%d" stroke="%s" stroke-width="1" opacity="0.30"/>' % (X0, y, x, y, L["hex"]))
+        o.append('<line x1="%d" y1="%d" x2="%.1f" y2="%d" style="stroke:%s" stroke-width="1" opacity="0.30"/>' % (X0, y, x, y, lab_var(lab)))
         # label side
         o.append(svg_logo(lab, 4, y - 12, 24))
         o.append('<text x="%d" y="%d" fill="var(--ink)" font-family="Inter,sans-serif" font-size="14" font-weight="700">%s</text>'
@@ -154,8 +164,8 @@ def cluster_svg():
         o.append('<text x="%d" y="%d" fill="var(--dim)" font-family="ui-monospace,monospace" font-size="11.5" text-anchor="end">%s</text>'
                  % (X0 - 10, y + 4, esc(when)))
         # the pin
-        o.append('<rect x="%.1f" y="%d" width="11" height="11" transform="translate(-5.5,-5.5) rotate(45 %.1f %d)" fill="%s"/>'
-                 % (x, y, x, y, L["hex"]))
+        o.append('<rect x="%.1f" y="%d" width="11" height="11" transform="translate(-5.5,-5.5) rotate(45 %.1f %d)" style="fill:%s"/>'
+                 % (x, y, x, y, lab_var(lab)))
 
     # bracket the 90 minutes, labelled once, clear of everything
     yb = 104
@@ -175,22 +185,22 @@ def stream_cards():
         if not rel: continue
         gaps = [r for r in rel if r.get("gap")]
         gv = sorted(g["gap"] for g in gaps); med = gv[len(gv)//2] if gv else 0
-        o.append('<div class="labcard" style="--c:%s">' % L["hex"])
+        o.append('<div class="labcard" style="--c:%s">' % lab_var(L["id"]))
         o.append('<div class="labcard-top">%s<span><span class="nm">%s</span><br><span class="mod">%s</span></span></div>' % (mark_html(L["id"]), esc(L["name"]), esc(L["product"])))
         o.append('<div class="labcard-vals">'
                  '<div><span class="kk">Median gap</span><span class="vv" style="color:%s">%s<small> days</small></span></div>'
                  '<div><span class="kk">Releases</span><span class="vv">%d</span></div>'
                  '<div><span class="kk">Window</span><span class="vv small">%s \u2192 %s</span></div></div>'
-                 % (L["hex"], med or "\u2014", len(rel), rel[0]["d"][5:], rel[-1]["d"][5:]))
+                 % (lab_var(L["id"]), med or "\u2014", len(rel), rel[0]["d"][5:], rel[-1]["d"][5:]))
         if gaps:
             o.append('<div class="cad"><div class="cad-h"><span>since</span><span>gap between releases \u00b7 100%% = %dd</span></div>' % MAXG)
             for g in gaps:
                 o.append('<div class="cad-row"><span>%s</span><span class="cad-bar"><span class="cad-fill %s" style="width:%.1f%%;background:%s"></span></span><span class="vv">%dd</span></div>'
-                         % (g["d"][5:], "acc" if med and g["gap"] <= med else "", min(g["gap"], MAXG)/MAXG*100, L["hex"], g["gap"]))
+                         % (g["d"][5:], "acc" if med and g["gap"] <= med else "", min(g["gap"], MAXG)/MAXG*100, lab_var(L["id"]), g["gap"]))
             o.append('</div>')
         o.append('<ul class="rel">')
         for r in rel:
-            sc = ('<span class="sc" style="color:%s">%s</span>' % (L["hex"], r["ii"])) if r["ii"] else '<span class="sc dim">no score</span>'
+            sc = ('<span class="sc" style="color:%s">%s</span>' % (lab_var(L["id"]), r["ii"])) if r["ii"] else '<span class="sc dim">no score</span>'
             gap = ('<span class="delta %s">+%dd</span>' % ("acc" if med and r["gap"] and r["gap"] <= med else "", r["gap"])) if r.get("gap") else ""
             o.append('<li><span class="dt">%s</span><span><span class="rn">%s %s %s</span>%s</li>'
                      % (r["d"], esc(r["m"]), gap, sc, ('<span class="cap">%s</span>' % esc(r["note"])) if r["note"] else ""))
@@ -201,7 +211,7 @@ def stream_cards():
 def evidence_cards():
     o = ['<div class="evgrid">']
     for e in SEC.EVIDENCE:
-        o.append('<div class="card" style="--c:%s"><h4>%s</h4>' % (labmap[e["colour"]]["hex"], esc(e["title"])))
+        o.append('<div class="card" style="--c:%s"><h4>%s</h4>' % (lab_var(e["colour"]), esc(e["title"])))
         for q, a in e.get("quotes", []):
             o.append('<div class="quote"><div class="q">%s</div><div class="a">%s</div></div>' % (q, esc(a)))
         for p in e.get("paras", []): o.append('<p>%s</p>' % p)
@@ -235,12 +245,13 @@ def main():
                "rows": page_rows,
                "stream": stream_rows,
                "accel": ACCEL_IDX,
+               "statements": SEC.STATEMENTS,
                "sections": sections_html(),
                "meta": {"compiled": DATA.get("generated_utc", "")[:10],
                         "index_version": "Artificial Analysis Intelligence Index v4.3.2",
                         "source": "artificialanalysis.ai"}}
-    out = tpl.replace("__PAYLOAD__", json.dumps(payload))
-    if "__PAYLOAD__" in out:
+    out = tpl.replace("/*__LABVARS__*/", lab_css()).replace("__PAYLOAD__", json.dumps(payload))
+    if "__PAYLOAD__" in out or "__LABVARS__" in out:
         sys.exit("template placeholder not replaced")
     # publish ONLY the site: the pipeline, data and docs must not go live
     site = R / "site"
