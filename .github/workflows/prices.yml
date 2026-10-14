@@ -1,0 +1,81 @@
+name: monthly-price-check
+
+# Re-checks the hand-maintained purchase prices in build/hardware.json once a month and
+# opens a pull request with the evidence. Runs on GitHub's servers: no computer, login or
+# Claude account involved. The model is MiniMax (OpenAI-compatible API + its web search),
+# reached with the repository secret MINIMAX_API_KEY (a Token Plan key from minimax.io).
+on:
+  schedule:
+    - cron: "23 7 3 * *"        # 07:23 UTC on the 3rd of every month
+  workflow_dispatch: {}          # "Run workflow" button, for a check on demand
+
+permissions:
+  contents: write                # push the proposal branch
+  pull-requests: write           # open the pull request
+  issues: write                  # report a run that could not check anything
+
+concurrency:
+  group: monthly-price-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Re-check prices with the agent
+        id: agent
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          LLM_MODEL: ${{ vars.PRICE_AGENT_MODEL || 'MiniMax-M3' }}
+          MINIMAX_API_HOST: ${{ vars.MINIMAX_API_HOST || 'https://api.minimax.io' }}
+          LLM_BASE_URL: ${{ vars.MINIMAX_API_HOST || 'https://api.minimax.io' }}/v1
+          REPORT_PATH: ${{ runner.temp }}/price-report.md
+        run: |
+          if [ -z "$MINIMAX_API_KEY" ]; then
+            echo "::error::MINIMAX_API_KEY secret is not set (Settings → Secrets and variables → Actions)"
+            exit 1
+          fi
+          python3 pipeline/price_agent.py
+
+      - name: Open a pull request with the proposal
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- build/hardware.json; then
+            echo "Agent ran but changed nothing (all items held, rejected or without data)."
+            cat "$RUNNER_TEMP/price-report.md" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          branch="prices/$(date -u +%Y-%m)"
+          git config user.name  "acceleration-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add build/hardware.json
+          git commit -m "prices: monthly check $(date -u +%Y-%m-%d)"
+          git push --force -u origin "$branch"
+          if gh pr view "$branch" --json state -q .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit "$branch" --body-file "$RUNNER_TEMP/price-report.md"
+          elif ! gh pr create --head "$branch" --base main \
+              --title "Monthly price check $(date -u +%Y-%m)" --body-file "$RUNNER_TEMP/price-report.md"; then
+            # GitHub refuses PRs from workflows unless "Allow GitHub Actions to create and approve pull
+            # requests" is on (Settings → Actions → General). Fall back to an issue with the compare link.
+            { echo "Open the pull request yourself: ${{ github.server_url }}/${{ github.repository }}/compare/main...$branch"; echo; cat "$RUNNER_TEMP/price-report.md"; } > "$RUNNER_TEMP/issue.md"
+            gh issue create --title "Monthly price check $(date -u +%Y-%m): proposal ready" --body-file "$RUNNER_TEMP/issue.md"
+          fi
+          cat "$RUNNER_TEMP/price-report.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report a run that could not check anything
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh issue create --repo "${{ github.repository }}" --title "Monthly price check failed $(date -u +%Y-%m)" \
+            --body "The price agent could not run: $url. Common causes: the MINIMAX_API_KEY secret is missing or expired, or MiniMax is unreachable. Purchase prices stay as they are; the page flags them as due for re-check after 45 days."

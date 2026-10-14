@@ -170,7 +170,21 @@ def dc_table(dc, racks, series):
     return "".join(o)
 
 
-def render():
+RECHECK_DAYS = 45      # the monthly agent proposes fresh prices; past this, say so on the page
+
+
+def checked_note(hw, as_of):
+    """'Checked by hand on …', plus a visible flag once the hand-checked prices are overdue."""
+    checked = date.fromisoformat(hw["checked"])
+    age = (as_of - checked).days
+    txt = "Checked on %s." % checked.strftime("%-d %b %Y")
+    if age > RECHECK_DAYS:
+        txt += ' <b class="due">Due for re-check: these purchase prices are %d days old.</b>' % age
+    return txt
+
+
+def render(as_of=None):
+    as_of = as_of or date.today()
     hw = json.loads((R / "build" / "hardware.json").read_text())
     rp = R / "data" / "gpu_rental.json"
     rental = json.loads(rp.read_text()) if rp.exists() else {"series": {}, "as_of": None}
@@ -210,11 +224,11 @@ def render():
          'data through %s.</p>' % (esc(rental.get("url", "https://getdeploying.com/dataset")), esc(rental.get("as_of") or "—")),
          '<h3 class="hwh">Buying it for a home lab: launch price → today</h3>', dumbbell(home),
          '<p class="note">Memory is what decides which models fit; bandwidth decides how fast they answer. Today’s price '
-         'is a street price with its range shown as a faint bar; sources: %s. Checked by hand on %s.</p>' % (
-             ", ".join('<a href="%s">%s</a>' % (esc(h["src"]), esc(h["name"].split(" (")[0])) for h in home), esc(hw["checked"])),
+         'is a street price with its range shown as a faint bar; sources: %s. %s</p>' % (
+             ", ".join('<a href="%s">%s</a>' % (esc(h["src"]), esc(h["name"].split(" (")[0])) for h in home), checked_note(hw, as_of)),
          '<h3 class="hwh">Buying it for a company</h3>', dc_table(hw["datacenter"], hw.get("racks", []), S),
          '<p class="note">NVIDIA and AMD publish no list prices: purchase figures are reported ranges and differ by up to 2× '
          'between quotes. Break-even is the purchase midpoint divided by today’s median rent, running 24/7, before power, '
-         'hosting and staff, so the real figure is longer. Checked by hand on %s.</p>' % esc(hw["checked"]),
+         'hosting and staff, so the real figure is longer. %s</p>' % checked_note(hw, as_of),
          '</div></section>']
     return "".join(o)

@@ -107,7 +107,7 @@ def sections_html():
       '<section id="due"><div class="sechead"><span class="num">03</span><h2>Who\u2019s due</h2>'
       '<span class="sub">Each lab\u2019s typical gap between notable releases, against the days since its last one. '
       'A forecast, scored against its own history: the \u00b1 is how far it has missed on average.</span></div>%s</section>' % whos_due(),
-      hardware_section.render(),
+      hardware_section.render(as_of_date()),
       '<section id="streams"><div class="sechead"><span class="num">05</span><h2>Lab by lab: the release stream</h2>'
       '<span class="sub">Every notable release, in order, with the gap since that lab\u2019s previous one. Filled bars are faster than the lab\u2019s own median.</span></div>%s</section>' % stream_cards(),
       '<section id="evidence"><div class="sechead"><span class="num">06</span><h2>The words, and what came next</h2>'

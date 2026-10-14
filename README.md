@@ -79,13 +79,41 @@ Applied from 2026 data-visualisation guidance:
 | `data/baseline.json` | previous snapshot, for diffing |
 | `data/changes.jsonl` | append-only record of what changed and when |
 
+### The monthly price agent
+
+`build/hardware.json` holds purchase prices no keyless source publishes. Once a month
+(`.github/workflows/prices.yml`, 3rd of the month, or "Run workflow" on demand)
+`pipeline/price_agent.py` re-checks them on GitHub's servers, so no computer or login is
+involved:
+
+1. searches the web (MiniMax Token Plan search) and fetches the candidate pages itself,
+   never fetching sites whose terms forbid it (Apple, Vast.ai, RunPod, eBay, Amazon…);
+2. asks a MiniMax model for the current price **and the exact sentence that states it**;
+3. accepts an answer only if, in code, that sentence is on the cited page and contains the
+   number; moves beyond ±30% in a month are held for a human;
+4. opens a pull request with an evidence table. Nothing is published until you merge.
+
+Setup: a `MINIMAX_API_KEY` repository secret (a Token Plan key from minimax.io; search needs
+it), and Settings → Actions → General → "Allow GitHub Actions to create and approve pull
+requests" (without it, the run files an issue with a compare link instead). Optional
+repository variables: `PRICE_AGENT_MODEL` (default `MiniMax-M3`), `MINIMAX_API_HOST`
+(`https://api.minimaxi.com` for mainland-China keys). The agent speaks the OpenAI API, so
+any compatible endpoint works via `LLM_BASE_URL` / `LLM_API_KEY`, and `SEARCH_BACKEND=searxng`
+swaps the search for a SearXNG instance, e.g. to run it locally:
+
+    LLM_BASE_URL=http://127.0.0.1:8080/v1 LLM_API_KEY=x SEARCH_BACKEND=searxng \
+    SEARXNG_URL=http://127.0.0.1:8888 python3 pipeline/price_agent.py
+
+If a run fails you get an issue, and the page flags the purchase prices as due for
+re-check once they are more than 45 days old, so they can never go stale silently.
+
 ### What is automatic and what is editorial
 
 Automatic: releases, scores, prices, the notable rule after 24 Sep 2026, every chart,
 "who's due", the said-then-shipped counts, GPU rental prices, the Acceleration Index.
 Editorial (yours): `labs.json` notable names and open-weight rules (the API publishes no
-licences), `statements.json`, `notes.json`, `sections.py` text, and `hardware.json`
-purchase prices (no keyless source exists and the shops forbid scraping).
+licences), `statements.json`, `notes.json`, `sections.py` text, and approving the monthly
+`hardware.json` price proposals.
 
 ---
 
