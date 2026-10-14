@@ -89,14 +89,72 @@
   :root{--hw-nv:var(--v-NVIDIA);--hw-amd:var(--v-AMD);--hw-intel:var(--v-Intel)}
   footer{margin-top:30px;font-size:12.5px;color:var(--faint);line-height:1.6}
   @media (max-width:760px){ .hide-m{display:none} table{font-size:12.5px} }
+
+  /* pillars nav, shared look with the other pages */
+  .pillars{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 0 10px;border-bottom:1px solid var(--line2)}
+  .pillars .brand{font-weight:800;letter-spacing:-.02em;text-decoration:none;margin-right:10px}
+  .pillars a.p{text-decoration:none;font-size:13.5px;color:var(--dim);padding:5px 12px;border-radius:999px;border:1px solid transparent}
+  .pillars a.p:hover{color:var(--ink);border-color:var(--line)}
+  .pillars a.p[aria-current="page"]{color:var(--bg);background:var(--ink)}
+  /* diverging scale for "against the US": blue cheaper, red dearer, grey the same */
+  :root{--cool:#5b9cff;--warm:#ff6f5b;--mid:#3a3f52;--nodata:#272c3f;--land:#232839}
+  [data-theme="light"]{--cool:#1d5fd6;--warm:#d4400f;--mid:#d9dde6;--nodata:#dfe4ec;--land:#e3e7ef}
+  .ctls{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+  .ctls .seg{margin-left:0}
+  .mapgrid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(280px,1fr);gap:16px;align-items:start}
+  @media (max-width:900px){ .mapgrid{grid-template-columns:1fr} }
+  #msvg{width:100%;height:auto;display:block;border-radius:10px;background:var(--panel2)}
+  #msvg .c{fill:var(--nodata);stroke:var(--panel2);stroke-width:.4;transition:fill 450ms ease}
+  #msvg .c.m{cursor:pointer}
+  #msvg .c.hot{stroke:var(--ink);stroke-width:1.2}
+  #msvg .c.ref{stroke:var(--ink);stroke-width:.9}
+  #msvg .ml{font-family:var(--mono);font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--panel2);stroke-linejoin:round;pointer-events:none}
+  #msvg .ml .cc{fill:var(--dim);font-weight:400}
+  #msvg .dot{stroke:var(--panel2);cursor:pointer;transition:fill 450ms ease}
+  .mleg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:11px var(--mono);color:var(--faint);margin-top:8px}
+  .mleg .ramp{width:180px;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--cool),var(--mid),var(--warm))}
+  .mleg .sw{display:inline-block;width:12px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+  .mlist{display:grid;gap:2px}
+  .h3{font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:18px 0 4px}
+  #mstrip .sd{stroke:var(--panel);stroke-width:1;cursor:pointer;transition:cx 420ms cubic-bezier(.2,.7,.3,1)}
+  #mstrip .row-on .sd{stroke:var(--ink);stroke-width:1.5}
+  #mstrip .pl{font:11.5px var(--sans);fill:var(--dim);cursor:pointer}
+  #mstrip .row-on .pl{fill:var(--ink);font-weight:700}
+  .ml-h{display:grid;grid-template-columns:96px 1fr 84px;gap:8px;font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:0 4px 4px}
+  .mr{display:grid;grid-template-columns:96px 1fr 84px;gap:8px;align-items:center;padding:3px 4px;border-radius:6px;font-size:13px;cursor:default}
+  .mr:hover,.mr.hot{background:var(--panel2)}
+  .mr .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mr.ref .nm{font-weight:700}
+  .mr .v{text-align:right;font:700 12.5px var(--mono);font-variant-numeric:tabular-nums}
+  .mr .v small{display:block;font-weight:400;font-size:10.5px}
+  .mr svg{display:block;width:100%;height:18px;overflow:visible}
+  .mr .rng{stroke:var(--line);stroke-width:4;stroke-linecap:round}
+  .mr .med{stroke:var(--dim);stroke-width:2}
+  .mx{font-size:12.5px}
+  .mx th{cursor:pointer;text-align:center;padding:6px 4px}
+  .mx th:first-child{text-align:left;cursor:default}
+  .mx th[aria-sort]{color:var(--ink)}
+  .mx td{padding:0;border-top:2px solid var(--panel);border-left:2px solid var(--panel);text-align:center;font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;height:30px;min-width:46px}
+  .mx td.pn{text-align:left;font:600 12.5px var(--sans);padding:0 10px 0 0;white-space:nowrap;cursor:pointer;border-left:0}
+  .mx tr.on td.pn{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+  .mx td.na{color:var(--faint);font-weight:400}
+  .mx td.us{outline:1px solid var(--ink);outline-offset:-2px}
+  .vtip{position:fixed;left:0;top:0;z-index:100;pointer-events:none;opacity:0;transition:opacity 120ms;max-width:300px;
+    background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:12.5px;color:var(--dim);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .vtip b{color:var(--ink)} .vtip .t{font:10.5px var(--mono);color:var(--faint);display:block;margin-bottom:2px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <a class="crumb" href="../">&larr; Artificial Acceleration</a>
+  <nav class="pillars" aria-label="Pillars">
+    <a class="brand" href="../">Artificial Acceleration</a>
+    <a class="p" href="../#tlpanel">Models</a>
+    <a class="p" href="./" aria-current="page">Hardware</a>
+    <a class="p" href="../harnesses/">Harnesses</a>
+  </nav>
   <h1>The AI hardware tracker</h1>
   <p class="lede">What it costs to run AI yourself, from a desk to a data centre: <b>NVIDIA, AMD, Intel, Apple and China&rsquo;s chipmakers</b>,
-  with prices in <b>the US, Europe, the UK, China and Japan</b>, each converted to dollars at that day&rsquo;s exchange rate.
+  with graphics-card prices in <b>17 countries</b> and full price histories in <b>the US, Europe, the UK, China and Japan</b>, each converted to dollars at that day&rsquo;s exchange rate.
   <span id="asof"></span></p>
 
   <div class="bar" role="toolbar" aria-label="Filter by manufacturer">
@@ -104,8 +162,45 @@
     <span id="vchips"></span>
   </div>
 
+  <section id="map">
+    <h2>Graphics cards around the world</h2>
+    <p class="sub">One card, 17 countries, in US dollars at today&rsquo;s exchange rate, coloured by how much more (red) or less (blue) it costs than in
+    the United States. The list beside the map re-sorts from cheapest to dearest as you change card, measure or tax; the bar under each country
+    runs from its 12-month low to its highest recent price, with a tick at the 12-month median.</p>
+    <div class="panel">
+      <div class="tabs" id="mtabs" role="tablist" aria-label="Graphics card"></div>
+      <select class="psel" id="msel" aria-label="Graphics card"></select>
+      <div class="row">
+        <p class="kick" id="mkick"></p>
+        <div class="ctls">
+          <div class="seg" id="mmetric" role="group" aria-label="Measure">
+            <button data-v="med" aria-pressed="true">Typical (12-month median)</button><button data-v="cur" aria-pressed="false">Lowest today</button></div>
+          <div class="seg" id="mtax" role="group" aria-label="Tax">
+            <button data-v="ex" aria-pressed="true">Without sales tax</button><button data-v="sold" aria-pressed="false">As sold</button></div>
+          <div class="seg" id="mzoom" role="group" aria-label="Zoom">
+            <button data-v="world" aria-pressed="true">World</button><button data-v="europe" aria-pressed="false">Europe</button></div>
+        </div>
+      </div>
+      <div class="mapgrid">
+        <div><svg id="msvg" role="img" aria-label="World map of graphics-card prices against the US"></svg>
+          <div class="mleg" id="mleg"></div>
+          <h3 class="h3">Every card&rsquo;s spread</h3>
+          <svg id="mstrip" width="100%" role="img" aria-label="Each card's price in every country against the US"></svg></div>
+        <div class="mlist" id="mlist"></div>
+      </div>
+      <p class="note" id="mnote"></p>
+    </div>
+  </section>
+
+  <section id="matrix">
+    <h2>Every card, every country</h2>
+    <p class="sub">The whole table at once: each cell is that card&rsquo;s price against the US, same colours as the map. Click a card to put it
+    on the map; click a country to sort the cards by it.</p>
+    <div class="panel scroll"><table class="mx" id="mx"></table><p class="note" id="mxnote"></p></div>
+  </section>
+
   <section id="world">
-    <h2>Prices around the world</h2>
+    <h2>Price history in five markets</h2>
     <p class="sub">The same machine in five markets, in US dollars at each date&rsquo;s exchange rate. Shelf prices in Europe, the UK, China and Japan
     include VAT and US prices do not; switch to <b>without sales tax</b> for a like-for-like comparison.</p>
     <div class="panel">
@@ -154,6 +249,7 @@
 </div>
 
 <script>
+/*__VIZJS__*/
 const DATA = __DATA__;
 const $ = id => document.getElementById(id);
 const REG = ["US", "EU", "UK", "CN", "JP"];
@@ -332,13 +428,233 @@ function drawDC() {
   $("dnote").innerHTML = `Purchase estimates in other currencies are converted to dollars at the rate of their date. FP8 is dense throughput where the vendor publishes it. Chinese parts are mostly sold only inside China, and US export rules limit which NVIDIA parts can be sold there.`;
 }
 
-function draw() { drawTabs(); drawWorld(); drawLaunch(); drawDC(); }
+/* ---------------- graphics cards around the world: map + ranked list + matrix ---------------- */
+const W0 = DATA.world;
+const EU = ["germany", "france", "italy", "spain", "netherlands", "belgium", "ireland", "portugal", "sweden", "uk"];
+const CODE = { us: "US", germany: "DE", uk: "UK", japan: "JP", france: "FR", italy: "IT", spain: "ES", netherlands: "NL", belgium: "BE",
+  ireland: "IE", portugal: "PT", sweden: "SE", australia: "AU", india: "IN", singapore: "SG", uae: "AE", brazil: "BR" };
+const NUDGE = { belgium: [0, 9], netherlands: [0, -5], portugal: [-3, 0], ireland: [-2, 0], uae: [-26, 4], india: [10, 0], singapore: [10, 3] };
+const M = { p: null, metric: "med", tax: "ex", zoom: "world", sortCol: null, vb: null };
+const CAP = 40;
+/* the market's price in dollars under the current measure and tax; flags when it had to fall back */
+function mval(p, c, which = M.metric) {
+  const r = p.prices[c]; if (!r) return null;
+  let v = which === "cur" ? (r.cur ?? r.med) : (r.med ?? r.cur);
+  const fell = which === "cur" ? r.cur == null : r.med == null;
+  const vat = W0.markets[c].vat;
+  const div = M.tax === "ex" && vat ? 1 + vat : 1;
+  return { v: v / div, low: r.low != null ? r.low / div : null, med: r.med != null ? r.med / div : null, cur: r.cur != null ? r.cur / div : null,
+           fell, taxed: M.tax === "ex" && vat == null, local: which === "cur" ? (r.cur != null ? r.local : r.local_med) : (r.local_med ?? r.local), r };
+}
+const pctVsUS = (p, c) => { const a = mval(p, c), u = mval(p, "us"); return a && u ? (a.v / u.v - 1) * 100 : null; };
+const mprods = () => W0 ? W0.products.filter(p => S.vendors.has(p.vendor)) : [];
+const pshort = p => p.name.replace(/^(AMD|Intel) /, "").replace("Radeon ", "");
+function vbTween(to) {
+  const svg = $("msvg"), from = M.vb || to, t0 = performance.now(), dur = VIZ.REDUCED ? 0 : 650;
+  const step = t => {
+    const k = dur ? Math.min(1, (t - t0) / dur) : 1, e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    const vb = from.map((f, i) => f + (to[i] - f) * e);
+    svg.setAttribute("viewBox", vb.join(" "));
+    labelSize(vb[2]);
+    if (k < 1) requestAnimationFrame(step); else M.vb = to;
+  };
+  requestAnimationFrame(step);
+}
+function labelSize(vbw) {
+  const svg = $("msvg"), px = svg.clientWidth || 700, u = vbw / px;     // viewBox units per screen pixel
+  svg.style.setProperty("--fs", (11 * u).toFixed(3));
+  svg.querySelectorAll(".ml").forEach(t => { t.setAttribute("font-size", 11 * u); t.setAttribute("stroke-width", 3 * u);
+    const [dx, dy] = (NUDGE[t.dataset.c] || [0, 0]); t.setAttribute("transform", `translate(${dx * u} ${dy * u})`); });
+  svg.querySelectorAll(".dot").forEach(c => { c.setAttribute("r", 4.5 * u); c.setAttribute("stroke-width", 1.2 * u); });
+  svg.querySelectorAll(".c").forEach(c => c.style.strokeWidth = (c.classList.contains("hot") ? 1.6 : c.classList.contains("ref") ? 1.2 : .5) * u + "px");
+}
+function zoomBox(z) {
+  const m = W0.map;
+  if (z !== "europe") return [0, 0, m.width, m.height];
+  const pts = EU.map(c => m.points[c]).filter(Boolean);
+  let x0 = Math.min(...pts.map(p => p[0])) - 16, x1 = Math.max(...pts.map(p => p[0])) + 22;
+  let y0 = Math.min(...pts.map(p => p[1])) - 12, y1 = Math.max(...pts.map(p => p[1])) + 10;
+  const ar = m.width / m.height, w = x1 - x0, h = y1 - y0;
+  if (w / h < ar) { const nw = h * ar; x0 -= (nw - w) / 2; x1 = x0 + nw; } else { const nh = w / ar; y0 -= (nh - h) / 2; y1 = y0 + nh; }
+  return [x0, y0, x1 - x0, y1 - y0];
+}
+function initMap() {
+  const m = W0.map, svg = $("msvg");
+  const isoTo = {}; Object.entries(W0.markets).forEach(([c, v]) => { isoTo[v.iso] = c; });
+  let g = "";
+  Object.entries(m.countries).forEach(([iso, c]) => {
+    const mk = isoTo[iso];
+    g += `<path class="c${mk ? " m" : ""}" ${mk ? `data-c="${mk}"` : ""} d="${c.d}"><title>${esc(c.name)}</title></path>`;
+  });
+  /* markets too small for this map scale get a dot */
+  Object.keys(W0.markets).filter(c => !m.countries[W0.markets[c].iso]).forEach(c => {
+    const [x, y] = m.points[c]; g += `<circle class="dot" data-c="${c}" cx="${x}" cy="${y}" r="4"/>`;
+  });
+  g += `<g id="mlabels"></g>`;
+  svg.innerHTML = g;
+  svg.setAttribute("viewBox", `0 0 ${m.width} ${m.height}`);
+  M.vb = [0, 0, m.width, m.height];
+  svg.querySelectorAll("[data-c]").forEach(el => {
+    el.querySelector("title")?.remove();
+    el.onmousemove = ev => { mhot(el.dataset.c); VIZ.tip(mtip(el.dataset.c), ev); };
+    el.onmouseleave = () => { mhot(null); VIZ.tip(null); };
+  });
+}
+function mtip(c) {
+  const p = W0.products.find(x => x.id === M.p), a = mval(p, c), mk = W0.markets[c];
+  if (!a) return `<b>${esc(mk.name)}</b><br>no price for this card`;
+  const pc = pctVsUS(p, c), loc = a.local != null ? VIZ.fmt.money(a.local, mk.currency) : "";
+  return `<span class="t">${esc(pshort(p))}</span><b>${esc(mk.name)}</b><br>${M.metric === "cur" && !a.fell ? "lowest today" : "12-month median"}: <b>${money(a.v)}</b>${loc && mk.currency !== "USD" ? ` (${loc} as sold)` : ""}<br>`
+    + (c === "us" ? "the reference market" : `<b class="${pc > 0 ? "up" : "down"}">${VIZ.fmt.pct(pc)}</b> against the US`)
+    + (a.med != null ? `<br>12-month median ${money(a.med)}` : "") + (a.low != null ? ` · low ${money(a.low)}` : "")
+    + (a.fell ? `<br><i>${M.metric === "cur" ? "today's lowest failed the plausibility check: median shown" : "no median published: today's price shown"}</i>` : "")
+    + (a.taxed ? `<br><i>includes Brazil's stacked taxes (no single rate to remove)</i>` : "")
+    + (M.tax === "ex" && mk.vat ? `<br><span class="t">VAT of ${Math.round(mk.vat * 100)}% removed</span>` : "");
+}
+function mhot(c) {
+  $("msvg").querySelectorAll("[data-c]").forEach(el => el.classList.toggle("hot", el.dataset.c === c));
+  $("mlist").querySelectorAll(".mr").forEach(r => r.classList.toggle("hot", r.dataset.key === c));
+  labelSize(M.vb ? M.vb[2] : W0.map.width);
+}
+function drawMapTabs() {
+  const ps = mprods();
+  if (!ps.find(p => p.id === M.p)) M.p = (ps.find(p => p.id === "rtx-5090") || ps[0] || {}).id || null;
+  $("mtabs").innerHTML = ps.map(p => `<button class="tab" role="tab" data-id="${p.id}" aria-pressed="${p.id === M.p}">${esc(pshort(p))}<small>${Object.keys(p.prices).length}</small></button>`).join("");
+  $("mtabs").querySelectorAll(".tab").forEach(b => b.onclick = () => { M.p = b.dataset.id; drawMapTabs(); drawMap(); drawMatrix(); });
+  $("msel").innerHTML = ps.map(p => `<option value="${p.id}"${p.id === M.p ? " selected" : ""}>${esc(p.name)}</option>`).join("");
+  $("msel").onchange = e => { M.p = e.target.value; drawMapTabs(); drawMap(); drawMatrix(); };
+}
+function drawMap() {
+  if (!W0) { $("map").hidden = $("matrix").hidden = true; return; }
+  const p = W0.products.find(x => x.id === M.p);
+  if (!p) { $("mkick").textContent = ""; $("mlist").innerHTML = `<p class="empty">No country prices for this manufacturer yet: GPUPrix covers NVIDIA, AMD and Intel cards.</p>`;
+    $("msvg").querySelectorAll("[data-c]").forEach(el => el.style.fill = ""); $("mlabels").innerHTML = ""; return; }
+  const svg = $("msvg"), mk = W0.markets;
+  /* colour every market; the US is the grey reference */
+  svg.querySelectorAll("[data-c]").forEach(el => {
+    const c = el.dataset.c, pc = c === "us" ? 0 : pctVsUS(p, c);
+    el.style.fill = mval(p, c) ? VIZ.diverging(pc, CAP) : "";
+    el.classList.toggle("ref", c === "us");
+  });
+  /* labels: everything when zoomed into Europe; outside Europe only on the world view */
+  const shown = Object.keys(p.prices).filter(c => M.zoom === "europe" ? EU.includes(c) : !EU.includes(c));
+  $("mlabels").innerHTML = shown.map(c => {
+    const [x, y] = W0.map.points[c], pc = pctVsUS(p, c);
+    return `<text class="ml" data-c="${c}" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle"><tspan class="cc">${CODE[c]}</tspan> ${c === "us" ? money(mval(p, c).v) : VIZ.fmt.pct(pc)}</text>`;
+  }).join("") + (M.zoom === "world" ? `<text class="ml" data-c="eu-hint" x="${W0.map.points.germany[0]}" y="${W0.map.points.sweden[1] - 22}" text-anchor="middle"><tspan class="cc">Europe: 10 markets, zoom in</tspan></text>` : "");
+  labelSize(M.vb[2]);
+  /* the ranked list, cheapest first; re-sorts with FLIP */
+  const rows = Object.keys(p.prices).map(c => ({ c, a: mval(p, c), pc: c === "us" ? 0 : pctVsUS(p, c) })).filter(r => r.a).sort((a, b) => a.a.v - b.a.v);
+  const all = rows.flatMap(r => [r.a.v, r.a.low, r.a.med, r.a.cur].filter(v => v != null));
+  const lo = Math.min(...all) * .96, hi = Math.max(...all) * 1.02, X = v => ((v - lo) / (hi - lo) * 100).toFixed(2);
+  VIZ.flip($("mlist"), () => {
+    $("mlist").innerHTML = `<div class="ml-h"><span>Country</span><span>${money(lo)} … ${money(hi)}</span><span style="text-align:right">vs US</span></div>` + rows.map(({ c, a, pc }) => {
+      const span = [a.low, a.med, a.cur].filter(v => v != null), r0 = Math.min(...span, a.v), r1 = Math.max(...span, a.v);
+      return `<div class="mr${c === "us" ? " ref" : ""}" data-key="${c}"><span class="nm">${esc(mk[c].name.replace("United Arab Emirates", "UAE").replace("United Kingdom", "UK").replace("United States", "United States"))}</span>
+        <svg viewBox="0 0 100 18" preserveAspectRatio="none"><line class="rng" x1="${X(r0)}" x2="${X(r1)}" y1="9" y2="9" vector-effect="non-scaling-stroke"/>
+        ${a.med != null ? `<line class="med" x1="${X(a.med)}" x2="${X(a.med)}" y1="3" y2="15" vector-effect="non-scaling-stroke"/>` : ""}</svg>
+        <span class="v">${money(a.v)}${a.fell || a.taxed ? "*" : ""}<small class="${c === "us" ? "" : pc > 0 ? "up" : "down"}">${c === "us" ? "reference" : VIZ.fmt.pct(pc)}</small></span></div>`;
+    }).join("");
+  });
+  /* the dot for "this measure" drawn as HTML over the bar so it stays round at any width */
+  $("mlist").querySelectorAll(".mr").forEach(el => {
+    const r = rows.find(x => x.c === el.dataset.key), sv = el.querySelector("svg");
+    const d = document.createElement("i");
+    d.style.cssText = `position:absolute;left:calc(${X(r.a.v)}% - 6px);top:3px;width:12px;height:12px;border-radius:50%;background:${r.c === "us" ? "var(--mid)" : VIZ.diverging(r.pc, CAP)};border:2px solid var(--ink);box-sizing:border-box;transition:left 420ms cubic-bezier(.2,.7,.3,1)`;
+    const wrap = document.createElement("div"); wrap.style.position = "relative";
+    sv.replaceWith(wrap); wrap.append(sv, d);
+    el.onmouseenter = () => mhot(el.dataset.key); el.onmouseleave = () => mhot(null);
+  });
+  const cheap = rows[0], dear = rows[rows.length - 1];
+  $("mkick").innerHTML = `<b>${esc(pshort(p))}</b>: cheapest in <b>${esc(mk[cheap.c].name)}</b> at ${money(cheap.a.v)}, dearest in <b>${esc(mk[dear.c].name)}</b> at ${money(dear.a.v)}: `
+    + `<b>${(dear.a.v / cheap.a.v).toFixed(2)}×</b> apart.`;
+  $("mleg").innerHTML = `<span>cheaper than the US</span><span class="ramp"></span><span>dearer</span><span>(scale ±${CAP}%)</span>`
+    + `<span><i class="sw" style="background:var(--mid);outline:1px solid var(--ink)"></i>US, the reference</span><span><i class="sw" style="background:var(--nodata)"></i>not tracked</span>`;
+  $("mnote").innerHTML = `Prices from <a href="${W0.url}">GPUPrix</a>, which follows retailers in each country, read ${W0.fetched ? dayLabel(W0.fetched) : ""}; converted at today&rsquo;s ECB rate. `
+    + `&ldquo;Lowest today&rdquo; is the cheapest new listing; when it is implausible against that country&rsquo;s 12-month median (more than 1.6&times; or under 0.6&times;: usually a bundle, a prebuilt PC or an accessory) the median is shown instead (*). `
+    + `US prices exclude sales tax, so &ldquo;without sales tax&rdquo; is the like-for-like view; Brazil keeps its taxes in both (*).`;
+}
+/* one row per card, one dot per country, by % against the US: the whole table in a glance */
+function drawStrip() {
+  const svg = $("mstrip"), ps = mprods();
+  if (!ps.length) { svg.innerHTML = ""; svg.setAttribute("height", 0); return; }
+  const W = Math.max(300, svg.clientWidth || 640), narrow = W < 520, RH = 20, PL = narrow ? 92 : Math.min(150, W * .3), PR = 26, PT = 6, H = PT + ps.length * RH + 22;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+  const vals = ps.flatMap(p => Object.keys(p.prices).filter(c => c !== "us").map(c => pctVsUS(p, c))).filter(v => v != null);
+  const lo = Math.max(-80, Math.floor(Math.min(-10, ...vals) / 10) * 10), hi = Math.min(150, Math.ceil(Math.max(10, ...vals) / 10) * 10);
+  const x = v => PL + (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * (W - PL - PR);
+  const step = hi - lo > 120 ? 50 : 25;
+  let g = "";
+  for (let v = Math.ceil(lo / step) * step; v <= hi; v += step)
+    g += `<line class="ax" x1="${x(v)}" x2="${x(v)}" y1="${PT}" y2="${H - 18}" opacity="${v ? .15 : .6}"/><text class="axl" x="${x(v)}" y="${H - 4}" text-anchor="middle">${v ? VIZ.fmt.pct(v) : "= US"}</text>`;
+  ps.forEach((p, i) => {
+    const cy = PT + i * RH + RH / 2;
+    g += `<g class="${p.id === M.p ? "row-on" : ""}" data-p="${p.id}"><text class="pl" x="${PL - 8}" y="${cy + 4}" text-anchor="end">${esc(narrow ? pshort(p).replace(/ \(.*\)/, "") : pshort(p))}</text>`;
+    Object.keys(p.prices).filter(c => c !== "us").forEach(c => {
+      const pc = pctVsUS(p, c); if (pc == null) return;
+      g += `<circle class="sd" data-c="${c}" cx="${x(pc)}" cy="${cy}" r="${p.id === M.p ? 5 : 4}" style="fill:${VIZ.diverging(pc, CAP)}" opacity="${p.id === M.p ? 1 : .8}"/>`;
+    });
+    g += `</g>`;
+  });
+  svg.innerHTML = g;
+  svg.querySelectorAll("g[data-p]").forEach(gr => {
+    gr.querySelector(".pl").onclick = () => { M.p = gr.dataset.p; drawMapTabs(); drawMap(); drawMatrix(); };
+    gr.querySelectorAll(".sd").forEach(d => {
+      d.onmousemove = ev => { const keep = M.p; M.p = gr.dataset.p; VIZ.tip(mtip(d.dataset.c), ev); M.p = keep; if (gr.dataset.p === M.p) mhot(d.dataset.c); };
+      d.onmouseleave = () => { VIZ.tip(null); mhot(null); };
+      d.onclick = () => { M.p = gr.dataset.p; drawMapTabs(); drawMap(); drawMatrix(); };
+    });
+  });
+}
+function drawMatrix() {
+  if (!W0) return;
+  drawStrip();
+  const ps = mprods(), mk = W0.markets;
+  if (!ps.length) { $("mx").innerHTML = ""; $("mxnote").textContent = "No country prices for this manufacturer yet."; return; }
+  /* countries ordered by how expensive they are on average, cheapest on the left */
+  const avg = c => { const v = ps.map(p => pctVsUS(p, c)).filter(x => x != null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : 999; };
+  const cols = Object.keys(mk).sort((a, b) => (a === "us" ? -1 : b === "us" ? 1 : avg(a) - avg(b)));
+  const rows = ps.slice();
+  if (M.sortCol) rows.sort((a, b) => (pctVsUS(a, M.sortCol) ?? 999) - (pctVsUS(b, M.sortCol) ?? 999));
+  const cell = (p, c) => {
+    if (c === "us") { const a = mval(p, "us"); return `<td class="us" title="${esc(pshort(p))} in the US">${a ? money(a.v) : "—"}</td>`; }
+    const pc = pctVsUS(p, c);
+    if (pc == null) return `<td class="na">·</td>`;
+    const k = Math.min(1, Math.abs(pc) / CAP), hue = pc < 0 ? "var(--cool)" : "var(--warm)";
+    return `<td style="background:color-mix(in oklab, ${hue} ${Math.round(10 + k * 62)}%, transparent)" data-c="${c}" data-p="${p.id}">${VIZ.fmt.pct(pc)}</td>`;
+  };
+  VIZ.flip($("mx"), () => {
+    $("mx").innerHTML = `<thead><tr><th>Card</th>${cols.map(c => `<th data-c="${c}" title="${esc(mk[c].name)}: sort by this country"${M.sortCol === c ? ' aria-sort="ascending"' : ""}>${CODE[c]}</th>`).join("")}</tr></thead><tbody>`
+      + rows.map(p => `<tr data-key="${p.id}"${p.id === M.p ? ' class="on"' : ""}><td class="pn" data-id="${p.id}">${esc(pshort(p))}</td>${cols.map(c => cell(p, c)).join("")}</tr>`).join("") + "</tbody>";
+  });
+  $("mx").querySelectorAll("th[data-c]").forEach(th => th.onclick = () => { M.sortCol = M.sortCol === th.dataset.c ? null : th.dataset.c; drawMatrix(); });
+  $("mx").querySelectorAll("td.pn").forEach(td => td.onclick = () => { M.p = td.dataset.id; drawMapTabs(); drawMap(); drawMatrix();
+    $("map").scrollIntoView({ behavior: VIZ.REDUCED ? "auto" : "smooth", block: "start" }); });
+  $("mx").querySelectorAll("td[data-c]").forEach(td => {
+    td.onmousemove = ev => { const keep = M.p; M.p = td.dataset.p; VIZ.tip(mtip(td.dataset.c), ev); M.p = keep; };
+    td.onmouseleave = () => VIZ.tip(null);
+  });
+  $("mxnote").textContent = `Same measure and tax setting as the map (${M.metric === "cur" ? "lowest today" : "12-month median"}, ${M.tax === "ex" ? "without sales tax" : "as sold"}). Countries run from cheapest on average (left) to dearest (right); the US column is the dollar price itself.`;
+}
+function mseg(id, key, after) {
+  $(id).querySelectorAll("button").forEach(b => b.onclick = () => {
+    M[key] = b.dataset.v; $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); after();
+  });
+}
+if (W0) {
+  initMap();
+  mseg("mmetric", "metric", () => { drawMap(); drawMatrix(); });
+  mseg("mtax", "tax", () => { drawMap(); drawMatrix(); });
+  mseg("mzoom", "zoom", () => { vbTween(zoomBox(M.zoom)); drawMap(); });
+}
+
+function draw() { drawMapTabs(); drawMap(); drawMatrix(); drawTabs(); drawWorld(); drawLaunch(); drawDC(); }
 $("taxseg").querySelectorAll("button").forEach(b => b.onclick = () => {
   S.tax = b.dataset.tax; $("taxseg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); drawWorld();
 });
 $("asof").textContent = `Data as of ${dayLabel(DATA.as_of)}.`;
 $("fchecked").textContent = `Purchase prices last checked ${dayLabel(DATA.checked)}.`;
-let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { drawWorld(); drawLaunch(); }, 150); });
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { drawWorld(); drawLaunch(); if (W0) { labelSize(M.vb[2]); drawStrip(); } }, 150); });
 draw();
 </script>
 </body>

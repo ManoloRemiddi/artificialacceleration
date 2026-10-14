@@ -18,6 +18,8 @@ import sections as SEC
 import extras
 import hardware_section
 import hardware_page
+import harness_page
+import pillars
 
 def esc(t): return html.escape(str(t), quote=False)
 def to_date(s):
@@ -109,9 +111,10 @@ def sections_html():
       '<span class="sub">Each lab\u2019s typical gap between notable releases, against the days since its last one. '
       'A forecast, scored against its own history: the \u00b1 is how far it has missed on average.</span></div>%s</section>' % whos_due(),
       hardware_section.render(as_of_date()),
-      '<section id="streams"><div class="sechead"><span class="num">05</span><h2>Lab by lab: the release stream</h2>'
+      pillars.section(as_of_date(), "05"),
+      '<section id="streams"><div class="sechead"><span class="num">06</span><h2>Lab by lab: the release stream</h2>'
       '<span class="sub">Every notable release, in order, with the gap since that lab\u2019s previous one. Filled bars are faster than the lab\u2019s own median.</span></div>%s</section>' % stream_cards(),
-      '<section id="evidence"><div class="sechead"><span class="num">06</span><h2>The words, and what came next</h2>'
+      '<section id="evidence"><div class="sechead"><span class="num">07</span><h2>The words, and what came next</h2>'
       '<span class="sub">What each lab said about pacing, and what shipped immediately afterwards.</span></div>%s</section>' % evidence_cards(),
     ])
 
@@ -261,7 +264,8 @@ def main():
                         "generated": DATA.get("generated_utc", ""),
                         "index_version": "Artificial Analysis Intelligence Index v4.3.2",
                         "source": "artificialanalysis.ai"}}
-    out = tpl.replace("/*__LABVARS__*/", lab_css()).replace("__PAYLOAD__", json.dumps(payload))
+    out = (tpl.replace("/*__LABVARS__*/", lab_css()).replace("<!--__PILLARS__-->", pillars.cards(rows, LABS, as_of_date()))
+              .replace("__PAYLOAD__", json.dumps(payload)))
     if "__PAYLOAD__" in out or "__LABVARS__" in out:
         sys.exit("template placeholder not replaced")
     # publish ONLY the site: the pipeline, data and docs must not go live
@@ -270,6 +274,7 @@ def main():
     (site / "index.html").write_text(out)
     extras.write_all(site, rows, LABS, mark_html, NOTES, ACCEL_IDX, (DATA.get("generated_utc") or "")[:10])
     hardware_page.write(site, as_of_date())
+    harness_page.write(site, as_of_date())
     print(f"index.html written: {len(out)} bytes, {len(page_rows)} curated rows, "
           f"{len(stream_rows)} stream rows")
 

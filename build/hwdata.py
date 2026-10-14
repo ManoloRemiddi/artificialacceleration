@@ -42,6 +42,8 @@ class Rates:
     def per_usd(self, currency, iso):
         if currency == "USD":
             return 1.0
+        if currency == "AED":                     # UAE dirham: pegged at 3.6725 per dollar since 1997
+            return 3.6725
         days = self.days.get(currency)
         if not days:
             return None

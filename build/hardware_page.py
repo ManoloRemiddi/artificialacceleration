@@ -9,6 +9,7 @@ from datetime import date
 
 import hwdata
 import hardware_section as HS
+import worldmap
 
 R = pathlib.Path(__file__).resolve().parent.parent
 CN_VENDORS = ["Huawei", "Cambricon", "Hygon", "Moore Threads", "MetaX", "Biren", "Kunlunxin", "Lisuan",
@@ -72,13 +73,71 @@ def payload(hw, rental, as_of):
             "products": products, "accelerators": accels}
 
 
+# where each market's label (or, for a country too small for the map, its dot) goes: lon, lat
+ANCHORS = {"us": (-98, 39), "germany": (10.4, 51.1), "uk": (-1.8, 52.8), "japan": (138.5, 36.5), "france": (2.4, 46.6),
+           "italy": (12.6, 42.8), "spain": (-3.7, 40.2), "netherlands": (5.6, 52.2), "belgium": (4.6, 50.6),
+           "ireland": (-8, 53.2), "portugal": (-8.1, 39.6), "sweden": (15.5, 62), "australia": (134, -25),
+           "india": (79, 22), "singapore": (103.8, 1.35), "uae": (54.2, 23.9), "brazil": (-52, -10)}
+
+
+def world(hw, as_of):
+    """Graphics-card prices in 17 countries (data/gpu_world.json, from GPUPrix) for the map.
+
+    GPUPrix publishes three numbers per country: the lowest price today, the 12-month low and the
+    12-month median. The median is robust; the other two sometimes catch an accessory or a
+    marketplace listing (an RTX 5090 'from 22,176 yen'), so each is kept only when it is
+    plausible against the median: today's low within 0.6-1.6x, the 12-month low above 0.45x.
+    A country with no median is kept only when its price is plausible against the other
+    countries' median for the same card. All amounts in US dollars at today's rate."""
+    gp = R / "data" / "gpu_world.json"
+    if not gp.exists():
+        return None
+    g = json.loads(gp.read_text())
+    rates = hwdata.Rates()
+    names = {p["id"]: (short(p["name"]), p["vendor"]) for p in hw["products"]}
+    iso_day = as_of.isoformat()
+    products = []
+    for pid, by_c in g["latest"].items():
+        rows = {}
+        for c, o in by_c.items():
+            m = g["countries"].get(c)
+            if not m:
+                continue
+            k = lambda v: None if v is None else rates.to_usd(v, m["currency"], iso_day)
+            rows[c] = {"cur": k(o.get("current")), "med": k(o.get("median12")), "low": k(o.get("low12")),
+                       "local": o.get("current"), "local_med": o.get("median12"), "date": o.get("date")}
+        meds = sorted(r["med"] for r in rows.values() if r["med"])
+        ref = meds[len(meds) // 2] if meds else None
+        out = {}
+        for c, r in rows.items():
+            if r["cur"] is None:
+                continue
+            base = r["med"] or ref
+            if not base or not (0.6 <= r["cur"] / base <= 1.6):
+                r["cur"] = None
+            if r["low"] and r["med"] and r["low"] < 0.45 * r["med"]:
+                r["low"] = None
+            if r["cur"] is None and r["med"] is None:
+                continue
+            out[c] = {key: (round(v, 2) if isinstance(v, float) else v) for key, v in r.items()}
+        if len(out) < 3:
+            continue
+        name, vendor = names.get(pid, (pid.replace("-", " ").upper(), ""))
+        if not vendor:
+            vendor = "AMD" if pid.startswith("amd") else ("Intel" if pid.startswith("arc") else "NVIDIA")
+        products.append({"id": pid, "name": name, "vendor": vendor, "prices": out})
+    used = {g["countries"][c]["iso"] for p in products for c in p["prices"]}
+    return {"source": g.get("source"), "url": g.get("url"), "fetched": g.get("fetched"),
+            "markets": g["countries"], "products": products, "used": sorted(used), "map": worldmap.paths(points=ANCHORS)}
+
+
 def write(site, as_of=None):
     as_of = as_of or date.today()
     hw = hwdata.load()
     rp = R / "data" / "gpu_rental.json"
     rental = json.loads(rp.read_text()) if rp.exists() else {"series": {}}
     S = rental.get("series", {})
-    rent_html = ('<div class="hwgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px">'
+    rent_html = ('<div class="hwgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:14px">'
                  + HS.rental_chart(S, ["nvidia-a100", "nvidia-h100", "nvidia-h200", "nvidia-b200", "nvidia-b300",
                                        "amd-mi300x", "amd-mi325x", "amd-mi355x", "intel-gaudi2"],
                                    "Datacenter GPUs · median on-demand $/GPU-hour",
@@ -91,7 +150,11 @@ def write(site, as_of=None):
                  'Data through %s. Chinese accelerators are not in an open rental dataset; their reported cloud prices are in the table above.</p>'
                  % (rental.get("as_of") or "—"))
     tpl = (R / "build" / "hardware_template.html").read_text()
-    out = tpl.replace("__RENTAL__", rent_html).replace("__DATA__", json.dumps(payload(hw, rental, as_of), ensure_ascii=False))
+    data = payload(hw, rental, as_of)
+    data["world"] = world(hw, as_of)
+    viz = (R / "build" / "assets" / "viz.js").read_text()
+    out = (tpl.replace("__RENTAL__", rent_html).replace("/*__VIZJS__*/", viz)
+              .replace("__DATA__", json.dumps(data, ensure_ascii=False, separators=(",", ":"))))
     d = site / "hardware"
     d.mkdir(parents=True, exist_ok=True)
     (d / "index.html").write_text(out)

@@ -1,7 +1,11 @@
 # artificialacceleration.com
 
-Frontier-model release and capability tracker. Nine labs, one year, every release
-dated — plus the release-cadence and intelligence charts.
+How fast AI is moving, tracked on its three factors: intelligence = **models × hardware ×
+harnesses**. Models: nine labs, every release dated, release-cadence and intelligence charts.
+Hardware (`/hardware/`): what it costs to run AI, from home-lab cards to datacenter parts, with
+graphics-card prices on a world map of 17 countries. Harnesses (`/harnesses/`): the agents
+around the models (Claude Code, Codex, Gemini CLI, Cursor, OpenClaw…), their adoption,
+release rhythm and benchmark results.
 
 **Self-sufficient:** the site rebuilds itself inside GitHub Actions on a schedule.
 No home server, no cron on your machine, no manual step.
@@ -12,8 +16,10 @@ No home server, no cron on your machine, no manual step.
 Actions (every 6h + manual)  --> pipeline/fetch.py           pulls Artificial Analysis (models, scores, prices)
                              --> scripts/build_data.py       one row per release: lab, region, open weights, notable
                              --> pipeline/fetch_hardware.py  GPU rental prices (GetDeploying, CC BY 4.0, weekly)
+                             --> pipeline/fetch_gpuprix.py   graphics-card prices in 17 countries (GPUPrix, daily)
+                             --> pipeline/fetch_harnesses.py npm/PyPI downloads, GitHub, VS Code, OpenRouter, Terminal-Bench (daily)
                              --> build/build_page.py         index.html + release pages, feed, sitemap, badge, embed, og.png
-                             --> git commit + push           only when releases or rental prices changed
+                             --> git commit + push           only when releases, prices or harness stats changed
                              --> deploy-pages                always, so the page's "now" moves forward
 ```
 
@@ -78,6 +84,13 @@ Applied from 2026 data-visualisation guidance:
 | `build/hardware_page.py`, `build/hardware_template.html` | the full hardware tracker at `/hardware/`: every vendor, five markets, datacenter parts |
 | `build/hwdata.py` | the hardware data model (v2) and conversion to dollars at each price's own date |
 | `pipeline/fetch_fx.py` | weekly exchange rates (ECB via frankfurter.dev) → `data/fx.json` |
+| `pipeline/fetch_gpuprix.py` | graphics-card prices in 17 countries (GPUPrix's fixed "price history" sentence, read by pattern, 1 request/s, once a day) → `data/gpu_world.json` |
+| `build/worldmap.py`, `build/geo/` | Natural Earth 110m countries, Equal Earth projection, as SVG paths at build time |
+| `build/harnesses.json` | the harnesses we follow (editorial): vendor, package names, repo, VS Code id, pricing |
+| `pipeline/fetch_harnesses.py` | adoption and release data for each harness, archived weekly → `data/harness_stats.json` |
+| `build/harness_page.py`, `build/harness_template.html` | the harness tracker at `/harnesses/` |
+| `build/pillars.py` | the front page's three pillar cards and its harness section (05) |
+| `build/assets/viz.js` | shared chart toolkit inlined into the pillar pages: FLIP re-sorting, tooltips, diverging colour |
 | `data/releases.json` | current grouped dataset (committed) |
 | `data/baseline.json` | previous snapshot, for diffing |
 | `data/changes.jsonl` | append-only record of what changed and when |
@@ -133,10 +146,11 @@ never go stale silently. `.github/workflows/prices.yml` is a manual cloud altern
 ### What is automatic and what is editorial
 
 Automatic: releases, scores, prices, the notable rule after 24 Sep 2026, every chart,
-"who's due", the said-then-shipped counts, GPU rental prices, the Acceleration Index.
+"who's due", the said-then-shipped counts, GPU rental prices, the Acceleration Index,
+graphics-card prices by country, harness adoption, releases and benchmark results.
 Editorial (yours): `labs.json` notable names and open-weight rules (the API publishes no
 licences), `statements.json`, `notes.json`, `sections.py` text, and approving the monthly
-`hardware.json` price proposals.
+`hardware.json` price proposals, and `harnesses.json` (which agents are followed).
 
 ---
 
@@ -184,6 +198,12 @@ readable and you can scroll it to see exactly when each model landed.
 To force a refresh: *Actions → update-tracker → Run workflow*.
 
 ## Notes and limits
+
+- **World GPU prices** are GPUPrix's per-country numbers, converted at today's ECB rate.
+  Its "lowest today" sometimes catches a bundle or a prebuilt PC, so it is used only within
+  0.6–1.6× of that country's 12-month median; otherwise the median is shown and marked.
+- **Harness downloads** are a proxy for use: CI inflates them and native installers hide them.
+  A week more than 4× the weeks around it (a mirror or bot event) is left out and named on the page.
 
 - **Polling, not webhooks.** Artificial Analysis publishes a read-only API with no
   webhook/notification channel, so "instant" here means "within the schedule". Change

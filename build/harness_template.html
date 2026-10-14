@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2310a37f'/%3E%3Cpath d='M16 6l7 20h-4l-1.4-4.4h-5.2L11 26H7L14 6h2zm.9 6.6l-1.8 5.6h3.6l-1.8-5.6z' fill='%23fff'/%3E%3C/svg%3E">
+<title>Harness tracker: the agents around the models · Artificial Acceleration</title>
+<meta name="description" content="Claude Code, Codex, Gemini CLI, Cursor, Copilot, OpenClaw, Hermes Agent and more: adoption, release rhythm and how much each harness adds on agent benchmarks, updated daily.">
+<link rel="canonical" href="https://artificialacceleration.com/harnesses/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Artificial Acceleration">
+<meta property="og:title" content="Harness tracker: the agents around the models">
+<meta property="og:url" content="https://artificialacceleration.com/harnesses/">
+<meta property="og:image" content="https://artificialacceleration.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<script>try{var t=localStorage.getItem("aa-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+  /*__LABVARS__*/
+  :root{--bg:#0a0b12;--panel:#141725;--panel2:#181c2b;--line:#2c3145;--line2:#222738;--ink:#f2f5fc;--dim:#b3bcd2;--faint:#7f89a3;
+    --accent:#7aa2ff;--alert:#ff5b5b;--good:#34d399;--chipbg:#12151f;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  [data-theme="light"]{--bg:#f4f6fb;--panel:#fff;--panel2:#f7f9fd;--line:#d3dae8;--line2:#e4e9f3;--ink:#131824;--dim:#46516b;--faint:#6b7793;
+    --accent:#2557d6;--alert:#c62b2b;--good:#047857;--chipbg:#eef1f8}
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 16px 48px}
+  /* the three pillars, the same bar on every page */
+  .pillars{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 0;
+    background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line2)}
+  .pillars .brand{font-weight:800;letter-spacing:-.02em;text-decoration:none;margin-right:10px}
+  .pillars a.p{text-decoration:none;font-size:13.5px;color:var(--dim);padding:5px 12px;border-radius:999px;border:1px solid transparent}
+  .pillars a.p:hover{color:var(--ink);border-color:var(--line)}
+  .pillars a.p[aria-current="page"]{color:var(--bg);background:var(--ink)}
+  h1{font-size:clamp(28px,5vw,44px);line-height:1.08;margin:22px 0 6px;letter-spacing:-.025em;text-wrap:balance}
+  .lede{color:var(--dim);max-width:840px;margin:0}
+  .lede b{color:var(--ink)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:18px 0 6px}
+  .kpi{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;gap:10px;align-items:flex-end}
+  .kpi .k{font:10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .kpi .v{font-size:26px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1;margin-top:3px}
+  .kpi .s{font-size:12.5px;color:var(--dim)}
+  .kpi svg{color:var(--accent);flex:0 0 auto}
+  .bar{position:sticky;top:51px;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);
+    padding:9px 0;margin:10px 0 0;border-bottom:1px solid var(--line2);display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .grp{display:flex;align-items:center;gap:6px}
+  .grp .cap{font:10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{background:none;border:0;color:var(--dim);padding:5px 10px;font-size:12.5px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+  section{margin-top:26px}
+  h2{font-size:19px;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-size:14px;margin:0 0 12px;max-width:880px}
+  .panel{background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:14px 16px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .note{font-size:12.5px;color:var(--dim);margin:10px 0 0;line-height:1.5}
+  /* ranked race */
+  .race{display:grid;gap:4px}
+  .rr{display:grid;grid-template-columns:minmax(150px,220px) 1fr 170px;gap:10px;align-items:center;padding:3px 4px;border-radius:7px;cursor:default}
+  .rr:hover,.rr.hot{background:var(--panel2)}
+  .rr .nm{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rr .nm small{display:block;font:400 11.5px var(--sans);color:var(--faint)}
+  .rr .track{position:relative;height:14px;border-radius:7px;background:var(--line2)}
+  .rr .fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:var(--c,var(--accent));transition:width 420ms cubic-bezier(.2,.7,.3,1)}
+  .rr .val{font:700 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+  .rr .val small{display:block;font:400 11px var(--mono);color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rr.nodata .nm,.rr.nodata .val{opacity:.45}
+  .rr.inactive .nm{text-decoration:line-through;text-decoration-color:var(--faint)}
+  .badge{display:inline-block;font:10px var(--mono);border:1px solid var(--line);border-radius:999px;padding:0 6px;margin-left:6px;color:var(--faint);vertical-align:2px}
+  .up{color:var(--good)} .down{color:var(--alert)}
+  svg text{font-family:var(--mono)}
+  .ax{stroke:var(--line);stroke-width:1}.axl{fill:var(--faint);font-size:11px}
+  .ln{fill:none;stroke-width:1.6;stroke:var(--faint);opacity:.35;transition:opacity 160ms,stroke-width 160ms}
+  .ln.top{stroke:var(--lc);opacity:.9;stroke-width:2.2}
+  .chart.focusing .ln{opacity:.12}.chart.focusing .ln.focus{opacity:1;stroke-width:3}
+  .endlab{font:700 11px var(--mono)}
+  .chart.focusing .endlab{opacity:.25}.chart.focusing .endlab.focus{opacity:1}
+  .dot{stroke:var(--panel);stroke-width:1.5;cursor:pointer}
+  .hit{fill:none;stroke:transparent;stroke-width:12;pointer-events:stroke;cursor:pointer}
+  .ci{stroke-width:2;opacity:.45}
+  .tick{stroke-width:2;stroke-linecap:round}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+  th{text-align:left;font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:6px 8px;white-space:nowrap}
+  td{padding:7px 8px;border-top:1px solid var(--line2);vertical-align:top}
+  .n{text-align:right;white-space:nowrap}
+  td small{display:block;color:var(--faint);font-size:12px}
+  .scroll{overflow-x:auto}
+  .vtip{position:fixed;left:0;top:0;z-index:100;pointer-events:none;opacity:0;transition:opacity 120ms;max-width:300px;
+    background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:12.5px;color:var(--dim);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .vtip b{color:var(--ink)} .vtip .t{font:10.5px var(--mono);color:var(--faint);display:block;margin-bottom:2px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--dim);margin-top:8px}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0}
+  footer{margin-top:30px;font-size:12.5px;color:var(--faint);line-height:1.6}
+  @media (max-width:760px){ .rr{grid-template-columns:110px 1fr 96px} .hide-m{display:none} .bar{top:0;position:static}
+    .pillars{position:static} .pillars .brand{width:100%;margin-bottom:4px} .seg{flex-wrap:wrap} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="pillars" aria-label="Pillars">
+    <a class="brand" href="../">Artificial Acceleration</a>
+    <a class="p" href="../#tlpanel">Models</a>
+    <a class="p" href="../hardware/">Hardware</a>
+    <a class="p" href="./" aria-current="page">Harnesses</a>
+  </nav>
+
+  <h1>The harness tracker</h1>
+  <p class="lede">A model on its own answers questions; a <b>harness</b> turns it into an agent that reads files, runs tools and finishes work.
+  Intelligence is <b>models × hardware × harnesses</b>, and this is the third factor: who builds the agents, how fast they ship, how many people use them,
+  and how much they add to the model inside.</p>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="bar" role="toolbar" aria-label="Filters">
+    <div class="grp"><span class="cap">Kind</span><div class="seg" id="fkind">
+      <button data-v="all" aria-pressed="true">All</button><button data-v="coding" aria-pressed="false">Coding agents</button><button data-v="general" aria-pressed="false">General agents</button></div></div>
+    <div class="grp"><span class="cap">Source</span><div class="seg" id="fopen">
+      <button data-v="all" aria-pressed="true">All</button><button data-v="open" aria-pressed="false">Open source</button><button data-v="closed" aria-pressed="false">Closed</button></div></div>
+    <div class="grp"><span class="cap">Show</span><div class="seg" id="factive">
+      <button data-v="all" aria-pressed="true">All</button><button data-v="active" aria-pressed="false">Active only</button></div></div>
+  </div>
+
+  <section id="race">
+    <h2>Who is winning, by which measure</h2>
+    <p class="sub">The same harnesses ranked five ways. Switch the measure and watch them re-sort: popularity among developers (stars), real use
+    (downloads, editor installs, tokens through OpenRouter) and how fast they ship are different races, with different leaders.</p>
+    <div class="panel">
+      <div class="row"><div class="seg" id="metric">
+        <button data-m="downloads" aria-pressed="true">Weekly downloads</button>
+        <button data-m="stars" aria-pressed="false">GitHub stars</button>
+        <button data-m="installs" aria-pressed="false">Editor installs</button>
+        <button data-m="or_tokens" aria-pressed="false">Tokens/day (OpenRouter)</button>
+        <button data-m="r90" aria-pressed="false">Releases, 90 days</button>
+      </div><div class="seg" id="rscale" title="Bar length scale">
+        <button data-v="lin" aria-pressed="true">Linear</button><button data-v="log" aria-pressed="false">Log</button></div></div>
+      <div class="race" id="racebox"></div>
+      <p class="note" id="racenote"></p>
+    </div>
+  </section>
+
+  <section id="growth">
+    <h2>Adoption over time</h2>
+    <p class="sub">Weekly package downloads (npm or PyPI) on a log scale, where equal steps mean equal multiples. Hover a line, or a name in the race above, to follow one harness.</p>
+    <div class="panel"><div class="scroll"><svg class="chart" id="lines" width="100%" height="380" role="img" aria-label="Weekly downloads per harness over time"></svg></div>
+      <p class="note">Downloads are a proxy for use, not users: continuous integration inflates them, and harnesses installed with a native installer
+      (Claude Code today, Cursor, Grok Build, Goose, Warp) are partly or wholly invisible here. npm keeps 18 months of history, PyPI six; the site archives every week from now on.<span id="spikenote"></span></p></div>
+  </section>
+
+  <section id="bench">
+    <h2>Harness × model: what the harness adds</h2>
+    <p class="sub" id="benchsub"></p>
+    <div class="panel">
+      <div class="row"><div class="seg" id="bview">
+        <button data-v="dots" aria-pressed="true">Score by harness</button>
+        <button data-v="cost" aria-pressed="false">Score against cost</button></div></div>
+      <div class="scroll"><svg id="benchsvg" width="100%" role="img" aria-label="Terminal-Bench results by harness and model"></svg></div>
+      <div class="legend" id="benchleg"></div>
+      <p class="note">Each dot is one harness running one model on the same set of terminal tasks, with its 95% confidence interval. The same model
+      in two harnesses shows what the harness adds; the same harness with two models shows what the model adds. Source: tbench.ai.</p>
+    </div>
+  </section>
+
+  <section id="rhythm">
+    <h2>Release rhythm</h2>
+    <p class="sub">Every stable release in the last 180 days, one tick each. The leaders ship several times a week; some once-famous names have stopped.</p>
+    <div class="panel"><div class="scroll"><svg id="rhythmsvg" width="100%" role="img" aria-label="Releases per harness over the last 180 days"></svg></div></div>
+  </section>
+
+  <section id="directory">
+    <h2>Every harness we follow</h2>
+    <div class="panel scroll"><table id="dir"></table></div>
+  </section>
+
+  <footer>Sources: npm and PyPI download statistics, the GitHub API, the VS Code Marketplace, openrouter.ai/apps (tokens routed through OpenRouter only)
+  and tbench.ai, collected daily. <span id="fetched"></span> <a href="../">Back to the overview &rarr;</a></footer>
+</div>
+
+<script>
+/*__VIZJS__*/
+const DATA = __DATA__;
+const $ = id => document.getElementById(id);
+const { flip, tip, fmt, spark } = VIZ;
+const S = { scale: "lin", kind: "all", open: "all", active: "all", metric: "downloads", bview: "dots", focus: null };
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const visible = () => DATA.harnesses.filter(h => (S.kind === "all" || h.kind === S.kind)
+  && (S.open === "all" || (S.open === "open") === h.open) && (S.active === "all" || h.status === "active"));
+/* a stable colour per harness: by the lab that makes it, else a neutral */
+const HCOL = { "claude-code": "anthropic", "codex": "openai", "gemini-cli": "google", "grok-build": "xai", "qwen-code": "qwen", "kimi-code": "kimi" };
+const colorOf = h => HCOL[h.id] ? `var(--lab-${HCOL[h.id]})` : "var(--accent)";
+
+/* ---------------- KPIs ---------------- */
+(function kpis() {
+  const hs = DATA.harnesses;
+  const weekTotal = hs.reduce((s, h) => s + (h.downloads || 0), 0);
+  const series = {};
+  hs.forEach(h => h.weekly.forEach(([w, n]) => { series[w] = (series[w] || 0) + n; }));
+  const weeks = Object.keys(series).sort().slice(-52);
+  const tot = weeks.map(w => series[w]);
+  const yearAgo = tot.length > 50 ? tot[0] : null;
+  const top = DATA.tbench.rows[0];
+  const since30 = new Date(Date.parse(DATA.as_of) - 30 * 864e5).toISOString().slice(0, 10);
+  const rel30 = hs.reduce((s, h) => s + h.releases.filter(d => d >= since30).length, 0);
+  $("kpis").innerHTML = `
+    <div class="kpi"><div><div class="k">Downloads, week of ${fmt.day(DATA.week)}</div><div class="v">${fmt.num(weekTotal)}</div>
+      <div class="s">${yearAgo ? `<b class="up">${(weekTotal / yearAgo).toFixed(1)}×</b> a year ago, across the tracked harnesses` : "across the tracked harnesses"}</div></div>${spark(tot)}</div>
+    <div class="kpi"><div><div class="k">Best on ${esc(DATA.tbench.title)}</div><div class="v">${top ? top.accuracy.toFixed(1) + "%" : "—"}</div>
+      <div class="s">${top ? `${esc(top.agent)} + ${esc(top.model)}` : ""}</div></div></div>
+    <div class="kpi"><div><div class="k">Releases in the last 30 days</div><div class="v">${rel30}</div>
+      <div class="s">stable releases across ${hs.filter(h => h.repo).length} open repositories</div></div></div>`;
+})();
+
+/* ---------------- the race: one list, five orders ---------------- */
+const METRIC = {
+  downloads: { label: "weekly downloads", val: h => h.downloads, fmt: fmt.num, sub: h => h.dl_source ? `${h.dl_source}${h.growth != null ? ` · <span class="${h.growth >= 0 ? "up" : "down"}">${fmt.pct(h.growth)} in 12 wk</span>` : ""}` : "not on npm/PyPI",
+               note: "Package downloads in the latest complete week (npm for JavaScript harnesses, PyPI for Python ones). A proxy for use: continuous integration inflates it; native installers hide it." },
+  stars: { label: "GitHub stars", val: h => h.stars, fmt: fmt.num, sub: h => h.repo ? (h.license || "no licence") : "closed source",
+           note: "Stars measure developer attention, not use: OpenClaw is the most-starred repository on all of GitHub." },
+  installs: { label: "VS Code installs", val: h => h.installs, fmt: fmt.num, sub: h => h.installs ? "VS Code Marketplace" : "no VS Code extension",
+              note: "Cumulative installs of each harness's VS Code extension. Forks of VS Code (Cursor, Kiro) do not report here." },
+  or_tokens: { label: "tokens per day", val: h => h.or_tokens, fmt: fmt.num, sub: h => h.or_tokens ? "via OpenRouter" : "not routed via OpenRouter",
+               note: "Tokens per day sent through OpenRouter by each app. Counts only traffic routed via OpenRouter, so it favours bring-your-own-key harnesses and misses subscription traffic (most Claude Code and Codex use)." },
+  r90: { label: "stable releases in 90 days", val: h => h.repo ? h.r90 : null, fmt: v => String(v), sub: h => h.latest ? `latest ${esc(h.latest)}` : (h.repo ? "no releases" : "closed source"),
+         note: "Stable (non-pre-release) GitHub releases in the last 90 days: the pace at which each harness ships." },
+};
+function drawRace() {
+  const M = METRIC[S.metric];
+  const hs = visible().slice().sort((a, b) => (M.val(b) ?? -1) - (M.val(a) ?? -1));
+  const max = Math.max(1, ...hs.map(h => M.val(h) || 0));
+  const pos = hs.map(h => M.val(h)).filter(v => v > 0), lmin = Math.log10(Math.max(1, Math.min(...pos) / 3));
+  const len = v => !v ? 0 : S.scale === "log" && max > 10
+    ? Math.max(0.6, (Math.log10(v) - lmin) / (Math.log10(max) - lmin) * 100) : Math.max(0.6, v / max * 100);
+  flip($("racebox"), () => {
+    $("racebox").innerHTML = hs.map(h => {
+      const v = M.val(h);
+      return `<div class="rr${v == null ? " nodata" : ""}${h.status !== "active" ? " inactive" : ""}" data-key="${h.id}" data-id="${h.id}">
+        <div class="nm">${esc(h.name)}${h.status !== "active" ? `<span class="badge">${h.status}</span>` : ""}<small>${esc(h.vendor)}</small></div>
+        <div class="track"><div class="fill" style="width:${len(v)}%;--c:${colorOf(h)}"></div></div>
+        <div class="val">${v == null ? "—" : M.fmt(v)}<small>${M.sub(h)}</small></div></div>`;
+    }).join("");
+  });
+  $("racenote").textContent = M.note;
+  $("racebox").querySelectorAll(".rr").forEach(r => {
+    r.onmouseenter = () => focus(r.dataset.id); r.onmouseleave = () => focus(null);
+  });
+}
+
+/* ---------------- adoption lines (log scale) ---------------- */
+function drawLines() {
+  const svg = $("lines");
+  const W = Math.max(360, svg.clientWidth || 1000), narrow = W < 600, H = narrow ? 300 : 380;
+  const PL = 54, PR = narrow ? 92 : 150, PT = 14, PB = 26;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+  const hs = visible().filter(h => h.weekly.length > 3);
+  if (!hs.length) { svg.innerHTML = `<text class="axl" x="10" y="30">No downloadable harnesses match these filters.</text>`; return; }
+  const all = hs.flatMap(h => h.weekly);
+  const t0 = Math.min(...all.map(p => Date.parse(p[0]))), t1 = Math.max(...all.map(p => Date.parse(p[0])));
+  const lo = Math.max(100, Math.min(...all.map(p => p[1]).filter(v => v > 0))), hi = Math.max(...all.map(p => p[1]));
+  const L0 = Math.floor(Math.log10(lo)), L1 = Math.ceil(Math.log10(hi));
+  const x = t => PL + (t - t0) / Math.max(1, t1 - t0) * (W - PL - PR);
+  const y = v => PT + (H - PT - PB) * (1 - (Math.log10(Math.max(v, 10 ** L0)) - L0) / (L1 - L0));
+  let g = "";
+  for (let e = L0; e <= L1; e++) {
+    g += `<line class="ax" x1="${PL}" x2="${W - PR}" y1="${y(10 ** e)}" y2="${y(10 ** e)}" opacity=".22"/><text class="axl" x="${PL - 6}" y="${y(10 ** e) + 4}" text-anchor="end">${fmt.num(10 ** e)}</text>`;
+  }
+  for (let yy = new Date(t0).getUTCFullYear(); yy <= new Date(t1).getUTCFullYear(); yy++) for (const m of [0, 3, 6, 9]) {
+    const t = Date.UTC(yy, m, 1); if (t < t0 || t > t1) continue;
+    g += `<text class="axl" x="${x(t)}" y="${H - 7}" text-anchor="middle">${new Date(t).toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })} ’${String(yy).slice(2)}</text>`;
+  }
+  const ranked = hs.slice().sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
+  const topIds = new Set(ranked.slice(0, narrow ? 4 : 7).map(h => h.id));
+  const labels = [];
+  let hits = "";
+  ranked.slice().reverse().forEach(h => {
+    const pts = h.weekly.filter(p => p[1] > 0);
+    const d = pts.map((p, i) => `${i ? "L" : "M"}${x(Date.parse(p[0])).toFixed(1)} ${y(p[1]).toFixed(1)}`).join("");
+    g += `<path class="ln${topIds.has(h.id) ? " top" : ""}" data-id="${h.id}" style="--lc:${colorOf(h)}" d="${d}"/>`;
+    hits += `<path class="hit" data-hid="${h.id}" d="${d}"/>`;   /* a wide invisible stroke: a 2px line is too thin to hover */
+    if (topIds.has(h.id)) labels.push({ id: h.id, y: y(pts[pts.length - 1][1]), name: h.name, v: pts[pts.length - 1][1], c: colorOf(h) });
+  });
+  labels.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 14) labels[i].y = labels[i - 1].y + 14;
+  labels.forEach(l => { g += `<text class="endlab" data-id="${l.id}" x="${W - PR + 8}" y="${l.y + 4}" style="fill:${l.c}">${esc(narrow ? l.name.split(" ")[0] : l.name)} <tspan style="fill:var(--ink)">${fmt.num(l.v)}</tspan></text>`; });
+  svg.innerHTML = g + hits;
+  svg.querySelectorAll(".hit").forEach(p => {
+    p.onmouseenter = ev => { focus(p.dataset.hid); const h = DATA.harnesses.find(q => q.id === p.dataset.hid);
+      tip(`<span class="t">${esc(h.vendor)}</span><b>${esc(h.name)}</b><br>${fmt.num(h.downloads)} downloads last week${h.growth != null ? ` · ${fmt.pct(h.growth)} in 12 weeks` : ""}`, ev); };
+    p.onmousemove = ev => p.onmouseenter(ev);
+    p.onmouseleave = () => { focus(null); tip(null); };
+  });
+}
+function focus(id) {
+  S.focus = id;
+  const svg = $("lines");
+  svg.classList.toggle("focusing", !!id);
+  svg.querySelectorAll("[data-id]").forEach(el => el.classList.toggle("focus", el.dataset.id === id));
+  $("racebox").querySelectorAll(".rr").forEach(r => r.classList.toggle("hot", r.dataset.id === id));
+}
+
+/* ---------------- harness x model ---------------- */
+function drawBench() {
+  const svg = $("benchsvg"), rows = DATA.tbench.rows;
+  $("benchsub").innerHTML = `${esc(DATA.tbench.title)}, updated ${DATA.tbench.updated ? fmt.day(DATA.tbench.updated) : "recently"}: ${rows.length} harness-and-model pairs on the same terminal tasks.`;
+  const W = Math.max(560, svg.clientWidth || 1000);
+  const labCol = r => r.lab ? `var(--lab-${r.lab})` : "var(--faint)";
+  const tipOf = r => `<span class="t">rank ${r.rank}${r.date ? " · " + fmt.day(r.date) : ""}</span><b>${esc(r.agent)}</b> + <b>${esc(r.model)}</b>${r.effort ? ` (${esc(r.effort)})` : ""}<br>${r.accuracy.toFixed(1)}% ± ${(r.ci || 0).toFixed(1)}${r.cost ? ` · $${Math.round(r.cost).toLocaleString("en-US")} for the run` : ""}`;
+  let g = "";
+  if (S.bview === "dots") {
+    const agents = [...new Set(rows.map(r => r.agent))].sort((a, b) =>
+      Math.max(...rows.filter(r => r.agent === b).map(r => r.accuracy)) - Math.max(...rows.filter(r => r.agent === a).map(r => r.accuracy)));
+    const RH = 26, PL = Math.min(190, W * .3), PR = 20, PT = 22, H = PT + agents.length * RH + 24;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+    const max = Math.ceil(Math.max(...rows.map(r => r.accuracy + (r.ci || 0))) / 10) * 10;
+    const x = v => PL + v / max * (W - PL - PR);
+    for (let v = 0; v <= max; v += 10) g += `<line class="ax" x1="${x(v)}" x2="${x(v)}" y1="${PT - 6}" y2="${H - 22}" opacity=".18"/><text class="axl" x="${x(v)}" y="${H - 6}" text-anchor="middle">${v}%</text>`;
+    agents.forEach((a, i) => {
+      const cy = PT + i * RH + RH / 2;
+      g += `<text x="${PL - 10}" y="${cy + 4}" text-anchor="end" style="fill:var(--ink);font:600 12.5px var(--sans)">${esc(a)}</text>`;
+      g += `<line class="ax" x1="${PL}" x2="${W - PR}" y1="${cy}" y2="${cy}" opacity=".12"/>`;
+      rows.filter(r => r.agent === a).forEach(r => {
+        g += `<line class="ci" x1="${x(Math.max(0, r.accuracy - (r.ci || 0)))}" x2="${x(r.accuracy + (r.ci || 0))}" y1="${cy}" y2="${cy}" style="stroke:${labCol(r)}"/>`;
+        g += `<circle class="dot" data-r="${rows.indexOf(r)}" cx="${x(r.accuracy)}" cy="${cy}" r="6" style="fill:${labCol(r)}"/>`;
+      });
+    });
+  } else {
+    const pts = rows.filter(r => r.cost > 0);
+    const H = 400, PL = 52, PR = 24, PT = 16, PB = 34;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+    const c0 = Math.floor(Math.log10(Math.min(...pts.map(r => r.cost)))), c1 = Math.ceil(Math.log10(Math.max(...pts.map(r => r.cost))));
+    const max = Math.ceil(Math.max(...pts.map(r => r.accuracy)) / 10) * 10;
+    const x = c => PL + (Math.log10(c) - c0) / (c1 - c0) * (W - PL - PR), y = v => PT + (1 - v / max) * (H - PT - PB);
+    for (let e = c0; e <= c1; e++) g += `<line class="ax" x1="${x(10 ** e)}" x2="${x(10 ** e)}" y1="${PT}" y2="${H - PB}" opacity=".18"/><text class="axl" x="${x(10 ** e)}" y="${H - 14}" text-anchor="middle">$${fmt.num(10 ** e)}</text>`;
+    for (let v = 0; v <= max; v += 10) g += `<line class="ax" x1="${PL}" x2="${W - PR}" y1="${y(v)}" y2="${y(v)}" opacity=".18"/><text class="axl" x="${PL - 6}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`;
+    g += `<text class="axl" x="${W - PR}" y="${H - 1}" text-anchor="end">cost of the full benchmark run (log scale) →</text>`;
+    /* the efficient frontier: no other run is both cheaper and better */
+    const front = pts.slice().sort((a, b) => a.cost - b.cost).reduce((f, r) => (!f.length || r.accuracy > f[f.length - 1].accuracy) ? f.concat([r]) : f, []);
+    g += `<path d="${front.map((r, i) => `${i ? "L" : "M"}${x(r.cost).toFixed(1)} ${y(r.accuracy).toFixed(1)}`).join("")}" fill="none" style="stroke:var(--ink)" stroke-dasharray="4 4" opacity=".5"/>`;
+    pts.forEach(r => { g += `<circle class="dot" data-r="${rows.indexOf(r)}" cx="${x(r.cost)}" cy="${y(r.accuracy)}" r="6" style="fill:${labCol(r)}"/>`; });
+    front.slice(-4).forEach(r => { const right = x(r.cost) > W * .7;
+      g += `<text class="axl" x="${x(r.cost) + (right ? -9 : 9)}" y="${y(r.accuracy) + (right ? -9 : 4)}" text-anchor="${right ? "end" : "start"}" style="fill:var(--dim)">${esc(r.agent)} · ${esc(r.model)}</text>`; });
+  }
+  svg.innerHTML = g;
+  svg.querySelectorAll(".dot").forEach(c => {
+    const r = rows[+c.dataset.r];
+    c.onmousemove = ev => tip(tipOf(r), ev); c.onmouseleave = () => tip(null);
+  });
+  const labsUsed = [...new Set(rows.map(r => r.lab))];
+  $("benchleg").innerHTML = "<span>colour = the lab that made the model:</span>" + labsUsed.map(l => l
+    ? `<span><i style="background:var(--lab-${l})"></i>${esc(DATA.labs[l] ? DATA.labs[l].short : l)}</span>` : `<span><i style="background:var(--faint)"></i>other</span>`).join("");
+}
+
+/* ---------------- release rhythm ---------------- */
+function drawRhythm() {
+  const svg = $("rhythmsvg");
+  const t1 = Date.parse(DATA.as_of), t0 = t1 - 180 * 864e5;
+  const hs = visible().filter(h => h.repo).map(h => ({ h, rel: h.releases.filter(d => Date.parse(d) >= t0) }))
+    .sort((a, b) => b.rel.length - a.rel.length);
+  const W = Math.max(560, svg.clientWidth || 1000), RH = 22, PL = Math.min(180, W * .28), PR = 60, PT = 10, H = PT + hs.length * RH + 26;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+  const x = t => PL + (t - t0) / (t1 - t0) * (W - PL - PR);
+  let g = "";
+  for (let k = 0; k <= 6; k++) { const t = t0 + k * 30 * 864e5; g += `<line class="ax" x1="${x(t)}" x2="${x(t)}" y1="${PT}" y2="${H - 22}" opacity=".12"/><text class="axl" x="${x(t)}" y="${H - 6}" text-anchor="middle">${new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })}</text>`; }
+  hs.forEach(({ h, rel }, i) => {
+    const cy = PT + i * RH + RH / 2;
+    g += `<text x="${PL - 10}" y="${cy + 4}" text-anchor="end" style="fill:${h.status === "active" ? "var(--ink)" : "var(--faint)"};font:600 12.5px var(--sans)">${esc(h.name)}</text>`;
+    rel.forEach(d => { const xx = x(Date.parse(d)); g += `<line class="tick" x1="${xx}" x2="${xx}" y1="${cy - 7}" y2="${cy + 7}" style="stroke:${colorOf(h)}"><title>${esc(h.name)} · ${fmt.day(d)}</title></line>`; });
+    g += `<text class="axl" x="${W - PR + 10}" y="${cy + 4}">${rel.length || (h.status === "active" ? "0" : h.status)}</text>`;
+  });
+  svg.innerHTML = g;
+}
+
+/* ---------------- directory ---------------- */
+function drawDir() {
+  const hs = visible().slice().sort((a, b) => (b.downloads || 0) - (a.downloads || 0) || a.name.localeCompare(b.name));
+  $("dir").innerHTML = `<thead><tr><th>Harness</th><th class="hide-m">Since</th><th>Source</th><th class="n">Downloads/wk</th><th class="n hide-m">Stars</th>
+    <th class="n hide-m">Last release</th><th class="hide-m">Pricing</th></tr></thead><tbody>` + hs.map(h => `<tr>
+      <td><b>${esc(h.name)}</b>${h.status !== "active" ? `<span class="badge">${h.status}</span>` : ""}<small>${esc(h.vendor)}${h.notes ? " · " + esc(h.notes) : ""}</small></td>
+      <td class="hide-m">${fmt.day(h.launch)}</td><td>${h.open ? "open" : "closed"}${h.license ? `<small>${esc(h.license)}</small>` : ""}</td>
+      <td class="n">${h.downloads ? fmt.num(h.downloads) : "—"}</td><td class="n hide-m">${h.stars ? fmt.num(h.stars) : "—"}</td>
+      <td class="n hide-m">${h.last_release ? fmt.day(h.last_release) : "—"}</td><td class="hide-m"><small>${esc(h.pricing)}</small></td></tr>`).join("") + "</tbody>";
+}
+
+function drawAll() { drawRace(); drawLines(); drawRhythm(); drawDir(); }
+function seg(id, key, after) {
+  $(id).querySelectorAll("button").forEach(b => b.onclick = () => {
+    S[key] = b.dataset.v || b.dataset.m;
+    $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    after();
+  });
+}
+seg("fkind", "kind", drawAll); seg("fopen", "open", drawAll); seg("factive", "active", drawAll);
+seg("metric", "metric", drawRace); seg("rscale", "scale", drawRace); seg("bview", "bview", drawBench);
+(function () {
+  const sp = DATA.harnesses.filter(h => h.spikes && h.spikes.length);
+  if (sp.length) $("spikenote").textContent = " Left out as anomalies (a week over 4× the weeks around it, typically a mirror or a bot): "
+    + sp.map(h => `${h.name} ${h.spikes.map(fmt.day).join(", ")}`).join("; ") + ".";
+})();
+$("fetched").textContent = DATA.fetched ? `Last collected ${fmt.day(DATA.fetched)}.` : "";
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { drawLines(); drawBench(); drawRhythm(); }, 150); });
+drawAll(); drawBench();
+</script>
+</body>
+</html>

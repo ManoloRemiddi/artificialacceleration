@@ -512,6 +512,44 @@
   }
 
   /* ---- dock: appears once the masthead has left, and carries the section map ---- */
+
+  /* ---------- the three pillars ---------- */
+  :root{--p-models:#10a37f;--p-hardware:#f2a93b;--p-harnesses:#9b8cff}
+  [data-theme="light"]{--p-models:#0b7d61;--p-hardware:#a86400;--p-harnesses:#5b4bd6}
+  .pnav{display:flex;gap:4px;margin:0 0 8px}
+  .pnav a{font-size:12.5px;text-decoration:none;color:var(--dim);padding:4px 12px;border-radius:999px;border:1px solid var(--line)}
+  .pnav a:hover{color:var(--ink);border-color:var(--faint)}
+  .pnav a[aria-current="page"]{color:var(--bg);background:var(--ink);border-color:var(--ink)}
+  .pillarsec{margin:0 0 14px}
+  .pframe{margin:0 0 8px;font-size:14px;color:var(--dim)} .pframe b{color:var(--ink)}
+  .pcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  @media (max-width:900px){ .pcards{grid-template-columns:1fr} }
+  .pcard{--pc:var(--p-models);display:grid;grid-template-columns:1fr auto;grid-template-areas:"k k" "v s" "l s" "c c";gap:2px 14px;
+    text-decoration:none;color:inherit;padding:12px 14px 10px;border-radius:12px;border:1px solid var(--line);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--pc) 9%,var(--panel)),var(--panel2));position:relative;overflow:hidden;
+    transition:border-color .2s,transform .2s}
+  .pcard::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--pc)}
+  .pcard:hover{border-color:var(--pc);transform:translateY(-1px)}
+  .pcard.p-hardware{--pc:var(--p-hardware)} .pcard.p-harnesses{--pc:var(--p-harnesses)}
+  .pcard .pk{grid-area:k;font:600 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--pc)}
+  .pcard .pk .pn{color:var(--faint);margin-right:8px}
+  .pcard .pv{grid-area:v;font-size:13px;color:var(--dim)} .pcard .pv b{font-size:28px;color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .pcard .pl{grid-area:l;font-size:13px;color:var(--dim);line-height:1.45} .pcard .pl b{color:var(--ink)}
+  .pcard .pl .up{color:var(--alert)} .pcard .pl .down{color:#34d399}
+  .pcard .ps{grid-area:s;align-self:center;text-align:right;color:var(--pc)} .pcard .ps small{display:block;font:10px var(--mono);color:var(--faint);max-width:150px}
+  .pcard .spk .l{fill:none;stroke:var(--pc);stroke-width:1.8;stroke-linejoin:round} .pcard .spk .a{fill:var(--pc);opacity:.12} .pcard .spk .d{fill:var(--pc)}
+  .pcard .pc{grid-area:c;margin-top:6px;font-size:12.5px;font-weight:700;color:var(--ink)}
+  .p-harnesses .pl .up{color:#34d399}
+  /* ---------- harness section ---------- */
+  .hzgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px} @media (max-width:900px){ .hzgrid{grid-template-columns:1fr} }
+  .hb{display:grid;grid-template-columns:150px 1fr 118px;gap:10px;align-items:center;padding:3px 0}
+  .hb .hn{font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hb .hn small,.hb .hv small{display:block;font-weight:400;font-size:11.5px;color:var(--faint)}
+  .hb .ht{height:12px;border-radius:6px;background:var(--line2);position:relative}
+  .hb .ht i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+  .hb .hv{text-align:right;font:700 13px var(--mono);font-variant-numeric:tabular-nums}
+  .hb .hv small.up{color:#34d399} .hb .hv small.down{color:var(--alert)}
+  .hz .hwmore a{border-bottom-color:var(--p-harnesses)}
   .dock{position:fixed;top:0;left:0;right:0;z-index:220;height:46px;
         display:flex;align-items:center;gap:16px;padding:0 22px;
         background:color-mix(in srgb,var(--bg) 78%,transparent);
@@ -643,15 +681,18 @@
 <div class="wrap">
   <div class="stale" id="stale" role="status" hidden></div>
 
+  <nav class="pnav" aria-label="Pillars">
+    <a class="p" href="./" aria-current="page">Models</a><a class="p" href="hardware/">Hardware</a><a class="p" href="harnesses/">Harnesses</a>
+  </nav>
   <header>
    <div class="headrow">
     <div class="headtext">
-    <div class="eyebrow">Release-cadence &amp; capability audit · data as of <span class="asof">24 Sep 2026</span></div>
-    <h1>Artificial Acceleration<br><span class="thin">Nine labs. <span id="tlwin">Four years</span>. Every release, dated.</span></h1>
+    <div class="eyebrow">Models · hardware · harnesses · data as of <span class="asof">24 Sep 2026</span></div>
+    <h1>Artificial Acceleration<br><span class="thin">How fast AI is moving: the models, the machines, the agents.</span></h1>
     <p class="lede">
-      Every frontier lab published calls to pace or throttle AI development in 2026 — while shipping faster than ever.
-      Below: back to 2022 by default, with all nine labs visible at once, then the same window measured two ways —
-      <b>how many models shipped</b>, and <b>how much smarter they got</b>.
+      Every frontier lab published calls to pace or throttle AI development in 2026, while shipping faster than ever.
+      Nine labs over <span id="tlwin">four years</span>, every release dated, measured two ways:
+      <b>how many models shipped</b>, and <b>how much smarter they got</b>. Then what it costs to run them, and the agents that put them to work.
     </p>
     </div>
     <div class="headright">
@@ -666,6 +707,7 @@
     </div>
    </div>
   </header>
+  <!--__PILLARS__-->
   <div class="since" id="since" hidden></div>
 
   <!-- ================= CONTROLS ================= -->
@@ -944,7 +986,7 @@ function markHTML(id) {
     /* the section map is read off the page, so it cannot drift from the content */
     const targets = [
       ["#tlpanel", "01 Timeline"], ["#chartpanel", "02 Charts"], ["#due", "03 Who\u2019s due"],
-      ["#hardware", "04 Hardware"], ["#streams", "05 Lab by lab"], ["#evidence", "06 The words"],
+      ["#hardware", "04 Hardware"], ["#harnesses", "05 Harnesses"], ["#streams", "06 Lab by lab"], ["#evidence", "07 The words"],
     ].map(([sel, label]) => {
       const el = document.querySelector(sel);
       if (!el) return null;

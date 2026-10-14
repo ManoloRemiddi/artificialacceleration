@@ -13,7 +13,7 @@ from datetime import date
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "fx.json"
-CURRENCIES = ["EUR", "GBP", "CNY", "JPY", "INR", "KRW"]
+CURRENCIES = ["EUR", "GBP", "CNY", "JPY", "INR", "KRW", "AUD", "BRL", "SGD", "SEK"]   # AED is pegged: see hwdata
 START = "2020-01-01"
 
 
