@@ -1,0 +1,389 @@
+{
+ "_about": "Where the monthly price agent looks first, per product and market: price-monitoring sites and official stores that allow automated access (robots.txt) and show prices in the page itself. The agent fetches these directly; it searches only when a product has no working page, restricted to the sites listed for that market, and adds any page that yields a verified price, so the registry grows. Sites that forbid automated access are never used, whatever a search returns. Not used because their robots.txt forbids automated access: geizhals, idealo, ComputerBase, PriceSpy, bestvaluegpu.",
+ "sites": {
+  "gpuprix": {
+   "name": "GPUPrix",
+   "url": "https://gpuprix.com",
+   "markets": [
+    "US",
+    "EU",
+    "UK",
+    "JP"
+   ],
+   "covers": "graphics cards (NVIDIA, AMD, Intel), cheapest new listing across retailers, per country"
+  },
+  "kakaku": {
+   "name": "Kakaku.com",
+   "url": "https://kakaku.com",
+   "markets": [
+    "JP"
+   ],
+   "covers": "Japan's main price comparison: GPUs, mini PCs, Macs, DGX Spark"
+  },
+  "zol": {
+   "name": "ZOL (JD.com prices)",
+   "url": "https://www.zol.com.cn",
+   "markets": [
+    "CN"
+   ],
+   "covers": "China retail listings"
+  },
+  "nvidia-cn": {
+   "name": "NVIDIA China",
+   "url": "https://www.nvidia.cn",
+   "markets": [
+    "CN"
+   ],
+   "covers": "official China prices for GeForce cards"
+  },
+  "framework": {
+   "name": "Framework store",
+   "url": "https://frame.work",
+   "markets": [
+    "EU",
+    "UK"
+   ],
+   "covers": "official Framework Desktop prices; the page only shows the starting configuration in its HTML, so it is used for the 192 GB Gorgon Halo model (whose starting configuration it is), not the 128 GB one; the US page follows the visitor's location and is not used"
+  },
+  "amcompute": {
+   "name": "AMCompute appraisals",
+   "url": "https://www.amcompute.com",
+   "markets": [
+    "US"
+   ],
+   "covers": "datacenter GPU and server prices, new and used"
+  },
+  "smm": {
+   "name": "SMM computing power",
+   "url": "https://news.metal.com",
+   "markets": [
+    "CN"
+   ],
+   "covers": "China datacenter chip and server rental quotes (news items, found by search)"
+  },
+  "videocardprices": {
+   "name": "VideoCardPrices",
+   "url": "https://videocardprices.com",
+   "markets": [
+    "US"
+   ],
+   "covers": "US graphics-card price history (cheapest new)"
+  },
+  "scan": {
+   "name": "Scan",
+   "url": "https://www.scan.co.uk",
+   "markets": [
+    "UK"
+   ],
+   "covers": "major UK retailer: cheapest card in each GPU category"
+  },
+  "everymac": {
+   "name": "EveryMac",
+   "url": "https://everymac.com",
+   "markets": [
+    "US",
+    "EU",
+    "UK",
+    "CN",
+    "JP"
+   ],
+   "covers": "Apple's official Mac prices in every country"
+  },
+  "intuitionlabs": {
+   "name": "IntuitionLabs GPU pricing guide",
+   "url": "https://intuitionlabs.ai",
+   "markets": [
+    "US"
+   ],
+   "covers": "datacenter GPU purchase prices, updated regularly"
+  }
+ },
+ "search_sites": {
+  "US": [
+   "gpuprix.com/us",
+   "videocardprices.com",
+   "amcompute.com"
+  ],
+  "EU": [
+   "gpuprix.com/germany",
+   "frame.work/de"
+  ],
+  "UK": [
+   "gpuprix.com/uk",
+   "scan.co.uk",
+   "frame.work/gb"
+  ],
+  "JP": [
+   "kakaku.com",
+   "gpuprix.com/japan"
+  ],
+  "CN": [
+   "zol.com.cn",
+   "nvidia.cn",
+   "news.metal.com"
+  ]
+ },
+ "products": {
+  "rtx-5090": {
+   "US": [
+    "https://gpuprix.com/us/gpus/geforce-rtx-5090",
+    "https://videocardprices.com/card/nvidia-rtx-5090/"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/geforce-rtx-5090"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/geforce-rtx-5090",
+    "https://www.scan.co.uk/shop/computer-hardware/gpu-nvidia-gaming/geforce-rtx-5090-graphics-cards"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/geforce-rtx-5090",
+    "https://kakaku.com/item/K0001679253/"
+   ],
+   "CN": [
+    "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5090-d/"
+   ]
+  },
+  "rtx-5080": {
+   "US": [
+    "https://gpuprix.com/us/gpus/geforce-rtx-5080",
+    "https://videocardprices.com/card/nvidia-rtx-5080/"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/geforce-rtx-5080"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/geforce-rtx-5080",
+    "https://www.scan.co.uk/shop/computer-hardware/gpu-nvidia-gaming/geforce-rtx-5080-graphics-cards"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/geforce-rtx-5080",
+    "https://kakaku.com/item/K0001673957/"
+   ],
+   "CN": [
+    "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5080/"
+   ]
+  },
+  "rtx-5070-ti": {
+   "US": [
+    "https://gpuprix.com/us/gpus/geforce-rtx-5070-ti",
+    "https://videocardprices.com/card/nvidia-rtx-5070-ti/"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/geforce-rtx-5070-ti"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/geforce-rtx-5070-ti",
+    "https://www.scan.co.uk/shop/computer-hardware/gpu-nvidia-gaming/geforce-rtx-5070-ti-graphics-cards"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/geforce-rtx-5070-ti"
+   ],
+   "CN": [
+    "https://www.nvidia.cn/geforce/graphics-cards/50-series/"
+   ]
+  },
+  "rtx-4090": {
+   "US": [
+    "https://gpuprix.com/us/gpus/geforce-rtx-4090"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/geforce-rtx-4090"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/geforce-rtx-4090"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/geforce-rtx-4090"
+   ]
+  },
+  "rtx-3090": {
+   "US": [
+    "https://gpuprix.com/us/gpus/geforce-rtx-3090"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/geforce-rtx-3090"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/geforce-rtx-3090"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/geforce-rtx-3090"
+   ]
+  },
+  "rtx-pro-6000": {
+   "US": [
+    "https://gpuprix.com/us/gpus/rtx-pro-6000-blackwell",
+    "https://videocardprices.com/card/nvidia-rtx-pro-6000-blackwell/"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/rtx-pro-6000-blackwell"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/rtx-pro-6000-blackwell"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/rtx-pro-6000-blackwell"
+   ]
+  },
+  "amd-radeon-ai-pro-r9700": {
+   "US": [
+    "https://gpuprix.com/us/gpus/radeon-ai-pro-r9700"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/radeon-ai-pro-r9700"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/radeon-ai-pro-r9700"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/radeon-ai-pro-r9700"
+   ]
+  },
+  "amd-rx-9070-xt": {
+   "US": [
+    "https://gpuprix.com/us/gpus/radeon-rx-9070-xt"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/radeon-rx-9070-xt"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/radeon-rx-9070-xt"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/radeon-rx-9070-xt"
+   ]
+  },
+  "arc-pro-b50": {
+   "US": [
+    "https://gpuprix.com/us/gpus/arc-pro-b50"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/arc-pro-b50"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/arc-pro-b50"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/arc-pro-b50"
+   ]
+  },
+  "arc-pro-b60": {
+   "US": [
+    "https://gpuprix.com/us/gpus/arc-pro-b60"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/arc-pro-b60"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/arc-pro-b60"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/arc-pro-b60"
+   ]
+  },
+  "arc-pro-b65": {
+   "US": [
+    "https://gpuprix.com/us/gpus/arc-pro-b65"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/arc-pro-b65"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/arc-pro-b65"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/arc-pro-b65"
+   ]
+  },
+  "arc-pro-b70": {
+   "US": [
+    "https://gpuprix.com/us/gpus/arc-pro-b70"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/arc-pro-b70"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/arc-pro-b70"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/arc-pro-b70"
+   ]
+  },
+  "arc-b580": {
+   "US": [
+    "https://gpuprix.com/us/gpus/arc-b580"
+   ],
+   "EU": [
+    "https://gpuprix.com/germany/gpus/arc-b580"
+   ],
+   "UK": [
+    "https://gpuprix.com/uk/gpus/arc-b580"
+   ],
+   "JP": [
+    "https://gpuprix.com/japan/gpus/arc-b580"
+   ]
+  },
+  "framework-desktop-495-192": {
+   "EU": [
+    "https://frame.work/de/en/products/desktop-diy-amd-aimax400/configuration/new"
+   ],
+   "UK": [
+    "https://frame.work/gb/en/products/desktop-diy-amd-aimax400/configuration/new"
+   ]
+  },
+  "mac-studio-m5-max-36": {
+   "US": [
+    "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-united-states.html"
+   ],
+   "EU": [
+    "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-germany.html"
+   ],
+   "UK": [
+    "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-united-kingdom.html"
+   ],
+   "JP": [
+    "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-japan.html"
+   ]
+  },
+  "mac-studio-m5-ultra-96": {
+   "US": [
+    "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-united-states.html"
+   ],
+   "EU": [
+    "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-germany.html"
+   ],
+   "UK": [
+    "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-united-kingdom.html"
+   ],
+   "JP": [
+    "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-japan.html"
+   ]
+  }
+ },
+ "accelerators": {
+  "h100": [
+   "https://www.amcompute.com/appraisals/h100",
+   "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+  ],
+  "h200": [
+   "https://www.amcompute.com/appraisals/h200",
+   "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+  ],
+  "b200": [
+   "https://www.amcompute.com/appraisals/b200",
+   "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+  ],
+  "b300": [
+   "https://www.amcompute.com/appraisals/b300",
+   "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+  ],
+  "gb300-nvl72": [
+   "https://www.amcompute.com/appraisals/gb300-nvl72",
+   "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+  ],
+  "gb200-nvl72": [
+   "https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide"
+  ]
+ }
+}

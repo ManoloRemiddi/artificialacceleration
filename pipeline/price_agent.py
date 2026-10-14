@@ -4,8 +4,13 @@ Monthly price re-check for build/hardware.json (v2), run by scripts/price_check_
 
 For every product in every market (US, Euro area, UK, China, Japan), and every datacenter
 part with a purchase estimate, it:
-  1. searches the web            (MiniMax Token Plan search, or a SearXNG instance)
-  2. fetches the candidate pages itself (skipping sites whose terms forbid scraping)
+  1. goes first to the price-monitoring pages registered for that product and market in
+     build/price_sources.json (gpuprix per country, kakaku for Japan, ZOL / nvidia.cn for
+     China, official stores, amcompute for datacenter parts); only if none of them yields a
+     verified price does it search, restricted to that market's monitor sites, and it
+     registers any new page that works, so next month goes straight there
+  2. fetches pages itself, honouring each site's robots.txt (sites that forbid automated
+     access are never fetched, whatever a search returns)
   3. asks a language model to read them and return the current price AND the exact
      sentence on the page that states it
   4. verifies in code: the quote must appear on the fetched page and contain the price;
@@ -31,13 +36,14 @@ Configuration (environment):
 
 Exit codes: 0 = ran (even if nothing changed), 1 = could not run (config, model or search down).
 """
-import html, json, os, re, sys, time, urllib.parse, urllib.request
+import html, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request, urllib.robotparser
 from datetime import date, datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 HW = ROOT / "build" / "hardware.json"
+SOURCES = ROOT / "build" / "price_sources.json"
 UA = "artificialacceleration.com price check (+https://artificialacceleration.com)"
 
 LLM_BASE = os.environ.get("LLM_BASE_URL", "https://api.minimax.io/v1").rstrip("/")
@@ -48,7 +54,7 @@ MM_HOST = os.environ.get("MINIMAX_API_HOST", "https://api.minimax.io").rstrip("/
 SEARXNG = os.environ.get("SEARXNG_URL", "http://127.0.0.1:8888").rstrip("/")
 REPORT = Path(os.environ.get("REPORT_PATH", ROOT / "price-report.md"))
 EXTRA = json.loads(os.environ.get("LLM_EXTRA_BODY") or "{}")
-ONLY = [x.strip().lower() for x in os.environ.get("PRICE_AGENT_ONLY", "").split(",") if x.strip()]
+ONLY = [x.strip().lower() for x in re.split(r"[|]" if "|" in os.environ.get("PRICE_AGENT_ONLY", "") else ",", os.environ.get("PRICE_AGENT_ONLY", "")) if x.strip()]
 
 # Sites whose terms forbid automated access. We never fetch them, whatever search returns.
 NO_FETCH = ("apple.com", "vast.ai", "runpod.io", "ebay.", "amazon.", "keepa.com", "camelcamelcamel.com",
@@ -73,7 +79,14 @@ def http(url, data=None, headers=None, timeout=40):
     req = urllib.request.Request(url, data=body, headers=h, method="POST" if body is not None else "GET")
     with urllib.request.urlopen(req, timeout=timeout) as r:
         raw = r.read(2_000_000)
-        return raw.decode(r.headers.get_content_charset() or "utf-8", "ignore")
+        cs = r.headers.get_content_charset()
+    if not cs:
+        m = re.search(rb'charset=["\']?([\w-]+)', raw[:4000])
+        cs = m.group(1).decode("ascii", "ignore") if m else "utf-8"
+    try:
+        return raw.decode(cs, "ignore")
+    except LookupError:
+        return raw.decode("utf-8", "ignore")
 
 
 # ------------------------------------------------------------------ search
@@ -123,15 +136,52 @@ def page_text(url):
     return re.sub(r"[ \t\r\f\v]+", " ", re.sub(r"\n\s*\n+", "\n", t)).strip()
 
 
+_ROBOTS = {}
+
+
+def robots_ok(url):
+    """Honour the site's robots.txt for our user agent. Unreadable robots.txt = allowed."""
+    u = urllib.parse.urlparse(url)
+    host = f"{u.scheme}://{u.netloc}"
+    if host not in _ROBOTS:
+        rp = urllib.robotparser.RobotFileParser()
+        try:                                     # RobotFileParser.read() has no timeout; fetch it ourselves
+            req = urllib.request.Request(host + "/robots.txt", headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=15) as r:
+                rp.parse(r.read(500_000).decode("utf-8", "ignore").splitlines())
+        except urllib.error.HTTPError as e:
+            rp = None if e.code in (404, 410) else rp
+            if rp is not None:
+                rp.disallow_all = e.code in (401, 403)
+        except Exception:
+            rp = None
+        _ROBOTS[host] = rp
+    rp = _ROBOTS[host]
+    return rp is None or rp.can_fetch(UA, url)
+
+
+def blocked(host):
+    """Whole-domain match: 'x.com' must block x.com and its subdomains, not gpuprix.com.
+    Entries ending in '.' ('ebay.', 'amazon.') match that name under any country domain."""
+    host = host.split(":")[0].lower()
+    for b in NO_FETCH:
+        if b.endswith("."):
+            if host.startswith(b) or ("." + b) in host:
+                return True
+        elif host == b or host.endswith("." + b):
+            return True
+    return False
+
+
 def allowed(url):
-    host = urllib.parse.urlparse(url).netloc.lower()
-    return url.startswith("http") and not any(b in host for b in NO_FETCH)
+    host = urllib.parse.urlparse(url).netloc
+    return url.startswith("http") and not blocked(host) and robots_ok(url)
 
 
 def excerpt(text, name):
     """The parts of a page that can hold a price for this item: lines with a $ amount,
     preferring those near the item's name. Keeps the model's input small and on topic."""
-    words = [w for w in re.split(r"\W+", name.lower()) if len(w) > 2]
+    words = [w for w in re.split(r"[^\w+]+", name.lower()) if len(w) > 2 or (len(w) > 1 and any(c.isdigit() for c in w))]
     lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
     scored = []
     for i, ln in enumerate(lines):
@@ -195,7 +245,11 @@ def numbers(text):
     return out
 
 
-def verify(ans, pages, keys):
+CURRENCY_MARKS = {"USD": ("$", "usd", "us$"), "EUR": ("€", "eur", "euro"), "GBP": ("£", "gbp"),
+                  "CNY": ("¥", "￥", "元", "cny", "rmb", "yuan"), "JPY": ("¥", "￥", "円", "jpy", "yen")}
+
+
+def verify(ans, pages, keys, currency=None):
     """The model's answer is accepted only if it can be checked against the page it cites."""
     src = ans.get("source")
     if src not in pages:
@@ -210,6 +264,8 @@ def verify(ans, pages, keys):
             continue
         if not any(abs(f - float(v)) <= max(1.0, 0.005 * float(v)) for f in found):
             return f"the quote does not contain {k} = {v}"
+    if currency and not any(m in quote for m in CURRENCY_MARKS.get(currency, ())):
+        return f"the quote does not show the price in {currency}"
     return None
 
 
@@ -239,7 +295,7 @@ def tasks(hw):
             have.add(missing[(date.today().month + n) % len(missing)])
         for reg, mk in ((r, MARKETS[r]) for r in regions if r in have):
             cur = hw["regions"][reg]["currency"]
-            yield {"kind": "product", "item": pr, "region": reg, "currency": cur, "name": f"{pr['name']} · {reg}",
+            yield {"kind": "product", "id": pr["id"], "item": pr, "region": reg, "currency": cur, "name": f"{pr['name']} · {reg}",
                    "search_name": pr["name"],
                    "queries": [f'{pr["name"]} {mk["words"]} {month}', f'{pr["name"]} {mk["words"]}'],
                    "want": ("amount",),
@@ -253,7 +309,8 @@ def tasks(hw):
             continue
         last = sorted(a["buy"], key=lambda b: b["date"])[-1]
         what = "one rack" if a["segment"] == "rack" else "ONE accelerator (not a server, not per-hour rental)"
-        yield {"kind": "accel", "item": a, "region": "-", "currency": last["currency"], "name": a["name"],
+        yield {"kind": "accel", "id": a["id"], "item": a, "region": "US" if a.get("country") != "CN" else "CN",
+               "currency": last["currency"], "name": a["name"],
                "search_name": a["name"],
                "queries": [f'{a["name"]} price {month}', f'{a["name"]} cost per unit'],
                "want": ("low", "high"),
@@ -279,25 +336,19 @@ def us_reference(t, rates):
     return us[-1]["amount"] * per if per else None
 
 
-def check(t, rates):
-    """Run one task. Returns a report row; appends a point to the item if verified."""
-    cands, seen = [], set()
-    last = last_point(t)
-    if last and last.get("src"):
-        cands.append(last["src"])
-    for q in t["queries"]:
-        try:
-            for _, url, _ in search(q):
-                if url and url not in seen:
-                    seen.add(url)
-                    cands.append(url)
-        except Exception as e:
-            log(f"  search failed for {q!r}: {e}")
+def registered(t, reg):
+    """Pages registered for this product (or accelerator) and market."""
+    if t["kind"] == "product":
+        return list(reg.get("products", {}).get(t["id"], {}).get(t["region"], []))
+    return list(reg.get("accelerators", {}).get(t["id"], []))
+
+
+def read_pages(t, urls):
     pages, blocks = {}, []
-    for url in cands:
+    for url in urls:
         if len(pages) >= MAX_PAGES:
             break
-        if not allowed(url) or url in pages:
+        if url in pages or not allowed(url):
             continue
         try:
             text = page_text(url)
@@ -305,38 +356,80 @@ def check(t, rates):
             log(f"  skip {url[:70]}: {type(e).__name__}")
             continue
         ex = excerpt(text, t["search_name"])
-        if not ex:
-            continue
-        pages[url] = text
-        blocks.append(f"### PAGE {len(blocks) + 1}\nURL: {url}\n{ex}")
-    was = (last.get("amount") if t["kind"] == "product" else last.get("low")) if last else None
-    row = {"name": t["name"], "region": t["region"], "currency": t["currency"], "was": was, "status": "no data",
-           "now": None, "source": None, "quote": None, "why": ""}
+        if ex:
+            pages[url] = text
+            blocks.append(f"### PAGE {len(blocks) + 1}\nURL: {url}\n{ex}")
+    return pages, blocks
+
+
+def judge(t, pages, blocks):
+    """Ask the model, verify the answer. Returns (ans, reason): reason None = verified."""
     if not blocks:
-        row["why"] = "no readable pages with prices"
-        return row
+        return None, "no readable pages with prices"
     prompt = (f"Find {t['ask']}\nToday is {date.today():%d %B %Y}. Use only these pages; prefer the most recent "
               f"and most specific one. If none states a current price for exactly this product and market, return nulls.\n\n"
               + "\n\n".join(blocks))
     try:
         ans = ask_model(prompt)
     except Exception as e:
-        row["why"] = f"model error: {e}"[:160]
-        return row
-    key = t["want"][0] if t["kind"] == "product" else "low"
+        return None, f"model error: {e}"[:160]
+    key = "amount" if t["kind"] == "product" else "low"
     if ans.get(key) in (None, "", 0):
-        row["why"] = "no current price found on the pages read"
-        return row
-    if t["kind"] == "accel" and ans.get("currency") and ans["currency"] != t["currency"]:
-        t["currency"] = ans["currency"]
-    bad = verify(ans, pages, [key])
-    if not bad and t["kind"] == "accel" and ans.get("high") is not None and verify(ans, pages, ["high"]):
+        return ans, "no current price found on the pages read"
+    cur = t["currency"]
+    if t["kind"] == "accel" and ans.get("currency") in ("USD", "CNY"):
+        cur = ans["currency"]
+    bad = verify(ans, pages, [key], cur)
+    if not bad and t["kind"] == "accel" and ans.get("high") is not None and verify(ans, pages, ["high"], cur):
         ans["high"] = None
-    new = float(ans[key])
-    row.update(now=new, source=ans.get("source"), quote=ans.get("quote"))
-    if bad:
-        row.update(status="rejected", why=bad)
+    ans["_currency"] = cur
+    return ans, bad
+
+
+def check(t, rates, reg):
+    """Run one task. Returns a report row; appends a point to the item if verified."""
+    last = last_point(t)
+    was = (last.get("amount") if t["kind"] == "product" else last.get("low")) if last else None
+    row = {"name": t["name"], "region": t["region"], "currency": t["currency"], "was": was, "status": "no data",
+           "now": None, "source": None, "quote": None, "why": "", "via": ""}
+    # stage 1: the registered monitor pages (plus the page the last price came from)
+    monitors = [urllib.parse.urlparse(x.get("url", "")).netloc.replace("www.", "") for x in reg.get("sites", {}).values()]
+    on_monitor = lambda u: any(urllib.parse.urlparse(u).netloc.replace("www.", "").endswith(m) for m in monitors if m)
+    # the page the last price came from is re-read only if it is a monitor page: re-reading an old
+    # news article would record a weeks-old price as today's observation
+    first = registered(t, reg) + ([last["src"]] if last and last.get("src") and on_monitor(last["src"]) else [])
+    pages, blocks = read_pages(t, first)
+    ans, why = judge(t, pages, blocks) if blocks else (None, "no registered page")
+    via = "registered page"
+    # stage 2: search, restricted to the monitor sites listed for this market
+    if why:
+        sites = reg.get("search_sites", {}).get(t["region"], [])
+        found = []
+        for site in sites[:3]:
+            dom = site.split("/")[0]
+            try:
+                # keep only results that really are on the site asked for: some engines ignore site:
+                found += [u for _, u, _ in search(f'site:{site} {t["search_name"]}')
+                          if u and urllib.parse.urlparse(u).netloc.replace("www.", "").endswith(dom)]
+            except Exception as e:
+                log(f"  search failed for site:{site}: {e}")
+        if not found and t["kind"] == "accel":          # datacenter prices come from news: open search, robots-checked
+            for q in t["queries"][:1]:
+                try:
+                    found += [u for _, u, _ in search(q) if u]
+                except Exception as e:
+                    log(f"  search failed for {q!r}: {e}")
+        p2, b2 = read_pages(t, [u for u in dict.fromkeys(found) if u not in pages])
+        if b2:
+            ans, why = judge(t, p2, b2)
+            via = "search"
+    if ans and ans.get("source"):
+        row.update(now=float(ans.get("amount") if t["kind"] == "product" else ans.get("low") or 0) or None,
+                   source=ans.get("source"), quote=ans.get("quote"), via=via)
+    if why:
+        row.update(status="rejected" if ans and ans.get("source") and "no current price" not in why else "no data", why=why)
         return row
+    new = row["now"]
     ref = was if was else (us_reference(t, rates) if t["kind"] == "product" else None)
     if ref:
         ratio = new / float(ref)
@@ -352,7 +445,17 @@ def check(t, rates):
                                     "src": ans["source"]})
     else:
         t["item"]["buy"].append({"date": today, "low": round(new), "high": round(float(ans.get("high") or new)),
-                                 "currency": t["currency"], "src": ans["source"]})
+                                 "currency": ans["_currency"], "src": ans["source"]})
+    # remember a page that worked, so next month goes straight there
+    src = ans["source"]
+    if via == "search" and robots_ok(src):
+        if t["kind"] == "product":
+            lst = reg.setdefault("products", {}).setdefault(t["id"], {}).setdefault(t["region"], [])
+        else:
+            lst = reg.setdefault("accelerators", {}).setdefault(t["id"], [])
+        if src not in lst:
+            lst.append(src)
+            row["why"] = "new page registered"
     row["status"] = "new market" if was is None else ("updated" if abs(new - float(was)) > 0.005 * float(was) else "confirmed")
     return row
 
@@ -383,7 +486,7 @@ def report(rows, checked):
            "| Item | Market | Last | Found | Status | Evidence |", "|---|---|---|---|---|---|"]
     order = list(icon)
     for r in sorted(rows, key=lambda r: (order.index(r["status"]), r["name"])):
-        ev = (f'[source]({r["source"]}): “{(r["quote"] or "")[:150]}”' if r["source"] else "") + (f" — {r['why']}" if r["why"] else "")
+        ev = (f'[{r.get("via") or "source"}]({r["source"]}): “{(r["quote"] or "")[:150]}”' if r["source"] else "") + (f" — {r['why']}" if r["why"] else "")
         out.append(f"| {r['name'].split(' · ')[0]} | {r['region']} | {money(r['was'], r['currency'])} | "
                    f"{money(r['now'], r['currency'])} | {icon[r['status']]} | {ev.replace('|', '/')} |")
     out.append("\nMerge to publish. Edit `build/hardware.json` in this branch first if anything looks wrong.")
@@ -398,6 +501,7 @@ def main():
     import hwdata                                   # exchange rates, for first-point sanity checks
     rates = hwdata.Rates()
     hw = json.loads(HW.read_text())
+    reg = json.loads(SOURCES.read_text()) if SOURCES.exists() else {}
     if hw.get("version") != 2:
         log("hardware.json is not version 2; refusing to guess its layout")
         return 1
@@ -411,7 +515,7 @@ def main():
         if ONLY and not any(o in t["name"].lower() for o in ONLY):
             continue
         log(f"{t['kind']}: {t['name']}")
-        rows.append(check(t, rates))
+        rows.append(check(t, rates, reg))
         log(f"  -> {rows[-1]['status']} {rows[-1]['why']}")
         time.sleep(1)
     good = [r for r in rows if r["status"] in ("updated", "confirmed", "new market")]
@@ -422,6 +526,7 @@ def main():
     if good:
         hw["checked"] = date.today().isoformat()
     HW.write_text(json.dumps(hw, indent=1, ensure_ascii=False) + "\n")
+    SOURCES.write_text(json.dumps(reg, indent=1, ensure_ascii=False) + "\n")
     REPORT.write_text(report(rows, date.today().isoformat()))
     log("done: " + ", ".join(f"{sum(r['status'] == k for r in rows)} {k}" for k in
                              ("updated", "new market", "confirmed", "held", "rejected", "no data")))

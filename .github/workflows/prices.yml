@@ -48,7 +48,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if git diff --quiet -- build/hardware.json; then
+          if git diff --quiet -- build/hardware.json build/price_sources.json; then
             echo "Agent ran but changed nothing (all items held, rejected or without data)."
             cat "$RUNNER_TEMP/price-report.md" >> "$GITHUB_STEP_SUMMARY"
             exit 0
@@ -57,7 +57,7 @@ jobs:
           git config user.name  "acceleration-bot"
           git config user.email "bot@users.noreply.github.com"
           git checkout -B "$branch"
-          git add build/hardware.json
+          git add build/hardware.json build/price_sources.json
           git commit -m "prices: monthly check $(date -u +%Y-%m-%d)"
           git push --force -u origin "$branch"
           if gh pr view "$branch" --json state -q .state 2>/dev/null | grep -q OPEN; then

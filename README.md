@@ -91,13 +91,21 @@ each month a systemd user timer on the maintainer's machine runs
 `scripts/price_check_local.sh`, which:
 
 1. clones the repo fresh into a temp dir (the working copy is never touched);
-2. runs `pipeline/price_agent.py`: web search, fetch the candidate pages (never sites whose
-   terms forbid it: Apple, Vast.ai, RunPod, eBay, Amazon…), and ask a model for the current
-   price **and the exact sentence that states it**;
-3. accepts an answer only if, in code, that sentence is on the cited page and contains the
-   number; moves beyond ±30% in a month are held for a human;
-4. opens a pull request from the maintainer's GitHub account with an evidence table.
-   Nothing is published until it is merged.
+2. runs `pipeline/price_agent.py`, which goes **first to the price-monitoring pages registered
+   in `build/price_sources.json`** for each product and market: gpuprix (US, Germany, UK,
+   Japan), VideoCardPrices (US), Scan (UK), kakaku (Japan), nvidia.cn and ZOL (China),
+   everymac (Apple's official prices in every country), the official Framework stores, and
+   AMCompute / IntuitionLabs for datacenter parts. Only when no registered page yields a
+   verified price does it search, restricted to that market's monitor sites, and any page
+   that works is added to the registry so next month goes straight there. Every fetch honours
+   the site's robots.txt: geizhals, idealo, ComputerBase, PriceSpy and bestvaluegpu forbid
+   automated access and are never used;
+3. asks a model for the current price **and the exact sentence that states it**, and accepts
+   it only if, in code, that sentence is on the cited page, contains the number and shows
+   the expected currency (a store that switches currency by visitor location cannot slip a
+   euro price in as dollars); moves beyond ±30% in a month are held for a human;
+4. opens a pull request from the maintainer's GitHub account with an evidence table (and any
+   newly registered pages). Nothing is published until it is merged.
 
 The model is MiniMax (`MiniMax-M3.1-Flash-Preview`, included in Token Plan / M Plan
 subscription keys, with MiniMax's web search). If MiniMax is unreachable it falls back to

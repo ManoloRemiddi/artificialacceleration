@@ -66,7 +66,7 @@ fi
 
 if [ -z "$ran" ]; then
   if curl -sf -m 5 "$LOCAL_LLM_URL/models" >/dev/null && curl -sf -m 5 "$SEARXNG_URL/" >/dev/null; then
-    git checkout -q -- build/hardware.json
+    git checkout -q -- build/hardware.json build/price_sources.json
     say "checking with the local model at $LOCAL_LLM_URL and SearXNG"
     if LLM_BASE_URL="$LOCAL_LLM_URL" LLM_API_KEY=local LLM_MODEL=local \
        SEARCH_BACKEND=searxng SEARXNG_URL="$SEARXNG_URL" \
@@ -80,7 +80,7 @@ if [ -z "$ran" ]; then
 fi
 [ -n "$ran" ] || fail "neither MiniMax nor the local model could run the check"
 
-if git diff --quiet -- build/hardware.json; then
+if git diff --quiet -- build/hardware.json build/price_sources.json; then
   notify "Price check done ($ran)" "No verified price changes this month."
   [ -f "$report" ] && cat "$report"
   exit 0
@@ -89,14 +89,14 @@ fi
 if [ -n "${DRY_RUN:-}" ]; then
   say "DRY_RUN: would push prices/$MONTH and open a pull request with this report:"
   cat "$report"
-  git --no-pager diff --stat -- build/hardware.json
+  git --no-pager diff --stat -- build/hardware.json build/price_sources.json
   exit 0
 fi
 
 branch="prices/$MONTH"
 git checkout -q -B "$branch"
 git -c user.name="acceleration-bot" -c user.email="bot@users.noreply.github.com" \
-  commit -q -m "prices: monthly check $(date +%F) ($ran)" -- build/hardware.json || fail "could not commit"
+  commit -q -m "prices: monthly check $(date +%F) ($ran)" -- build/hardware.json build/price_sources.json || fail "could not commit"
 gitgh push -q -f origin "$branch" || fail "could not push $branch"
 
 if gh pr view "$branch" --repo "$REPO" --json state -q .state 2>/dev/null | grep -q OPEN; then
