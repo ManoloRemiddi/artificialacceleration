@@ -77,9 +77,23 @@ def github(repo):
     if tok:
         h["Authorization"] = f"Bearer {tok}"
     info = json.loads(get(f"https://api.github.com/repos/{repo}", headers=h))
-    # some repos attach dozens of binaries to every release (Codex: ~0.3 MB of metadata each)
-    rel = json.loads(get(f"https://api.github.com/repos/{repo}/releases?per_page=100", headers=h,
-                         timeout=120, limit=120_000_000))
+    rel = None
+    if tok:
+        # GraphQL returns only the fields asked for; the REST list carries every attached
+        # binary (Codex: ~0.3 MB per release, over 100 MB per page), which can fail to arrive whole
+        owner, name = repo.split("/", 1)
+        q = ('query($o:String!,$n:String!){repository(owner:$o,name:$n){releases(first:100,'
+             'orderBy:{field:CREATED_AT,direction:DESC}){nodes{tagName publishedAt isPrerelease isDraft}}}}')
+        try:
+            d = json.loads(get("https://api.github.com/graphql", headers=h,
+                               data=json.dumps({"query": q, "variables": {"o": owner, "n": name}}).encode()))
+            rel = [{"tag_name": n["tagName"], "published_at": n["publishedAt"], "prerelease": n["isPrerelease"],
+                    "draft": n["isDraft"]} for n in d["data"]["repository"]["releases"]["nodes"]]
+        except Exception:
+            rel = None
+    if rel is None:
+        rel = json.loads(get(f"https://api.github.com/repos/{repo}/releases?per_page=100", headers=h,
+                             timeout=120, limit=120_000_000))
     stable = [r for r in rel if not r.get("prerelease") and not r.get("draft")]
     return {"stars": info.get("stargazers_count"), "created": (info.get("created_at") or "")[:10],
             "archived": bool(info.get("archived")), "license": (info.get("license") or {}).get("spdx_id"),

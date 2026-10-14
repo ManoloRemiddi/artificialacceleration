@@ -348,6 +348,24 @@
    "pricing": "Free, bring your own key",
    "kind": "coding",
    "notes": "Dormant: no release since Aug 2025."
+  },
+  {
+   "id": "deepseek-harness",
+   "name": "DeepSeek Harness",
+   "vendor": "DeepSeek",
+   "open_source": true,
+   "launch": "2026-08-13",
+   "repo": "deepseek-ai/deepseek-harness",
+   "npm": "@deepseek-ai/dsh",
+   "pypi": null,
+   "vscode": null,
+   "pricing": "Free, bring your own key",
+   "kind": "general",
+   "aka": [
+    "DeepSeek Harness",
+    "dsh"
+   ],
+   "notes": "Developer preview, \"everything is a plugin\"; ships pre-releases only, so the stable-release count shows none."
   }
  ]
 }

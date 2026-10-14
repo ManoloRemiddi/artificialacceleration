@@ -127,7 +127,7 @@ def section(as_of, num_label="05"):
     hs.sort(key=lambda h: -h["downloads"])
     top = hs[:8]
     mx = max(h["downloads"] for h in top) if top else 1
-    col = {"claude-code": "anthropic", "codex": "openai", "gemini-cli": "google", "qwen-code": "qwen", "kimi-code": "kimi"}
+    col = {"claude-code": "anthropic", "codex": "openai", "gemini-cli": "google", "qwen-code": "qwen", "kimi-code": "kimi", "deepseek-harness": "deepseek"}
     bars = "".join(
         '<div class="hb"><span class="hn">%s<small>%s</small></span><span class="ht"><i style="width:%.1f%%;background:%s"></i></span>'
         '<span class="hv">%s<small class="%s">%s</small></span></div>'

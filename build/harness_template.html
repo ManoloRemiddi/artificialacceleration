@@ -185,7 +185,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "
 const visible = () => DATA.harnesses.filter(h => (S.kind === "all" || h.kind === S.kind)
   && (S.open === "all" || (S.open === "open") === h.open) && (S.active === "all" || h.status === "active"));
 /* a stable colour per harness: by the lab that makes it, else a neutral */
-const HCOL = { "claude-code": "anthropic", "codex": "openai", "gemini-cli": "google", "grok-build": "xai", "qwen-code": "qwen", "kimi-code": "kimi" };
+const HCOL = { "claude-code": "anthropic", "codex": "openai", "gemini-cli": "google", "grok-build": "xai", "qwen-code": "qwen", "kimi-code": "kimi", "deepseek-harness": "deepseek" };
 const colorOf = h => HCOL[h.id] ? `var(--lab-${HCOL[h.id]})` : "var(--accent)";
 
 /* ---------------- KPIs ---------------- */
