@@ -106,6 +106,22 @@ jobs:
         id: delta
         run: echo "changed=${{ steps.commit.outputs.changed }}" >> "$GITHUB_OUTPUT"
 
+      # one living issue: licence changes, archived repos and harnesses we do not follow yet.
+      # It edits the issue body (no notification spam) and never changes the site.
+      - name: Update the harness watch issue (never fail the run)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          body=$(python3 pipeline/harness_watch.py) || { echo "::warning::harness watch failed"; exit 0; }
+          n=$(gh issue list --repo "${{ github.repository }}" --state open --search "in:title Harness watch" --json number -q '.[0].number')
+          if [ -z "$body" ]; then
+            [ -n "$n" ] && gh issue close "$n" --repo "${{ github.repository }}" --comment "Nothing to review." || true
+          elif [ -n "$n" ]; then
+            gh issue edit "$n" --repo "${{ github.repository }}" --body "$body" || true
+          else
+            gh issue create --repo "${{ github.repository }}" --title "Harness watch" --body "$body" || true
+          fi
+
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:

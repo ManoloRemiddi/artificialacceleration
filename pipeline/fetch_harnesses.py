@@ -8,6 +8,9 @@ GitHub rate limit when present):
   PyPI downloads     pypistats.org        daily downloads, summed per week
   GitHub             api.github.com       stars, licence, archived flag, release dates
   VS Code installs   marketplace API      cumulative installs (snapshotted, so deltas show)
+  Open VSX           open-vsx.org         cumulative downloads (the registry VSCodium and other forks use)
+  Docker Hub         hub.docker.com       cumulative image pulls (self-hosted apps such as AnythingLLM)
+  App downloads      api.github.com       download counts of release assets (desktop apps), per release
   OpenRouter         openrouter.ai/apps   tokens per app per day (traffic routed via OpenRouter)
   Terminal-Bench     tbench.ai            the current leaderboard: agent x model x score
 
@@ -115,6 +118,61 @@ def vscode(ids):
     return out
 
 
+def openvsx(ident):
+    ns, name = ident.split("/", 1)
+    return int(json.loads(get(f"https://open-vsx.org/api/{ns}/{name}")).get("downloadCount") or 0)
+
+
+def docker(repo):
+    return int(json.loads(get(f"https://hub.docker.com/v2/repositories/{repo}/")).get("pull_count") or 0)
+
+
+def release_downloads(repo):
+    """{tag: downloads summed over that release's assets} for the latest 30 releases. Kept per
+    release, so a week's downloads = the growth of the totals between two snapshots."""
+    tok = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    h = {"Accept": "application/vnd.github+json"}
+    if tok:
+        h["Authorization"] = f"Bearer {tok}"
+    if tok:
+        owner, name = repo.split("/", 1)
+        q = ('query($o:String!,$n:String!){repository(owner:$o,name:$n){releases(first:30,orderBy:{field:CREATED_AT,direction:DESC})'
+             '{nodes{tagName releaseAssets(first:100){nodes{downloadCount}}}}}}')
+        d = json.loads(get("https://api.github.com/graphql", headers=h,
+                           data=json.dumps({"query": q, "variables": {"o": owner, "n": name}}).encode()))
+        return {n["tagName"]: sum((a or {}).get("downloadCount") or 0 for a in n["releaseAssets"]["nodes"])
+                for n in d["data"]["repository"]["releases"]["nodes"] if n}
+    rel = json.loads(get(f"https://api.github.com/repos/{repo}/releases?per_page=30", headers=h,
+                         timeout=120, limit=120_000_000))
+    return {r["tag_name"]: sum(a.get("download_count", 0) for a in r.get("assets", [])) for r in rel}
+
+
+def snapshot(store, key, today, value):
+    s = store.setdefault(key, [])
+    if s and s[-1][0] == today:
+        s[-1] = [today, value]
+    else:
+        s.append([today, value])
+
+
+def github_candidates():
+    """Repositories tagged as agents with 5,000+ stars, created in the last two years: the
+    harness watch compares them with our list (new harnesses tend to appear here first)."""
+    tok = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    h = {"Accept": "application/vnd.github+json"}
+    if tok:
+        h["Authorization"] = f"Bearer {tok}"
+    since = (date.today() - timedelta(days=730)).isoformat()
+    seen = {}
+    for topic in ("coding-agent", "ai-agent", "agent-harness", "ai-coding"):
+        d = json.loads(get(f"https://api.github.com/search/repositories?q=topic:{topic}+stars:%3E5000+created:%3E{since}"
+                           f"&sort=stars&per_page=50", headers=h))
+        for r in d.get("items", []):
+            seen[r["full_name"]] = {"repo": r["full_name"], "stars": r["stargazers_count"],
+                                    "created": r["created_at"][:10], "description": r.get("description") or ""}
+    return sorted(seen.values(), key=lambda r: -r["stars"])
+
+
 def next_flight(html):
     """Next.js pages embed their data as self.__next_f.push([1,"..."]) string chunks."""
     parts = re.findall(r'self\.__next_f\.push\(\[1,"(.*?)"\]\)', html, re.S)
@@ -158,18 +216,20 @@ def main(force=False):
     st = dict(old)
     st.setdefault("npm", {}); st.setdefault("pypi", {}); st.setdefault("github", {}); st.setdefault("stars", {})
     st.setdefault("vscode", {}); st.setdefault("openrouter_history", {})
+    st.setdefault("openvsx", {}); st.setdefault("docker", {}); st.setdefault("app_downloads", {})
     ok = 0
     for h in hs:
-        if h.get("npm"):
+        names = lambda v: [v] if isinstance(v, str) else (v or [])      # a harness can have several package names
+        for pkg in names(h.get("npm")):
             try:
-                st["npm"][h["npm"]] = merge_weeks(st["npm"].get(h["npm"], []), npm(h["npm"])); ok += 1
+                st["npm"][pkg] = merge_weeks(st["npm"].get(pkg, []), npm(pkg)); ok += 1
             except Exception as e:
-                log(f"npm {h['npm']}: {type(e).__name__}")
-        if h.get("pypi"):
+                log(f"npm {pkg}: {type(e).__name__}")
+        for pkg in names(h.get("pypi")):
             try:
-                st["pypi"][h["pypi"]] = merge_weeks(st["pypi"].get(h["pypi"], []), pypi(h["pypi"])); ok += 1
+                st["pypi"][pkg] = merge_weeks(st["pypi"].get(pkg, []), pypi(pkg)); ok += 1
             except Exception as e:
-                log(f"pypi {h['pypi']}: {type(e).__name__}")
+                log(f"pypi {pkg}: {type(e).__name__}")
             time.sleep(1)
         if h.get("repo"):
             try:
@@ -179,6 +239,24 @@ def main(force=False):
                     s.append([today, g["stars"]])
             except Exception as e:
                 log(f"github {h['repo']}: {type(e).__name__} {getattr(e, 'code', '')}")
+        for key, fn, store in (("openvsx", openvsx, "openvsx"), ("docker", docker, "docker")):
+            if h.get(key):
+                try:
+                    snapshot(st[store], h[key], today, fn(h[key])); ok += 1
+                except Exception as e:
+                    log(f"{key} {h[key]}: {type(e).__name__}")
+        if h.get("app_downloads"):
+            try:
+                per = release_downloads(h["app_downloads"]); ok += 1
+                rec = st["app_downloads"].setdefault(h["app_downloads"], {"releases": {}, "history": []})
+                rec["releases"].update(per)                       # old releases keep their last count
+                tot = sum(rec["releases"].values())
+                if not rec["history"] or rec["history"][-1][0] != today:
+                    rec["history"].append([today, tot])
+                else:
+                    rec["history"][-1] = [today, tot]
+            except Exception as e:
+                log(f"app downloads {h['app_downloads']}: {type(e).__name__}")
     ids = [h["vscode"] for h in hs if h.get("vscode")]
     try:
         inst = vscode(ids)
@@ -191,6 +269,10 @@ def main(force=False):
         ok += 1
     except Exception as e:
         log(f"vscode: {type(e).__name__}")
+    try:
+        st["github_candidates"] = github_candidates(); ok += 1
+    except Exception as e:
+        log(f"github candidates: {type(e).__name__}")
     try:
         st["tbench"] = tbench(); ok += 1
     except Exception as e:

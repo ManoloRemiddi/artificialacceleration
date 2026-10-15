@@ -56,10 +56,13 @@ def payload(as_of):
     out = []
     for h in hs:
         weeks = {}
-        for src, pkg in (("npm", h.get("npm")), ("pypi", h.get("pypi"))):
-            for wk, n in st.get(src, {}).get(pkg or "", []):
-                if wk <= last_full:
-                    weeks[wk] = weeks.get(wk, 0) + n
+        names = lambda v: [v] if isinstance(v, str) else (v or [])
+        since = h.get("downloads_since") or ""          # e.g. the npm name "cline" was another package until Oct 2025
+        for src in ("npm", "pypi"):
+            for pkg in names(h.get(src)):
+                for wk, n in st.get(src, {}).get(pkg, []):
+                    if since <= wk <= last_full:
+                        weeks[wk] = weeks.get(wk, 0) + n
         series = sorted(weeks.items())
         bad = spikes(series)
         series = [(w, n) for w, n in series if w not in bad]
@@ -69,17 +72,34 @@ def payload(as_of):
         g = st.get("github", {}).get(h.get("repo") or "", {})
         rel = [d for d in g.get("releases", []) if d >= (as_of - timedelta(days=365)).isoformat()]
         last_rel = g.get("releases", [None])[-1] if g.get("releases") else None
-        status = "archived" if g.get("archived") else (
+        fstat = (h.get("facts") or {}).get("status") or ""
+        status = h.get("status") if h.get("status") in ("discontinued", "archived") else \
+            "discontinued" if fstat == "discontinued" else "archived" if g.get("archived") else (
             "dormant" if last_rel and last_rel < (as_of - timedelta(days=180)).isoformat() else "active")
         vs = st.get("vscode", {}).get(h.get("vscode") or "", [])
+        ovsx = st.get("openvsx", {}).get(h.get("openvsx") or "", [])
+        dock = st.get("docker", {}).get(h.get("docker") or "", [])
+        appd = (st.get("app_downloads", {}).get(h.get("app_downloads") or "", {}) or {}).get("history", [])
+        facts = h.get("facts") or {}
+        f = {"category": facts.get("category") or ("cli-agent" if h["kind"] == "coding" else "general-agent"),
+             "source": facts.get("source") or ("open-source" if h["open_source"] else "proprietary"),
+             "license": facts.get("license") or g.get("license") or (None if h["open_source"] else "Proprietary"),
+             "models": facts.get("models"), "local": facts.get("local_models"), "telemetry": facts.get("telemetry"),
+             "interfaces": facts.get("interfaces") or [], "checked": facts.get("checked"),
+             "sources": facts.get("sources") or {}, "verified": bool(facts)}
         orh = st.get("openrouter_history", {}).get(h["id"], [])
         out.append({
             "id": h["id"], "name": h["name"], "vendor": h["vendor"], "open": h["open_source"], "kind": h["kind"],
             "launch": h["launch"], "pricing": h["pricing"], "notes": h.get("notes", ""), "repo": h.get("repo"),
             "license": g.get("license"), "status": status,
             "weekly": series, "downloads": last, "growth": growth, "spikes": sorted(bad),
-            "dl_source": "npm" if h.get("npm") else ("PyPI" if h.get("pypi") else None),
-            "stars": g.get("stars"), "installs": vs[-1][1] if vs else None,
+            "dl_source": h.get("dl_note") or ("npm" if h.get("npm") else ("PyPI" if h.get("pypi") else None)),
+            "repo_note": h.get("repo_note"),
+            "stars": g.get("stars"),
+            "installs": ((vs[-1][1] if vs else 0) + (ovsx[-1][1] if ovsx else 0)) or None,
+            "inst_vscode": vs[-1][1] if vs else None, "inst_openvsx": ovsx[-1][1] if ovsx else None,
+            "selfhost": ((appd[-1][1] if appd else 0) + (dock[-1][1] if dock else 0)) or None,
+            "app_dl": appd[-1][1] if appd else None, "docker_pulls": dock[-1][1] if dock else None, "f": f,
             "or_tokens": orh[-1][1] if orh else None,
             "releases": rel, "r90": sum(1 for d in rel if d >= (as_of - timedelta(days=90)).isoformat()),
             "last_release": last_rel, "latest": g.get("latest"),
@@ -88,6 +108,7 @@ def payload(as_of):
     flat = lambda o: o.get("label") if isinstance(o, dict) else o
     rows = [dict(r, agent_org=flat(r.get("agent_org")), model_org=flat(r.get("model_org")),
                  lab=lab_for(r.get("model_org"), r.get("model"))) for r in tb.get("rows", []) if r.get("accuracy") is not None]
+    out = [h for h in out if (h["f"].get("category") != "not-a-harness")]
     return {"as_of": as_of.isoformat(), "fetched": st.get("fetched"), "week": last_full,
             "harnesses": out,
             "tbench": {"title": tb.get("title", "Terminal-Bench"), "updated": tb.get("updated"), "rows": rows},

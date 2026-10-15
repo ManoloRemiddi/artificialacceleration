@@ -1,0 +1,11 @@
+{
+ "_note": "Candidates the harness watch should stop raising because they are not harnesses (consumer apps, API gateways, frameworks, libraries). Reviewed 2026-10-15.",
+ "names": ["ISEKAI ZERO", "Hello Minds, powered by Ethoswarm", "Lemonade", "HighLevel", "ai-copilot-prod", "Descript",
+           "Nous Research API", "Aura.agent2.material_agent", "Aura.agent2.verification_observation_agent", "Janitor AI",
+           "LangChain", "Portkey AI", "Framer", "Craft", "BobAI agents", "GDevelop", "Digen AI",
+           "Mira is the leading AI agent inside Telegram", "SillyTavern", "claude-mem", "websim agent", "Ito", "Callex",
+           "extra.email", "GALC model trial", "VVV Easy", "Rayline", "Hello Haven", "mini-SWE-agent"],
+ "repos": ["Panniantong/Agent-Reach", "rtk-ai/rtk", "career-ops-hq/career-ops", "ZhuLinsen/daily_stock_analysis",
+           "hugohe3/ppt-master", "HKUDS/Vibe-Trading", "tirth8205/code-review-graph", "googleworkspace/cli",
+           "TencentCloud/TencentDB-Agent-Memory", "oraios/serena", "trycua/cua"]
+}

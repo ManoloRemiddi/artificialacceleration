@@ -85,6 +85,34 @@
   .n{text-align:right;white-space:nowrap}
   td small{display:block;color:var(--faint);font-size:12px}
   .scroll{overflow-x:auto}
+
+  /* facts: licence chips and icons (always with a text label or a tooltip, never colour alone) */
+  .lic{display:inline-block;font:600 10.5px var(--mono);padding:1px 6px;border-radius:5px;border:1px solid;white-space:nowrap;vertical-align:1px}
+  .lic.perm{color:var(--good);border-color:color-mix(in srgb,var(--good) 55%,transparent);background:color-mix(in srgb,var(--good) 10%,transparent)}
+  .lic.copy{color:#e0a43a;border-color:color-mix(in srgb,#e0a43a 55%,transparent);background:color-mix(in srgb,#e0a43a 10%,transparent)}
+  [data-theme="light"] .lic.copy{color:#8a5a00}
+  .lic.avail{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,transparent);background:color-mix(in srgb,var(--accent) 9%,transparent)}
+  .lic.prop{color:var(--faint);border-color:var(--line);background:var(--chipbg)}
+  .ico{display:inline-flex;align-items:center;gap:3px;color:var(--dim);margin-right:6px;vertical-align:-2px;font-size:12px;white-space:nowrap}
+  .ico svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .ico.yes{color:var(--good)} .ico.no{color:var(--faint)} .ico.warn{color:#e0a43a}
+  .rr .nm .lic{margin-left:6px;font-size:9.5px}
+  td.facts,td.d{white-space:nowrap}
+  .nt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+  .nt.open{display:block;-webkit-line-clamp:unset}
+  td .srcs a{font:10.5px var(--mono);color:var(--faint);margin-right:6px}
+  .unv{font:10px var(--mono);color:#e0a43a}
+  /* the landscape: 4 x 4 cells, bubbles move between them with FLIP */
+  .land{display:grid;grid-template-columns:92px repeat(4,minmax(0,1fr));grid-template-rows:auto;grid-auto-rows:minmax(84px,auto);gap:3px;font-size:12px}
+  .land .ax{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--faint);font:10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px}
+  .land .ylab{justify-content:flex-end;text-align:right}
+  .land .cell{background:var(--panel2);border-radius:8px;padding:6px;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:4px 8px}
+  .land .cell.free{background:color-mix(in srgb,var(--good) 7%,var(--panel2))}
+  .land .b{display:inline-flex;flex-direction:column;align-items:center;gap:1px;cursor:default;max-width:96px}
+  .land .b i{display:block;border-radius:50%;background:var(--c);opacity:.9;border:2px solid var(--panel)}
+  .land .b span{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:96px}
+  .land .b:hover span{color:var(--ink)}
+  @media (max-width:760px){ .land{grid-template-columns:56px repeat(4,minmax(0,1fr));font-size:11px} .land .b span{max-width:60px} }
   .vtip{position:fixed;left:0;top:0;z-index:100;pointer-events:none;opacity:0;transition:opacity 120ms;max-width:300px;
     background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:12.5px;color:var(--dim);box-shadow:0 10px 30px rgba(0,0,0,.35)}
   .vtip b{color:var(--ink)} .vtip .t{font:10.5px var(--mono);color:var(--faint);display:block;margin-bottom:2px}
@@ -112,23 +140,33 @@
   <div class="kpis" id="kpis"></div>
 
   <div class="bar" role="toolbar" aria-label="Filters">
-    <div class="grp"><span class="cap">Kind</span><div class="seg" id="fkind">
-      <button data-v="all" aria-pressed="true">All</button><button data-v="coding" aria-pressed="false">Coding agents</button><button data-v="general" aria-pressed="false">General agents</button></div></div>
-    <div class="grp"><span class="cap">Source</span><div class="seg" id="fopen">
-      <button data-v="all" aria-pressed="true">All</button><button data-v="open" aria-pressed="false">Open source</button><button data-v="closed" aria-pressed="false">Closed</button></div></div>
+    <div class="grp"><span class="cap">Type</span><div class="seg" id="fkind">
+      <button data-v="all" aria-pressed="true">All</button><button data-v="coding" aria-pressed="false">Coding agents</button><button data-v="general" aria-pressed="false">General agents</button><button data-v="local" aria-pressed="false">Local AI apps</button><button data-v="editor" aria-pressed="false">Editors</button></div></div>
+    <div class="grp"><span class="cap">Code</span><div class="seg" id="fopen">
+      <button data-v="all" aria-pressed="true">All</button><button data-v="open" aria-pressed="false">Open source</button><button data-v="partial" aria-pressed="false">Open-core / source-available</button><button data-v="closed" aria-pressed="false">Proprietary</button></div></div>
+    <div class="grp"><span class="cap">Models</span><div class="seg" id="fmodels">
+      <button data-v="all" aria-pressed="true">All</button><button data-v="any" aria-pressed="false">Any model</button><button data-v="own" aria-pressed="false">Own models</button><button data-v="local" aria-pressed="false">Runs local models</button></div></div>
     <div class="grp"><span class="cap">Show</span><div class="seg" id="factive">
       <button data-v="all" aria-pressed="true">All</button><button data-v="active" aria-pressed="false">Active only</button></div></div>
   </div>
 
+  <section id="landscape">
+    <h2>Who controls what: code and models</h2>
+    <p class="sub">Every harness placed by two freedoms: can you read and change its code (left to right), and can you choose the model inside it
+    (bottom to top)? Bubble size follows the measure picked in the race below. Filters re-arrange the map; hover a harness for its licence, pricing and sources.</p>
+    <div class="panel"><div class="land" id="land"></div><div class="legend" id="landleg"></div></div>
+  </section>
+
   <section id="race">
     <h2>Who is winning, by which measure</h2>
-    <p class="sub">The same harnesses ranked five ways. Switch the measure and watch them re-sort: popularity among developers (stars), real use
+    <p class="sub">The same harnesses ranked six ways. Switch the measure and watch them re-sort: popularity among developers (stars), real use
     (downloads, editor installs, tokens through OpenRouter) and how fast they ship are different races, with different leaders.</p>
     <div class="panel">
       <div class="row"><div class="seg" id="metric">
         <button data-m="downloads" aria-pressed="true">Weekly downloads</button>
         <button data-m="stars" aria-pressed="false">GitHub stars</button>
         <button data-m="installs" aria-pressed="false">Editor installs</button>
+        <button data-m="selfhost" aria-pressed="false">App &amp; Docker installs</button>
         <button data-m="or_tokens" aria-pressed="false">Tokens/day (OpenRouter)</button>
         <button data-m="r90" aria-pressed="false">Releases, 90 days</button>
       </div><div class="seg" id="rscale" title="Bar length scale">
@@ -167,7 +205,9 @@
   </section>
 
   <section id="directory">
-    <h2>Every harness we follow</h2>
+    <h2>Every harness we follow: the facts</h2>
+    <p class="sub">Licence from the project&rsquo;s own LICENSE file, everything else from its documentation, each fact linked to its source
+    and dated. <span id="iconkey"></span></p>
     <div class="panel scroll"><table id="dir"></table></div>
   </section>
 
@@ -180,10 +220,57 @@
 const DATA = __DATA__;
 const $ = id => document.getElementById(id);
 const { flip, tip, fmt, spark } = VIZ;
-const S = { scale: "lin", kind: "all", open: "all", active: "all", metric: "downloads", bview: "dots", focus: null };
+const S = { scale: "lin", kind: "all", open: "all", models: "all", active: "all", metric: "downloads", bview: "dots", focus: null };
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const visible = () => DATA.harnesses.filter(h => (S.kind === "all" || h.kind === S.kind)
-  && (S.open === "all" || (S.open === "open") === h.open) && (S.active === "all" || h.status === "active"));
+const CAT = { "cli-agent": ["coding", "Terminal agent"], "ide-extension": ["coding", "Editor extension"], "ide": ["coding", "AI editor"],
+  "cloud-agent": ["coding", "Cloud agent"], "general-agent": ["general", "General agent"], "local-ai-app": ["local", "Local AI app"],
+  "editor-host": ["editor", "Editor that hosts agents"] };
+const SRC = { "open-source": "Open source", "open-core": "Open-core", "source-available": "Source-available", "proprietary": "Proprietary" };
+const MOD = { any: "Any model", "own-plus": "Own models, a few others", curated: "Curated set of models", own: "Own models only" };
+const visible = () => DATA.harnesses.filter(h => {
+  const f = h.f, grp = (CAT[f.category] || ["coding"])[0];
+  return (S.kind === "all" || grp === S.kind)
+    && (S.open === "all" || (S.open === "open" ? f.source === "open-source" : S.open === "closed" ? f.source === "proprietary" : ["open-core", "source-available"].includes(f.source)))
+    && (S.models === "all" || (S.models === "any" ? f.models === "any" : S.models === "own" ? ["own", "own-plus", "curated"].includes(f.models) : f.local === true))
+    && (S.active === "all" || h.status === "active");
+});
+/* licence families: permissive, copyleft, source-available, proprietary */
+function licFam(l) {
+  if (!l) return null;
+  if (/^(MIT|Apache|BSD|ISC|0BSD|Unlicense|Zlib)/i.test(l)) return "perm";
+  if (/GPL|MPL|EUPL|LGPL|AGPL/i.test(l)) return "copy";
+  if (/Proprietary|UNLICENSED|All rights/i.test(l)) return "prop";
+  return "avail";
+}
+const FAMNAME = { perm: "permissive open-source licence", copy: "copyleft open-source licence: changes must be shared", avail: "source-available: code readable, use restricted", prop: "closed source" };
+const licChip = h => { const l = h.f.license; if (!l) return ""; const fam = licFam(l);
+  return `<span class="lic ${fam}" title="${esc(FAMNAME[fam])}">${esc(l.replace(/-only$|-or-later$/, ""))}</span>`; };
+const SVG = {
+  any: '<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M6 8.5v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2M12 12.5v3"/></svg>',
+  own: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  local: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',
+  eye: '<svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>',
+  eyeoff: '<svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.8M6.6 6.6C3.8 8.3 2 12 2 12s3.5 6 10 6c1.6 0 3-.3 4.3-.9"/></svg>',
+  cli: '<svg viewBox="0 0 24 24"><path d="M4 7l5 5-5 5M12 18h8"/></svg>',
+  ide: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>',
+  desktop: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6"/></svg>',
+  web: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+};
+const ICO_IF = { cli: ["cli", "terminal"], tui: ["cli", "terminal UI"], "ide-extension": ["ide", "editor extension"], ide: ["ide", "its own editor"],
+  desktop: ["desktop", "desktop app"], web: ["web", "web app"], api: ["web", "API"], "chat-apps": ["web", "chat apps"] };
+function modelIco(f) {
+  if (!f.models) return `<span class="ico no" title="model support not verified yet">?</span>`;
+  const any = f.models === "any";
+  return `<span class="ico ${any ? "yes" : "no"}" title="${esc(MOD[f.models])}">${any ? SVG.any : SVG.own}${any ? "any" : f.models === "own" ? "own" : f.models === "curated" ? "curated" : "own+"}</span>`;
+}
+const localIco = f => f.local === true ? `<span class="ico yes" title="runs fully on local models (Ollama, LM Studio, llama.cpp…)">${SVG.local}local</span>` : "";
+function telIco(f) {
+  const t = f.telemetry; if (!t) return "";
+  const off = t === "none" || t === "opt-in";
+  return `<span class="ico ${off ? "yes" : t.includes("cannot") ? "warn" : "no"}" title="telemetry: ${esc(t)}">${off ? SVG.eyeoff : SVG.eye}${off ? (t === "none" ? "no telemetry" : "opt-in") : (t.includes("cannot") ? "always on" : "opt-out")}</span>`;
+}
+const ifIcos = f => [...new Set((f.interfaces || []).map(i => ICO_IF[i]).filter(Boolean).map(x => x[0]))]
+  .map(k => `<span class="ico" title="${esc((f.interfaces || []).filter(i => (ICO_IF[i] || [])[0] === k).map(i => ICO_IF[i][1]).join(", "))}">${SVG[k]}</span>`).join("");
 /* a stable colour per harness: by the lab that makes it, else a neutral */
 const HCOL = { "claude-code": "anthropic", "codex": "openai", "gemini-cli": "google", "grok-build": "xai", "qwen-code": "qwen", "kimi-code": "kimi", "deepseek-harness": "deepseek" };
 const colorOf = h => HCOL[h.id] ? `var(--lab-${HCOL[h.id]})` : "var(--accent)";
@@ -213,10 +300,14 @@ const colorOf = h => HCOL[h.id] ? `var(--lab-${HCOL[h.id]})` : "var(--accent)";
 const METRIC = {
   downloads: { label: "weekly downloads", val: h => h.downloads, fmt: fmt.num, sub: h => h.dl_source ? `${h.dl_source}${h.growth != null ? ` · <span class="${h.growth >= 0 ? "up" : "down"}">${fmt.pct(h.growth)} in 12 wk</span>` : ""}` : "not on npm/PyPI",
                note: "Package downloads in the latest complete week (npm for JavaScript harnesses, PyPI for Python ones). A proxy for use: continuous integration inflates it; native installers hide it." },
-  stars: { label: "GitHub stars", val: h => h.stars, fmt: fmt.num, sub: h => h.repo ? (h.license || "no licence") : "closed source",
+  stars: { label: "GitHub stars", val: h => h.stars, fmt: fmt.num, sub: h => h.repo ? (h.repo_note || h.repo) : "closed source",
            note: "Stars measure developer attention, not use: OpenClaw is the most-starred repository on all of GitHub." },
-  installs: { label: "VS Code installs", val: h => h.installs, fmt: fmt.num, sub: h => h.installs ? "VS Code Marketplace" : "no VS Code extension",
-              note: "Cumulative installs of each harness's VS Code extension. Forks of VS Code (Cursor, Kiro) do not report here." },
+  installs: { label: "editor installs", val: h => h.installs, fmt: fmt.num,
+              sub: h => h.installs ? [h.inst_vscode ? "VS Code " + fmt.num(h.inst_vscode) : "", h.inst_openvsx ? "Open VSX " + fmt.num(h.inst_openvsx) : ""].filter(Boolean).join(" · ") : "no editor extension",
+              note: "Cumulative installs of each harness's editor extension: Microsoft's VS Code Marketplace plus Open VSX, the open registry that VSCodium and other VS Code builds use. Cursor and other forks with their own stores do not report here." },
+  selfhost: { label: "app downloads and Docker pulls", val: h => h.selfhost, fmt: fmt.num,
+              sub: h => h.selfhost ? [h.app_dl ? "app " + fmt.num(h.app_dl) : "", h.docker_pulls ? "Docker " + fmt.num(h.docker_pulls) : ""].filter(Boolean).join(" · ") : "—",
+              note: "For desktop and self-hosted tools: downloads of the installers attached to the latest 30 GitHub releases, plus Docker Hub pulls. Cumulative, so it favours older projects; the weekly change appears as history builds." },
   or_tokens: { label: "tokens per day", val: h => h.or_tokens, fmt: fmt.num, sub: h => h.or_tokens ? "via OpenRouter" : "not routed via OpenRouter",
                note: "Tokens per day sent through OpenRouter by each app. Counts only traffic routed via OpenRouter, so it favours bring-your-own-key harnesses and misses subscription traffic (most Claude Code and Codex use)." },
   r90: { label: "stable releases in 90 days", val: h => h.repo ? h.r90 : null, fmt: v => String(v), sub: h => h.latest ? `latest ${esc(h.latest)}` : (h.repo ? "no releases" : "closed source"),
@@ -233,7 +324,7 @@ function drawRace() {
     $("racebox").innerHTML = hs.map(h => {
       const v = M.val(h);
       return `<div class="rr${v == null ? " nodata" : ""}${h.status !== "active" ? " inactive" : ""}" data-key="${h.id}" data-id="${h.id}">
-        <div class="nm">${esc(h.name)}${h.status !== "active" ? `<span class="badge">${h.status}</span>` : ""}<small>${esc(h.vendor)}</small></div>
+        <div class="nm">${esc(h.name)}${licChip(h)}${h.status !== "active" ? `<span class="badge">${h.status}</span>` : ""}<small>${esc(h.vendor)}</small></div>
         <div class="track"><div class="fill" style="width:${len(v)}%;--c:${colorOf(h)}"></div></div>
         <div class="val">${v == null ? "—" : M.fmt(v)}<small>${M.sub(h)}</small></div></div>`;
     }).join("");
@@ -368,18 +459,54 @@ function drawRhythm() {
   svg.innerHTML = g;
 }
 
+/* ---------------- landscape: code freedom x model freedom ---------------- */
+const XS = ["proprietary", "source-available", "open-core", "open-source"], YS = ["any", "own-plus", "curated", "own"];
+const XL = { proprietary: "Proprietary", "source-available": "Source-available", "open-core": "Open-core", "open-source": "Open source" };
+const YL = { any: "Any model", "own-plus": "Own + a few", curated: "Curated set", own: "Own models only" };
+const CATCOL = { coding: "var(--accent)", general: "#c084fc", local: "#34d399", editor: "#f2a93b" };
+function drawLand() {
+  const hs = visible(), M = METRIC[S.metric];
+  const vals = hs.map(h => M.val(h) || 0), max = Math.max(1, ...vals);
+  const size = h => { const v = M.val(h); return v ? Math.round(11 + 32 * Math.sqrt(v / max)) : 9; };
+  const unknown = hs.filter(h => !h.f.models || !XS.includes(h.f.source));
+  flip($("land"), () => {
+    let g = `<div class="ax"></div>` + XS.map(x => `<div class="ax">${XL[x]}</div>`).join("");
+    YS.forEach(y => {
+      g += `<div class="ax ylab">${YL[y]}</div>`;
+      XS.forEach(x => {
+        const here = hs.filter(h => h.f.source === x && h.f.models === y).sort((a, b) => (M.val(b) || 0) - (M.val(a) || 0));
+        g += `<div class="cell${x === "open-source" && y === "any" ? " free" : ""}">` + here.map(h =>
+          `<span class="b" data-key="${h.id}" data-id="${h.id}"><i style="width:${size(h)}px;height:${size(h)}px;--c:${CATCOL[(CAT[h.f.category] || ["coding"])[0]]}"></i><span>${esc(h.name.split(" (")[0])}</span></span>`).join("") + `</div>`;
+      });
+    });
+    $("land").innerHTML = g;
+  });
+  $("land").querySelectorAll(".b").forEach(el => {
+    const h = DATA.harnesses.find(q => q.id === el.dataset.id);
+    el.onmousemove = ev => tip(`<span class="t">${esc(h.vendor)} · ${esc((CAT[h.f.category] || [0, ""])[1])}</span><b>${esc(h.name)}</b> ${licChip(h)}<br>${esc(SRC[h.f.source] || "")} · ${esc(MOD[h.f.models] || "")}${h.f.local ? " · runs local models" : ""}<br>${esc(h.pricing)}${M.val(h) ? `<br>${M.fmt(M.val(h))} ${M.label}` : ""}`, ev);
+    el.onmouseleave = () => tip(null);
+  });
+  $("landleg").innerHTML = `<span>bubble colour:</span>` + Object.entries({ coding: "coding agent", general: "general agent", local: "local AI app", editor: "editor" })
+    .map(([k, v]) => `<span><i style="background:${CATCOL[k]}"></i>${v}</span>`).join("") + `<span>size: ${M.label}</span>`
+    + (unknown.length ? `<span>not placed yet (facts being verified): ${unknown.map(h => esc(h.name)).join(", ")}</span>` : "");
+}
+
 /* ---------------- directory ---------------- */
 function drawDir() {
   const hs = visible().slice().sort((a, b) => (b.downloads || 0) - (a.downloads || 0) || a.name.localeCompare(b.name));
-  $("dir").innerHTML = `<thead><tr><th>Harness</th><th class="hide-m">Since</th><th>Source</th><th class="n">Downloads/wk</th><th class="n hide-m">Stars</th>
-    <th class="n hide-m">Last release</th><th class="hide-m">Pricing</th></tr></thead><tbody>` + hs.map(h => `<tr>
-      <td><b>${esc(h.name)}</b>${h.status !== "active" ? `<span class="badge">${h.status}</span>` : ""}<small>${esc(h.vendor)}${h.notes ? " · " + esc(h.notes) : ""}</small></td>
-      <td class="hide-m">${fmt.day(h.launch)}</td><td>${h.open ? "open" : "closed"}${h.license ? `<small>${esc(h.license)}</small>` : ""}</td>
-      <td class="n">${h.downloads ? fmt.num(h.downloads) : "—"}</td><td class="n hide-m">${h.stars ? fmt.num(h.stars) : "—"}</td>
-      <td class="n hide-m">${h.last_release ? fmt.day(h.last_release) : "—"}</td><td class="hide-m"><small>${esc(h.pricing)}</small></td></tr>`).join("") + "</tbody>";
+  const old = d => !d || (Date.parse(DATA.as_of) - Date.parse(d)) / 864e5 > 120;
+  $("dir").innerHTML = `<thead><tr><th>Harness</th><th>Licence &amp; code</th><th>Models &amp; privacy</th><th class="hide-m">Works in</th>
+    <th class="hide-m">Since</th><th class="n hide-m">Last release</th><th class="hide-m">Pricing</th></tr></thead><tbody>` + hs.map(h => `<tr>
+      <td><b>${esc(h.name)}</b>${h.status !== "active" ? `<span class="badge">${h.status}</span>` : ""}<small>${esc(h.vendor)} · ${esc((CAT[h.f.category] || [0, ""])[1])}</small>${h.notes ? `<small class="nt" title="click to expand">${esc(h.notes)}</small>` : ""}
+        <small class="srcs">${Object.entries(h.f.sources || {}).filter(([k]) => ["license", "models", "telemetry", "pricing"].includes(k)).map(([k, u]) => `<a href="${esc(u)}" rel="nofollow">${k}</a>`).join("")}${old(h.f.checked) ? `<span class="unv">${h.f.verified ? "check overdue" : "not yet verified"}</span>` : `checked ${fmt.day(h.f.checked)}`}</small></td>
+      <td class="facts">${licChip(h)}<small>${esc(SRC[h.f.source] || "")}</small></td>
+      <td class="facts">${modelIco(h.f)}${localIco(h.f)}<br>${telIco(h.f)}</td>
+      <td class="facts hide-m">${ifIcos(h.f)}</td>
+      <td class="hide-m d">${fmt.day(h.launch)}</td><td class="n hide-m">${h.last_release ? fmt.day(h.last_release) : "—"}</td><td class="hide-m"><small>${esc(h.pricing)}</small></td></tr>`).join("") + "</tbody>";
+  $("dir").querySelectorAll(".nt").forEach(n => n.onclick = () => n.classList.toggle("open"));
 }
 
-function drawAll() { drawRace(); drawLines(); drawRhythm(); drawDir(); }
+function drawAll() { drawLand(); drawRace(); drawLines(); drawRhythm(); drawDir(); }
 function seg(id, key, after) {
   $(id).querySelectorAll("button").forEach(b => b.onclick = () => {
     S[key] = b.dataset.v || b.dataset.m;
@@ -387,13 +514,16 @@ function seg(id, key, after) {
     after();
   });
 }
-seg("fkind", "kind", drawAll); seg("fopen", "open", drawAll); seg("factive", "active", drawAll);
-seg("metric", "metric", drawRace); seg("rscale", "scale", drawRace); seg("bview", "bview", drawBench);
+seg("fkind", "kind", drawAll); seg("fopen", "open", drawAll); seg("fmodels", "models", drawAll); seg("factive", "active", drawAll);
+seg("metric", "metric", () => { drawRace(); drawLand(); }); seg("rscale", "scale", drawRace); seg("bview", "bview", drawBench);
 (function () {
   const sp = DATA.harnesses.filter(h => h.spikes && h.spikes.length);
   if (sp.length) $("spikenote").textContent = " Left out as anomalies (a week over 4× the weeks around it, typically a mirror or a bot): "
     + sp.map(h => `${h.name} ${h.spikes.map(fmt.day).join(", ")}`).join("; ") + ".";
 })();
+$("iconkey").innerHTML = `Key: <span class="lic perm">MIT</span> permissive · <span class="lic copy">AGPL</span> copyleft · <span class="lic avail">FSL</span> source-available · <span class="lic prop">Proprietary</span> closed ·
+  <span class="ico yes">${SVG.any}any</span>choose any model · <span class="ico no">${SVG.own}own</span>vendor's models · <span class="ico yes">${SVG.local}local</span>runs on local models ·
+  <span class="ico yes">${SVG.eyeoff}</span>no telemetry or opt-in · <span class="ico no">${SVG.eye}</span>telemetry on by default.`;
 $("fetched").textContent = DATA.fetched ? `Last collected ${fmt.day(DATA.fetched)}.` : "";
 let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { drawLines(); drawBench(); drawRhythm(); }, 150); });
 drawAll(); drawBench();
