@@ -91,17 +91,26 @@ def http(url, data=None, headers=None, timeout=40):
 
 # ------------------------------------------------------------------ search
 
+def searxng(query):
+    res = json.loads(http(f"{SEARXNG}/search?" + urllib.parse.urlencode({"q": query, "format": "json"})))
+    return [(r.get("title", ""), r.get("url", ""), r.get("content", "")) for r in res.get("results", [])[:8]]
+
+
 def search(query):
     """[(title, url, snippet)] for a query."""
     if SEARCH == "searxng":
-        res = json.loads(http(f"{SEARXNG}/search?" + urllib.parse.urlencode({"q": query, "format": "json"})))
-        return [(r.get("title", ""), r.get("url", ""), r.get("content", "")) for r in res.get("results", [])[:8]]
+        return searxng(query)
     # MiniMax Token Plan search, as used by MiniMax's own MCP server (MiniMax-Coding-Plan-MCP)
     res = json.loads(http(f"{MM_HOST}/v1/coding_plan/search", {"q": query},
                           {"Authorization": f"Bearer {LLM_KEY}", "MM-API-Source": "artificialacceleration"}))
     status = (res.get("base_resp") or {}).get("status_code", 0)
     if status:
-        raise RuntimeError(f"MiniMax search error {status}: {(res.get('base_resp') or {}).get('status_msg')}")
+        # MiniMax's search refuses many shopping queries ("1027 output new_sensitive"): ask the
+        # local SearXNG instead when one is running, and only fail if both are unavailable
+        try:
+            return searxng(query)
+        except Exception:
+            raise RuntimeError(f"MiniMax search error {status}: {(res.get('base_resp') or {}).get('status_msg')}")
     return [(r.get("title", ""), r.get("link", ""), r.get("snippet", "")) for r in res.get("organic", [])[:8]]
 
 
