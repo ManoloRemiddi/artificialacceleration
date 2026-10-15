@@ -39,8 +39,12 @@ The issue is a to-do list, not an automatic edit: nothing is added to the site w
 | Harness facts (pricing, which models it works with, local-model support, telemetry, interfaces) | written on web pages, not in an API | a pull request that changes only facts it can quote, with the quote and the link. **Proposed, not built yet**: the first full check was done by hand-supervised research on 15 Oct 2026 (37 tools, every fact sourced) |
 
 Both run on the systemd timer `aa-price-check.timer` (3rd of each month), which opens pull
-requests for review. **Status on 15 Oct 2026: not running.** The key file is in place, but the
-timer units are not installed on this machine, so no monthly check has happened yet.
+requests for review. **Status: installed and enabled on 15 Oct 2026; first run 3 Nov 2026, 09:23.**
+Dry runs that day confirmed MiniMax answers and quotes are checked. MiniMax's search refuses
+many shopping queries, so the agent falls back to the local SearXNG. Products with
+registered price monitors work well. Products found only through search (DGX Spark, the
+Strix Halo machines) mostly come back "no data", and need monitored pages added to
+`build/price_sources.json`.
 
 ## 3. Editorial (a person decides)
 
