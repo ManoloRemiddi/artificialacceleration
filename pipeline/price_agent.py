@@ -36,7 +36,7 @@ Configuration (environment):
 
 Exit codes: 0 = ran (even if nothing changed), 1 = could not run (config, model or search down).
 """
-import html, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request, urllib.robotparser
+import math, html, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request, urllib.robotparser
 from datetime import date, datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
@@ -439,6 +439,17 @@ def check(t, rates, reg):
         row.update(status="rejected" if ans and ans.get("source") and "no current price" not in why else "no data", why=why)
         return row
     new = row["now"]
+    # GPUPrix quotes give the country's 12-month median too. The site's world map only trusts a
+    # "current low" within 0.6-1.6x of that median (outside it, usually a bundle or a prebuilt
+    # PC); the agent applies the same rule, so the two never disagree about the same number.
+    med = re.search(r"12-month median\D{0,4}([\d][\d.,\s]*\d)", row.get("quote") or "")
+    if med and new:
+        readings = [v for v in numbers(med.group(1)) if v > 0]      # "3,436" could be read as 3.436 or 3436
+        mv = min(readings, key=lambda v: abs(math.log(new / v))) if readings else None
+        if mv and not (0.6 <= new / mv <= 1.6):
+            row.update(status="held", why=f"{new / mv:.1f}x that country's 12-month median ({med.group(1).strip()}): "
+                                         f"probably a bundle or a prebuilt PC; left out for a human to confirm")
+            return row
     ref = was if was else (us_reference(t, rates) if t["kind"] == "product" else None)
     if ref:
         ratio = new / float(ref)
