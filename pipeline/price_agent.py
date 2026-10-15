@@ -258,7 +258,8 @@ def numbers(text):
 # out of stock are lures (Oct 2026: RTX 5090 "from $2,869" in the US, nothing under $7,200 in
 # stock). The model must quote the page's own words showing availability; the code checks them.
 IN_STOCK = re.compile(r"in stock|add to (cart|basket)|buy now|available to order|ships (in|within|today)|in den warenkorb|auf lager|"
-                      r"sofort lieferbar|lieferbar|en stock|有货|现货|在售|加入购物车|立即购买|在庫あり|在庫有|カートに入れる|即納|お取り寄せ", re.I)
+                      r"sofort lieferbar|lieferbar|sofort verfügbar|verfügbar|en stock|有货|现货|在售|加入购物车|立即购买|在庫あり|在庫有|カートに入れる|即納|"
+                      r"以内に出荷|営業日で出荷|出荷予定|お取り寄せ", re.I)
 NOT_BUYABLE = re.compile(r"out of stock|sold out|pre-?order|notify me|coming soon|currently unavailable|not available|backorder|"
                          r"nicht (auf lager|lieferbar|verfügbar)|ausverkauft|vorbestell|缺货|无货|售罄|到货通知|预售|預約|"
                          r"在庫切れ|在庫なし|売り切れ|完売|予約|入荷待ち|refurbished|renewed|used|gebraucht|中古", re.I)

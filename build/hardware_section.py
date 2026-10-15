@@ -247,7 +247,7 @@ def render(as_of=None):
     if moves:
         kicker += "<b>%d of %d</b> home-lab machines cost more today than at launch, up to <b class=\"up\">+%.0f%%</b>" % (
             len(risen), len(moves), max(m[0] for m in moves))
-        kicker += ("; only %s is cheaper." % " and ".join("a used " + n if "3090" in n else n for n in cheaper)) if cheaper else "."
+        kicker += ("; only %s is cheaper." % " and ".join(cheaper)) if cheaper else "."
 
     o = ['<section id="hardware"><div class="sechead"><span class="num">04</span><h2>What it costs to run it yourself</h2>'
          '<span class="sub">The hardware side of acceleration. Faster models need more memory and bandwidth, and in 2026 '

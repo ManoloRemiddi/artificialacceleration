@@ -141,7 +141,8 @@
     "https://kakaku.com/item/K0001679253/"
    ],
    "CN": [
-    "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5090-d/"
+    "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5090-d/",
+    "https://detail.zol.com.cn/2162/2161602/price.shtml"
    ]
   },
   "rtx-5080": {
@@ -161,7 +162,8 @@
     "https://kakaku.com/item/K0001673957/"
    ],
    "CN": [
-    "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5080/"
+    "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5080/",
+    "https://detail.zol.com.cn/2171/2170264/price.shtml"
    ]
   },
   "rtx-5070-ti": {
@@ -214,30 +216,49 @@
   "rtx-pro-6000": {
    "US": [
     "https://gpuprix.com/us/gpus/rtx-pro-6000-blackwell",
-    "https://videocardprices.com/card/nvidia-rtx-pro-6000-blackwell/"
+    "https://videocardprices.com/card/nvidia-rtx-pro-6000-blackwell/",
+    "https://marketplace.nvidia.com/en-us/enterprise/laptops-workstations/nvidia-rtx-pro-6000-blackwell-workstation-edition/",
+    "https://www.neweggbusiness.com/Product/ProductList.aspx?Submit=ENE&DEPA=0&Order=BESTMATCH&Description=rtx+pro+6000",
+    "https://www.neweggbusiness.com/nvidia-900-5g153-2200-000-rtx-pro-6000-96gb-graphics-card/p/9B-14-132-105"
    ],
    "EU": [
-    "https://gpuprix.com/germany/gpus/rtx-pro-6000-blackwell"
+    "https://gpuprix.com/germany/gpus/rtx-pro-6000-blackwell",
+    "https://www.alternate.de/listing.xhtml?q=RTX+PRO+6000",
+    "https://www.caseking.de/pc-komponenten/grafikkarten/nvidia/rtx-pro",
+    "https://www.caseking.de/pny-geforce-rtx-pro-6000-blackwell-workstation-edition-96-gb-gddr7/GCPN-119.html"
    ],
    "UK": [
-    "https://gpuprix.com/uk/gpus/rtx-pro-6000-blackwell"
+    "https://gpuprix.com/uk/gpus/rtx-pro-6000-blackwell",
+    "https://www.scan.co.uk/shop/computer-hardware/gpu-nvidia-workstation/all",
+    "https://www.cclonline.com/pc-components/graphics-cards/ai-ready-graphics-cards/",
+    "https://www.cclonline.com/900-5g153-2200-000-nvidia-rtx-pro-6000-blackwell-max-q-workstation-edition-96gb-graphics-card/"
    ],
    "JP": [
-    "https://gpuprix.com/japan/gpus/rtx-pro-6000-blackwell"
+    "https://gpuprix.com/japan/gpus/rtx-pro-6000-blackwell",
+    "https://www.ark-pc.co.jp/search/?key=RTX+PRO+6000&unselect=1",
+    "https://shop.applied-net.co.jp/view/item/000000444180"
    ]
   },
   "amd-radeon-ai-pro-r9700": {
    "US": [
-    "https://gpuprix.com/us/gpus/radeon-ai-pro-r9700"
+    "https://gpuprix.com/us/gpus/radeon-ai-pro-r9700",
+    "https://www.neweggbusiness.com/Product/ProductList.aspx?Submit=ENE&DEPA=0&Order=BESTMATCH&Description=radeon+ai+pro+r9700",
+    "https://www.neweggbusiness.com/p/9B-14-930-143"
    ],
    "EU": [
-    "https://gpuprix.com/germany/gpus/radeon-ai-pro-r9700"
+    "https://gpuprix.com/germany/gpus/radeon-ai-pro-r9700",
+    "https://www.alternate.de/listing.xhtml?q=R9700",
+    "https://www.caseking.de/pc-komponenten/grafikkarten/amd/radeon-ai-pro/amd-radeon-ai-pro-r9700-grafikkarten"
    ],
    "UK": [
-    "https://gpuprix.com/uk/gpus/radeon-ai-pro-r9700"
+    "https://gpuprix.com/uk/gpus/radeon-ai-pro-r9700",
+    "https://www.scan.co.uk/search?q=r9700",
+    "https://www.scan.co.uk/products/powercolor-amd-radeon-ai-pro-r9700-32gb-gddr6-graphics-card-black-rdna-4-4096-stre"
    ],
    "JP": [
-    "https://gpuprix.com/japan/gpus/radeon-ai-pro-r9700"
+    "https://gpuprix.com/japan/gpus/radeon-ai-pro-r9700",
+    "https://www.ark-pc.co.jp/search/?key=R9700&unselect=1",
+    "https://shop.tsukumo.co.jp/search?keyword=R9700"
    ]
   },
   "amd-rx-9070-xt": {
@@ -252,62 +273,92 @@
    ],
    "JP": [
     "https://gpuprix.com/japan/gpus/radeon-rx-9070-xt"
+   ],
+   "CN": [
+    "https://detail.zol.com.cn/2142/2141540/price.shtml"
    ]
   },
   "arc-pro-b50": {
    "US": [
-    "https://gpuprix.com/us/gpus/arc-pro-b50"
+    "https://gpuprix.com/us/gpus/arc-pro-b50",
+    "https://www.neweggbusiness.com/Product/ProductList.aspx?Submit=ENE&DEPA=0&Order=BESTMATCH&Description=arc+pro+b50",
+    "https://www.neweggbusiness.com/intel-arc-pro-b50-16gb-workstation-sff-graphics-card/p/9B-14-883-007"
    ],
    "EU": [
-    "https://gpuprix.com/germany/gpus/arc-pro-b50"
+    "https://gpuprix.com/germany/gpus/arc-pro-b50",
+    "https://www.caseking.de/pc-komponenten/grafikkarten/intel",
+    "https://www.caseking.de/sparkle-arc-pro-b50-grafikkarte-16384-mb-gddr6/GCSK-015.html"
    ],
    "UK": [
-    "https://gpuprix.com/uk/gpus/arc-pro-b50"
+    "https://gpuprix.com/uk/gpus/arc-pro-b50",
+    "https://www.overclockers.co.uk/pc-components/graphics-cards/intel-arc-graphics-cards/intel-arc-pro-graphics-cards",
+    "https://www.overclockers.co.uk/intel-arc-pro-b50-16gb-gddr6-ray-tracing-workstation-sff-graphics-card/GRA-INT-06622.html"
    ],
    "JP": [
-    "https://gpuprix.com/japan/gpus/arc-pro-b50"
+    "https://gpuprix.com/japan/gpus/arc-pro-b50",
+    "https://nttxstore.jp/shop/goods/search.aspx?keyword=Arc%20Pro&search=x"
    ]
   },
   "arc-pro-b60": {
    "US": [
-    "https://gpuprix.com/us/gpus/arc-pro-b60"
+    "https://gpuprix.com/us/gpus/arc-pro-b60",
+    "https://www.neweggbusiness.com/Product/ProductList.aspx?Submit=ENE&DEPA=0&Order=BESTMATCH&Description=arc+pro+b60",
+    "https://www.neweggbusiness.com/asrock-intel-arc-pro-b60-24gb-graphics/p/9B-14-930-148"
    ],
    "EU": [
-    "https://gpuprix.com/germany/gpus/arc-pro-b60"
+    "https://gpuprix.com/germany/gpus/arc-pro-b60",
+    "https://www.caseking.de/pc-komponenten/grafikkarten/intel",
+    "https://www.caseking.de/sparkle-arc-pro-b60-blower-grafikkarte-24576-mb-gddr6/GCSK-014.html"
    ],
    "UK": [
-    "https://gpuprix.com/uk/gpus/arc-pro-b60"
+    "https://gpuprix.com/uk/gpus/arc-pro-b60",
+    "https://box.co.uk/intel-graphic-cards",
+    "https://box.co.uk/90ga60zz00ubnf-asrock-arc-pro-b60-creator-24gb-gpu"
    ],
    "JP": [
-    "https://gpuprix.com/japan/gpus/arc-pro-b60"
+    "https://gpuprix.com/japan/gpus/arc-pro-b60",
+    "https://www.ark-pc.co.jp/search/?key=Arc+Pro&unselect=1"
    ]
   },
   "arc-pro-b65": {
    "US": [
-    "https://gpuprix.com/us/gpus/arc-pro-b65"
+    "https://gpuprix.com/us/gpus/arc-pro-b65",
+    "https://www.neweggbusiness.com/Product/ProductList.aspx?Submit=ENE&DEPA=0&Order=BESTMATCH&Description=arc+pro+b65"
    ],
    "EU": [
-    "https://gpuprix.com/germany/gpus/arc-pro-b65"
+    "https://gpuprix.com/germany/gpus/arc-pro-b65",
+    "https://www.caseking.de/pc-komponenten/grafikkarten/intel",
+    "https://www.caseking.de/asrock-arc-pro-b65-creator-grafikkarte-32768-mb-gddr6/GCAR-042.html"
    ],
    "UK": [
-    "https://gpuprix.com/uk/gpus/arc-pro-b65"
+    "https://gpuprix.com/uk/gpus/arc-pro-b65",
+    "https://www.overclockers.co.uk/pc-components/graphics-cards/intel-arc-graphics-cards/intel-arc-pro-graphics-cards"
    ],
    "JP": [
-    "https://gpuprix.com/japan/gpus/arc-pro-b65"
+    "https://gpuprix.com/japan/gpus/arc-pro-b65",
+    "https://www.dospara.co.jp/products/all-item?q=Arc+Pro&includeNotInventory=true"
    ]
   },
   "arc-pro-b70": {
    "US": [
-    "https://gpuprix.com/us/gpus/arc-pro-b70"
+    "https://gpuprix.com/us/gpus/arc-pro-b70",
+    "https://www.neweggbusiness.com/Product/ProductList.aspx?Submit=ENE&DEPA=0&Order=BESTMATCH&Description=arc+pro+b70",
+    "https://www.neweggbusiness.com/asrock-b70-ct-intel-arc-pro-b70-32gb-graphics-card/p/9B-14-930-149"
    ],
    "EU": [
-    "https://gpuprix.com/germany/gpus/arc-pro-b70"
+    "https://gpuprix.com/germany/gpus/arc-pro-b70",
+    "https://www.caseking.de/pc-komponenten/grafikkarten/intel",
+    "https://www.caseking.de/asrock-arc-pro-b70-creator-grafikkarte-32768-mb-gddr6/GCAR-041.html"
    ],
    "UK": [
-    "https://gpuprix.com/uk/gpus/arc-pro-b70"
+    "https://gpuprix.com/uk/gpus/arc-pro-b70",
+    "https://box.co.uk/intel-graphic-cards",
+    "https://box.co.uk/90ga6gzz00uanf-asrock-arc-pro-b70-creator-32gb-gpu"
    ],
    "JP": [
-    "https://gpuprix.com/japan/gpus/arc-pro-b70"
+    "https://gpuprix.com/japan/gpus/arc-pro-b70",
+    "https://www.dospara.co.jp/products/all-item?q=Arc+Pro&includeNotInventory=true",
+    "https://www.dospara.co.jp/SBR1750/IC627450.html"
    ]
   },
   "arc-b580": {
@@ -326,10 +377,12 @@
   },
   "framework-desktop-495-192": {
    "EU": [
-    "https://frame.work/de/en/products/desktop-diy-amd-aimax400/configuration/new"
+    "https://frame.work/de/en/products/desktop-diy-amd-aimax400/configuration/new",
+    "https://frame.work/de/en/meta_product_feeds.xml"
    ],
    "UK": [
-    "https://frame.work/gb/en/products/desktop-diy-amd-aimax400/configuration/new"
+    "https://frame.work/gb/en/products/desktop-diy-amd-aimax400/configuration/new",
+    "https://frame.work/gb/en/meta_product_feeds.xml"
    ]
   },
   "mac-studio-m5-max-36": {
@@ -358,6 +411,86 @@
    ],
    "JP": [
     "https://everymac.com/global-mac-prices/all-msrp-mac-studio-prices-in-japan.html"
+   ]
+  },
+  "dgx-spark-128": {
+   "UK": [
+    "https://www.scan.co.uk/shop/computer-hardware/nvidia-dgx-rtx-spark/all",
+    "https://www.scan.co.uk/products/nvidia-dgx-spark-personal-ai-supercomputer-gb10-blackwell-superchip-4tb-ssd-128gb-lpddr5x-connectx7"
+   ],
+   "EU": [
+    "https://www.caseking.de/professionell-und-ki/ai-llm-und-deep-learning-pcs-und-workstations/nvidia-dgx-spark",
+    "https://www.alternate.de/NVIDIA/DGX-Spark-Founders-Edition-Mini-PC/html/product/100178651",
+    "https://www.caseking.de/nvidia-dgx-spark-founders-edition-mini-pc-nvidia-blackwell-tensor-gb10/NVPC-001.html"
+   ],
+   "US": [
+    "https://www.cdw.com/product/nvidia-dgx-spark/8392823"
+   ],
+   "JP": [
+    "https://shop.tsukumo.co.jp/goods/4560152390054/",
+    "https://www.pc-koubou.jp/products/detail.php?product_id=1188379"
+   ],
+   "CN": [
+    "https://www.nvidia.cn/products/workstations/dgx-spark/where-to-buy/"
+   ]
+  },
+  "dgx-spark-64": {
+   "UK": [
+    "https://www.scan.co.uk/products/asus-ascent-gx10-desktop-ai-supercomputer-gb10-blackwell-superchip-64gb-lpddr5x-1tb-ssd"
+   ]
+  },
+  "asus-gx10": {
+   "UK": [
+    "https://www.scan.co.uk/shop/computer-hardware/nvidia-dgx-rtx-spark/all",
+    "https://www.scan.co.uk/products/asus-ascent-gx10-desktop-ai-supercomputer-gb10-blackwell-superchip-128gb-lpddr5x-1tb-ssd-cx7"
+   ],
+   "EU": [
+    "https://www.caseking.de/asus-ascent-gx10-dgx-spark-mini-pc-nvidia-blackwell-gb10-1tb/ASPC-001.html",
+    "https://www.alternate.de/ASUS/Ascent-GX10-GG0003BN-1TB-KI-Supercomputer-Mini-PC/html/product/100166008"
+   ],
+   "US": [
+    "https://www.cdw.com/product/asus-ascent-gx10-ai-supercomputer-nvidia-gb10-superchip-taa-compliant-dgx-s/8534235"
+   ],
+   "JP": [
+    "https://www.dospara.co.jp/SBR1899/IC559368.html",
+    "https://www.ark-pc.co.jp/category/NVIDIA%20GB10%20%E6%90%AD%E8%BC%89/?p2=c61090"
+   ]
+  },
+  "gmktec-evo-x2-128": {
+   "US": [
+    "https://www.gmktec.com/products/amd-ryzen%E2%84%A2-ai-max-395-evo-x2-ai-mini-pc"
+   ],
+   "EU": [
+    "https://de.gmktec.com/products/gmktec-evo-x2-amd-ryzen%E2%84%A2-ai-max-395-mini-pc-1",
+    "https://de.gmktec.com/products/gmktec-evo-x2-amd-ryzen%E2%84%A2-ai-max-395-mini-pc-1?variant=53775601270968"
+   ],
+   "UK": [
+    "https://www.gmktec.uk/products/gmktec-evo-x2-amd-ryzen%E2%84%A2-ai-max-395-ai-mini-pc"
+   ],
+   "JP": [
+    "https://jp.gmktec.com/products/gmktec-evo-x2-amd-ryzen%E2%84%A2-ai-max-395-mini-pc",
+    "https://jp.gmktec.com/products/gmktec-evo-x2-amd-ryzen%E2%84%A2-ai-max-395-mini-pc?variant=48034799845428"
+   ],
+   "CN": [
+    "https://detail.zol.com.cn/2127/2126246/price.shtml"
+   ]
+  },
+  "framework-desktop-128": {
+   "EU": [
+    "https://frame.work/de/en/meta_product_feeds.xml"
+   ],
+   "UK": [
+    "https://frame.work/gb/en/meta_product_feeds.xml"
+   ]
+  },
+  "lisuan-7g100": {
+   "CN": [
+    "https://detail.zol.com.cn/2168/2167063/price.shtml"
+   ]
+  },
+  "mtt-s80": {
+   "CN": [
+    "https://detail.zol.com.cn/1434/1433801/price.shtml"
    ]
   }
  },

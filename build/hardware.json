@@ -64,8 +64,49 @@
      "low": 1264,
      "high": 1386,
      "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-3090"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1799.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-3090",
+     "quote": "NVIDIA Founders Edition GeForce RTX 3090 Founders Edition: 1,799 USD, In stock (8 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2149.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-3090",
+     "quote": "ASUS TUF Gaming GeForce RTX 3090 TUF Gaming: 2,149 EUR, In stock (3 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1704.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-3090",
+     "quote": "MSI Ventus GeForce RTX 3090 Ventus: 1,704 GBP, In stock (4 of 9 boards in stock)"
     }
-   ]
+   ],
+   "unavailable": {
+    "JP": {
+     "date": "2026-10-15",
+     "src": "https://gpuprix.com/japan/gpus/geforce-rtx-3090",
+     "note": "none of the 9 boards tracked is in stock",
+     "kind": "out"
+    }
+   }
   },
   {
    "id": "rtx-4090",
@@ -96,8 +137,49 @@
      "low": 2500,
      "high": 3217,
      "src": "https://gpupoet.com/gpu/learn/price/october-2026/nvidia-geforce-rtx-4090"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 4399.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-4090",
+     "quote": "MSI Gaming Trio GeForce RTX 4090 Gaming Trio: 4,399 USD, In stock (7 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 3990.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-4090",
+     "quote": "GIGABYTE Gaming OC GeForce RTX 4090 Gaming: 3,990 EUR, In stock (1 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 4541.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-4090",
+     "quote": "MSI Gaming Trio GeForce RTX 4090 Gaming Trio: 4,541 GBP, In stock (2 of 9 boards in stock)"
     }
-   ]
+   ],
+   "unavailable": {
+    "JP": {
+     "date": "2026-10-15",
+     "src": "https://gpuprix.com/japan/gpus/geforce-rtx-4090",
+     "note": "none of the 9 boards tracked is in stock",
+     "kind": "out"
+    }
+   }
   },
   {
    "id": "rtx-5090",
@@ -288,9 +370,56 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://www.buysellram.com/blog/nvidia-consumer-gpu-market-update/"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 7200.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-5090",
+     "quote": "GIGABYTE AORUS GeForce RTX 5090 AORUS: 7,200 USD, In stock (10 of 24 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 9288.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-5090",
+     "quote": "ASUS ROG Astral White GeForce RTX 5090 ROG Astral: 9,288 EUR, In stock (2 of 24 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 4278.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-5090",
+     "quote": "ASUS ROG Astral GeForce RTX 5090 ROG Astral: 4,278 GBP, In stock (18 of 24 boards in stock)"
     }
    ],
-   "note": "NVIDIA's own Founders Edition nominally stays at $1,999 / €2,099 but is rarely in stock; the lines track the cheapest card actually on sale. Reported end-of-life in Oct 2026"
+   "note": "NVIDIA's own Founders Edition nominally stays at $1,999 / €2,099 but is rarely in stock; the lines track the cheapest card actually on sale. Reported end-of-life in Oct 2026",
+   "unavailable": {
+    "JP": {
+     "date": "2026-10-15",
+     "src": "https://gpuprix.com/japan/gpus/geforce-rtx-5090",
+     "note": "none of the 24 boards tracked is in stock",
+     "kind": "out"
+    },
+    "CN": {
+     "date": "2026-10-15",
+     "src": "https://detail.zol.com.cn/2162/2161602/price.shtml",
+     "kind": "unverifiable",
+     "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
+    }
+   }
   },
   {
    "name": "GeForce RTX 5080 (16 GB)",
@@ -418,8 +547,60 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://www.buysellram.com/blog/nvidia-consumer-gpu-market-update/"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1650.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-5080",
+     "quote": "ASUS TUF Gaming GeForce RTX 5080 TUF Gaming: 1,650 USD, In stock (21 of 28 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1309.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-5080",
+     "quote": "ASUS Prime GeForce RTX 5080 Prime: 1,309 EUR, In stock (6 of 28 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1103.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-5080",
+     "quote": "ASUS Prime GeForce RTX 5080 Prime: 1,103 GBP, In stock (20 of 28 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 254540.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/japan/gpus/geforce-rtx-5080",
+     "quote": "GIGABYTE Gaming OC GeForce RTX 5080 Gaming OC: 254,540 JPY, In stock (11 of 28 boards in stock)"
     }
-   ]
+   ],
+   "unavailable": {
+    "CN": {
+     "date": "2026-10-15",
+     "src": "https://detail.zol.com.cn/2171/2170264/price.shtml",
+     "kind": "unverifiable",
+     "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
+    }
+   }
   },
   {
    "name": "GeForce RTX 5070 Ti (16 GB)",
@@ -520,8 +701,60 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://www.buysellram.com/blog/nvidia-consumer-gpu-market-update/"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1180.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-5070-ti",
+     "quote": "GIGABYTE Eagle ICE GeForce RTX 5070 Ti Eagle: 1,180 USD, In stock (18 of 26 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1047.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-5070-ti",
+     "quote": "MSI Ventus GeForce RTX 5070 Ti Ventus: 1,047 EUR, In stock (9 of 26 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1046.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-5070-ti",
+     "quote": "GIGABYTE AERO GeForce RTX 5070 Ti AERO: 1,046 GBP, In stock (18 of 26 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 199580.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/japan/gpus/geforce-rtx-5070-ti",
+     "quote": "GIGABYTE AERO GeForce RTX 5070 Ti AERO: 199,580 JPY, In stock (10 of 26 boards in stock)"
     }
-   ]
+   ],
+   "unavailable": {
+    "CN": {
+     "date": "2026-10-15",
+     "src": "https://detail.zol.com.cn/vga/s11069/",
+     "kind": "unverifiable",
+     "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
+    }
+   }
   },
   {
    "id": "dgx-spark-128",
@@ -631,8 +864,50 @@
      "tax": "excl",
      "basis": "NVIDIA price rise",
      "src": "https://www.theregister.com/a/5300622"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 5249.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Scan)",
+     "stock": "in",
+     "src": "https://www.scan.co.uk/products/nvidia-dgx-spark-personal-ai-supercomputer-gb10-blackwell-superchip-4tb-ssd-128gb-lpddr5x-connectx7",
+     "quote": "Cost of purchase: £5,249.00"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 7099.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Caseking)",
+     "stock": "in",
+     "src": "https://www.caseking.de/nvidia-dgx-spark-founders-edition-mini-pc-nvidia-blackwell-tensor-gb10/NVPC-001.html",
+     "quote": "7.099,00 € Auf Lager"
     }
-   ]
+   ],
+   "unavailable": {
+    "US": {
+     "date": "2026-10-15",
+     "src": "https://www.cdw.com/product/nvidia-dgx-spark/8392823",
+     "kind": "unverifiable",
+     "note": "CDW lists it as discontinued on 14 Oct 2026; NVIDIA's store, Newegg and B&H could not be checked"
+    },
+    "JP": {
+     "date": "2026-10-15",
+     "src": "https://shop.tsukumo.co.jp/goods/4560152390054/",
+     "kind": "out",
+     "note": "sold out or sale ended at Tsukumo, PC Koubou and Ark"
+    },
+    "CN": {
+     "date": "2026-10-15",
+     "src": "https://www.nvidia.cn/products/workstations/dgx-spark/where-to-buy/",
+     "kind": "out",
+     "note": "not sold at retail in China: only through NVIDIA's distributors, by quotation"
+    }
+   }
   },
   {
    "name": "ASUS Ascent GX10 (NVIDIA GB10, 128 GB)",
@@ -715,8 +990,49 @@
      "tax": "excl",
      "basis": "ASUS list price",
      "src": "https://macmyths.com/nvidia-gb10-grace-blackwell-explained-asus-ascent-gx10-launch-specs-and-buying-advice/"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 4999.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Scan)",
+     "stock": "in",
+     "src": "https://www.scan.co.uk/products/asus-ascent-gx10-desktop-ai-supercomputer-gb10-blackwell-superchip-128gb-lpddr5x-1tb-ssd-cx7",
+     "quote": "Cost of purchase: £4,999.00"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 5999.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Caseking)",
+     "stock": "in",
+     "src": "https://www.caseking.de/asus-ascent-gx10-dgx-spark-mini-pc-nvidia-blackwell-gb10-1tb/ASPC-001.html",
+     "quote": "5.999,00 € Auf Lager"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 1079980.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Dospara)",
+     "stock": "in",
+     "src": "https://www.dospara.co.jp/SBR1899/IC559368.html",
+     "quote": "1,079,980円"
     }
-   ]
+   ],
+   "unavailable": {
+    "US": {
+     "date": "2026-10-15",
+     "src": "https://www.cdw.com/product/asus-ascent-gx10-ai-supercomputer-nvidia-gb10-superchip-taa-compliant-dgx-s/8534235",
+     "kind": "out",
+     "note": "backordered at CDW, ASUS's US retailer (4-6 weeks); Newegg and B&H could not be checked"
+    }
+   }
   },
   {
    "name": "DGX Spark (64 GB)",
@@ -738,7 +1054,33 @@
      "basis": "announced MSRP",
      "src": "https://blogs.nvidia.com/blog/local-ai-dgx-spark-64gb-sync/"
     }
-   ]
+   ],
+   "unavailable": {
+    "US": {
+     "date": "2026-10-15",
+     "src": "https://hothardware.com/news/nvidia-dgx-spark-64gb-release",
+     "kind": "out",
+     "note": "not on sale until 23 Oct 2026"
+    },
+    "EU": {
+     "date": "2026-10-15",
+     "src": "https://www.caseking.de/professionell-und-ki/ai-llm-und-deep-learning-pcs-und-workstations/nvidia-dgx-spark",
+     "kind": "out",
+     "note": "not on sale until 23 Oct 2026"
+    },
+    "UK": {
+     "date": "2026-10-15",
+     "src": "https://www.scan.co.uk/products/asus-ascent-gx10-desktop-ai-supercomputer-gb10-blackwell-superchip-64gb-lpddr5x-1tb-ssd",
+     "kind": "out",
+     "note": "not on sale until 23 Oct 2026 (Scan: notify me only)"
+    },
+    "JP": {
+     "date": "2026-10-15",
+     "src": "https://www.ark-pc.co.jp/category/NVIDIA%20GB10%20%E6%90%AD%E8%BC%89/?p2=c61090",
+     "kind": "out",
+     "note": "not on sale until 23 Oct 2026"
+    }
+   }
   },
   {
    "id": "rtx-pro-6000",
@@ -830,6 +1172,39 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://gpuprix.com/us/gpus/rtx-pro-6000-blackwell"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 16499.99,
+     "tax": "excl",
+     "basis": "cheapest new in stock (NeweggBusiness (Newegg's own B2B store, sold and shipped by NeweggBusiness))",
+     "stock": "in",
+     "src": "https://www.neweggbusiness.com/nvidia-900-5g153-2200-000-rtx-pro-6000-96gb-graphics-card/p/9B-14-132-105",
+     "quote": "Item#: 9B-14-132-105 $16,499.99"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 14330.99,
+     "tax": "incl",
+     "basis": "cheapest new in stock (CCL Computers)",
+     "stock": "in",
+     "src": "https://www.cclonline.com/900-5g153-2200-000-nvidia-rtx-pro-6000-blackwell-max-q-workstation-edition-96gb-graphics-card/",
+     "quote": "£14,330.99 INC VAT"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 18499.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Caseking)",
+     "stock": "in",
+     "src": "https://www.caseking.de/pny-geforce-rtx-pro-6000-blackwell-workstation-edition-96-gb-gddr7/GCPN-119.html",
+     "quote": "18.499,00 € Auf Lager"
     }
    ],
    "note": "NVIDIA never published a launch MSRP; the first point is the early US retail price"
@@ -887,8 +1262,60 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://gpuprix.com/us/gpus/radeon-rx-9070-xt"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 815.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/radeon-rx-9070-xt",
+     "quote": "GIGABYTE Gaming OC Radeon RX 9070 XT Gaming OC: 815 USD, In stock (15 of 18 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 718.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/radeon-rx-9070-xt",
+     "quote": "SAPPHIRE Pulse Radeon RX 9070 XT Pulse: 718 EUR, In stock (6 of 18 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 580.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/radeon-rx-9070-xt",
+     "quote": "GIGABYTE Gaming OC Radeon RX 9070 XT Gaming OC: 580 GBP, In stock (14 of 18 boards in stock)"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 133601.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/japan/gpus/radeon-rx-9070-xt",
+     "quote": "ASUS Prime White Radeon RX 9070 XT Prime: 133,601 JPY, In stock (9 of 18 boards in stock)"
     }
-   ]
+   ],
+   "unavailable": {
+    "CN": {
+     "date": "2026-10-15",
+     "src": "https://detail.zol.com.cn/2142/2141540/price.shtml",
+     "kind": "unverifiable",
+     "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
+    }
+   }
   },
   {
    "name": "GMKtec EVO-X2 (Ryzen AI Max+ 395, 128 GB)",
@@ -943,8 +1370,38 @@
      "tax": "excl",
      "basis": "official store",
      "src": "https://www.newegg.com/gmktec-barebone-systems-mini-pc-amd-ryzen-ai-max-395-evo-x2-128-2t/p/2SW-007C-00016"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 3299.99,
+     "tax": "incl",
+     "basis": "cheapest new in stock (GMKtec official EU store (de.gmktec.com))",
+     "stock": "in",
+     "src": "https://de.gmktec.com/products/gmktec-evo-x2-amd-ryzen%E2%84%A2-ai-max-395-mini-pc-1?variant=53775601270968",
+     "quote": "€3.299,99"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 566999.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (GMKtec official Japan store (jp.gmktec.com))",
+     "stock": "in",
+     "src": "https://jp.gmktec.com/products/gmktec-evo-x2-amd-ryzen%E2%84%A2-ai-max-395-mini-pc?variant=48034799845428",
+     "quote": "¥566,999 JPY"
     }
-   ]
+   ],
+   "unavailable": {
+    "CN": {
+     "date": "2026-10-15",
+     "src": "https://www.gmktec.cn/",
+     "kind": "unverifiable",
+     "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
+    }
+   }
   },
   {
    "id": "framework-desktop-128",
@@ -1082,7 +1539,27 @@
      "basis": "official store",
      "src": "https://frame.work/products/desktop-diy-amd-aimax300/configuration/new"
     }
-   ]
+   ],
+   "unavailable": {
+    "EU": {
+     "date": "2026-10-15",
+     "src": "https://frame.work/de/en/meta_product_feeds.xml",
+     "kind": "out",
+     "note": "the complete DIY Edition is out of stock; the bare mainboard alone is in stock at €3,539"
+    },
+    "UK": {
+     "date": "2026-10-15",
+     "src": "https://frame.work/gb/en/meta_product_feeds.xml",
+     "kind": "out",
+     "note": "the complete DIY Edition can't be ordered (case out of stock); the bare mainboard alone is in stock at £3,149"
+    },
+    "US": {
+     "date": "2026-10-15",
+     "src": null,
+     "kind": "unverifiable",
+     "note": "Framework's US store could not be checked (it redirects by location)"
+    }
+   }
   },
   {
    "name": "AMD Radeon AI PRO R9700 (32 GB)",
@@ -1137,6 +1614,28 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://gpuprix.com/us/gpus/radeon-ai-pro-r9700"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1699.99,
+     "tax": "excl",
+     "basis": "cheapest new in stock (NeweggBusiness (Newegg's own B2B store, sold and shipped by NeweggBusiness))",
+     "stock": "in",
+     "src": "https://www.neweggbusiness.com/p/9B-14-930-143",
+     "quote": "Item#: 9B-14-930-143 $1,699.99"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1609.99,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Scan Computers)",
+     "stock": "in",
+     "src": "https://www.scan.co.uk/products/powercolor-amd-radeon-ai-pro-r9700-32gb-gddr6-graphics-card-black-rdna-4-4096-stre",
+     "quote": "Manufacturer code: AI PRO R9700 32G-B £1,609.99"
     }
    ]
   },
@@ -1176,7 +1675,27 @@
      "basis": "launch MSRP",
      "src": "https://hwbusters.com/news/framework-desktop-goes-to-192gb-with-gorgon-halo-and-the-price-nearly-doubles-to-6799/"
     }
-   ]
+   ],
+   "unavailable": {
+    "EU": {
+     "date": "2026-10-15",
+     "src": "https://frame.work/de/en/meta_product_feeds.xml",
+     "kind": "out",
+     "note": "DIY Edition is a batch pre-order from €7,759; the bare mainboard alone is in stock at €7,279"
+    },
+    "UK": {
+     "date": "2026-10-15",
+     "src": "https://frame.work/gb/en/meta_product_feeds.xml",
+     "kind": "out",
+     "note": "DIY Edition is a pre-order; the bare mainboard alone is in stock at £6,469"
+    },
+    "US": {
+     "date": "2026-10-15",
+     "src": null,
+     "kind": "unverifiable",
+     "note": "Framework's US store could not be checked (it redirects by location)"
+    }
+   }
   },
   {
    "name": "Intel Arc B580 (12 GB)",
@@ -1249,8 +1768,45 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://gpuprix.com/us/gpus/arc-b580"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 330.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/arc-b580",
+     "quote": "ASROCK Challenger Arc B580 Challenger: 330 USD, In stock (1 of 2 boards in stock)"
     }
-   ]
+   ],
+   "unavailable": {
+    "EU": {
+     "date": "2026-10-15",
+     "src": "https://gpuprix.com/germany/gpus/arc-b580",
+     "note": "none of the 2 boards tracked is in stock",
+     "kind": "out"
+    },
+    "UK": {
+     "date": "2026-10-15",
+     "src": "https://gpuprix.com/uk/gpus/arc-b580",
+     "note": "none of the 2 boards tracked is in stock",
+     "kind": "out"
+    },
+    "JP": {
+     "date": "2026-10-15",
+     "src": "https://gpuprix.com/japan/gpus/arc-b580",
+     "note": "none of the 2 boards tracked is in stock",
+     "kind": "out"
+    },
+    "CN": {
+     "date": "2026-10-15",
+     "src": null,
+     "kind": "unverifiable",
+     "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
+    }
+   }
   },
   {
    "name": "Intel Arc Pro B50 (16 GB)",
@@ -1314,8 +1870,49 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://gpuprix.com/us/gpus/arc-pro-b50"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 699.99,
+     "tax": "excl",
+     "basis": "cheapest new in stock (NeweggBusiness (Newegg's own B2B store, sold and shipped by NeweggBusiness))",
+     "stock": "in",
+     "src": "https://www.neweggbusiness.com/intel-arc-pro-b50-16gb-workstation-sff-graphics-card/p/9B-14-883-007",
+     "quote": "Item#: 9B-14-883-007 $699.99"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 599.99,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Overclockers UK)",
+     "stock": "in",
+     "src": "https://www.overclockers.co.uk/intel-arc-pro-b50-16gb-gddr6-ray-tracing-workstation-sff-graphics-card/GRA-INT-06622.html",
+     "quote": "£599.99 In Stock Incl. VAT"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 599.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Caseking)",
+     "stock": "in",
+     "src": "https://www.caseking.de/sparkle-arc-pro-b50-grafikkarte-16384-mb-gddr6/GCSK-015.html",
+     "quote": "599,00 € Auf Lager"
     }
-   ]
+   ],
+   "unavailable": {
+    "JP": {
+     "date": "2026-10-15",
+     "src": "https://www.ark-pc.co.jp/i/20107809/",
+     "kind": "out",
+     "note": "sold out at Ark, Tsukumo and OCN; two listings on Kakaku could not be confirmed"
+    }
+   }
   },
   {
    "id": "arc-pro-b60",
@@ -1427,6 +2024,39 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://gpuprix.com/us/gpus/arc-pro-b60"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 649.99,
+     "tax": "excl",
+     "basis": "cheapest new in stock (NeweggBusiness (Newegg's own B2B store, sold and shipped by NeweggBusiness))",
+     "stock": "in",
+     "src": "https://www.neweggbusiness.com/asrock-intel-arc-pro-b60-24gb-graphics/p/9B-14-930-148",
+     "quote": "Item#: 9B-14-930-148 $649.99"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 665.99,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Box.co.uk)",
+     "stock": "in",
+     "src": "https://box.co.uk/90ga60zz00ubnf-asrock-arc-pro-b60-creator-24gb-gpu",
+     "quote": "MPN: 90GA60ZZ00UBNF £665.99"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 899.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Caseking)",
+     "stock": "in",
+     "src": "https://www.caseking.de/sparkle-arc-pro-b60-blower-grafikkarte-24576-mb-gddr6/GCSK-014.html",
+     "quote": "899,00 € Auf Lager"
     }
    ],
    "name": "Intel Arc Pro B60 (24 GB)",
@@ -1434,7 +2064,21 @@
    "segment": "workstation",
    "mem_gb": 24,
    "bw_gbps": 456,
-   "launch": "2025-11"
+   "launch": "2025-11",
+   "unavailable": {
+    "JP": {
+     "date": "2026-10-15",
+     "src": "https://www.ark-pc.co.jp/i/20107763/",
+     "kind": "out",
+     "note": "sold out at Ark, Tsukumo and OCN"
+    },
+    "CN": {
+     "date": "2026-10-15",
+     "src": "https://product.pconline.com.cn/note/43096.html",
+     "kind": "unverifiable",
+     "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
+    }
+   }
   },
   {
    "id": "arc-pro-b70",
@@ -1519,6 +2163,50 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://gpuprix.com/us/gpus/arc-pro-b70"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1299.99,
+     "tax": "excl",
+     "basis": "cheapest new in stock (NeweggBusiness (Newegg's own B2B store, sold and shipped by NeweggBusiness))",
+     "stock": "in",
+     "src": "https://www.neweggbusiness.com/asrock-b70-ct-intel-arc-pro-b70-32gb-graphics-card/p/9B-14-930-149",
+     "quote": "Item#: 9B-14-930-149 $1,299.99"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1319.99,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Box.co.uk)",
+     "stock": "in",
+     "src": "https://box.co.uk/90ga6gzz00uanf-asrock-arc-pro-b70-creator-32gb-gpu",
+     "quote": "MPN: 90GA6GZZ00UANF £1319.99"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1599.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Caseking)",
+     "stock": "in",
+     "src": "https://www.caseking.de/asrock-arc-pro-b70-creator-grafikkarte-32768-mb-gddr6/GCAR-041.html",
+     "quote": "1.599,00 € Auf Lager"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 322800.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Dospara)",
+     "stock": "in",
+     "src": "https://www.dospara.co.jp/SBR1750/IC627450.html",
+     "quote": "322,800円"
     }
    ],
    "name": "Intel Arc Pro B70 (32 GB)",
@@ -1563,8 +2251,39 @@
      "tax": "excl",
      "basis": "lowest retail",
      "src": "https://gpuprix.com/us/gpus/arc-pro-b65"
+    },
+    {
+     "date": "2026-10-15",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1369.0,
+     "tax": "incl",
+     "basis": "cheapest new in stock (Caseking)",
+     "stock": "in",
+     "src": "https://www.caseking.de/asrock-arc-pro-b65-creator-grafikkarte-32768-mb-gddr6/GCAR-042.html",
+     "quote": "1.369,00 € Auf Lager"
     }
-   ]
+   ],
+   "unavailable": {
+    "US": {
+     "date": "2026-10-15",
+     "src": "https://www.neweggbusiness.com/Product/ProductList.aspx?Submit=ENE&DEPA=0&Order=BESTMATCH&Description=arc+pro+b65",
+     "kind": "out",
+     "note": "not listed by Newegg Business, CDW or Best Buy"
+    },
+    "UK": {
+     "date": "2026-10-15",
+     "src": "https://www.overclockers.co.uk/pc-components/graphics-cards/intel-arc-graphics-cards/intel-arc-pro-graphics-cards",
+     "kind": "out",
+     "note": "not listed by Scan, Overclockers UK, CCL or Box"
+    },
+    "JP": {
+     "date": "2026-10-15",
+     "src": "https://www.ark-pc.co.jp/search/?key=Arc+Pro&unselect=1",
+     "kind": "out",
+     "note": "not listed by Ark, Tsukumo, Dospara or OCN"
+    }
+   }
   },
   {
    "name": "Mac Studio M3 Ultra (512 GB)",
@@ -1878,7 +2597,15 @@
      "basis": "official price (retail edition)",
      "src": "https://www.ithome.com/0/978/229.htm"
     }
-   ]
+   ],
+   "unavailable": {
+    "CN": {
+     "date": "2026-10-15",
+     "src": "https://detail.zol.com.cn/2168/2167063/price.shtml",
+     "kind": "unverifiable",
+     "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
+    }
+   }
   },
   {
    "name": "Moore Threads MTT S80 (16 GB)",
@@ -1916,7 +2643,15 @@
      "basis": "official store (promotion)",
      "src": "https://www.ithome.com/0/775/630.htm"
     }
-   ]
+   ],
+   "unavailable": {
+    "CN": {
+     "date": "2026-10-15",
+     "src": "https://detail.zol.com.cn/1434/1433801/price.shtml",
+     "kind": "unverifiable",
+     "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
+    }
+   }
   }
  ],
  "accelerators": [

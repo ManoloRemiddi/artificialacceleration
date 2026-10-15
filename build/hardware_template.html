@@ -81,6 +81,7 @@
   .vend{display:inline-flex;align-items:center;gap:6px}
   .vend i{width:8px;height:8px;border-radius:50%;background:var(--c)}
   .empty{color:var(--faint);font-size:13.5px;padding:18px 4px}
+  .unv{color:#e0a43a;font:10.5px var(--mono)} .oosrow td{color:var(--faint)} .oosrow b{color:var(--ink)} .oosrow td.n{white-space:normal;text-align:left}
   .hwline{fill:none;stroke-width:2}
   .hwlab{font-family:var(--mono);font-size:11px;font-weight:700}
   .hwlab .v{fill:var(--ink)} .hwlab .up{fill:var(--alert)} .hwlab .down{fill:var(--good)} .hwlab .thin{fill:var(--faint);font-weight:400}
@@ -268,8 +269,9 @@ const vendorGroup = v => (DATA.cn_vendors.includes(v) ? "China" : CLOUD.includes
 const vcol = v => `var(--v-${vendorGroup(v)})`;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-function marker(shape, x, y, r, color) {
-  const st = `style="fill:${color};stroke:var(--panel);stroke-width:1.5"`;
+function marker(shape, x, y, r, color, hollow) {
+  /* hollow = a price whose availability was not verified (advertised or list price) */
+  const st = hollow ? `style="fill:var(--panel);stroke:${color};stroke-width:1.6"` : `style="fill:${color};stroke:var(--panel);stroke-width:1.5"`;
   if (shape === "square") return `<rect x="${x - r}" y="${y - r}" width="${2 * r}" height="${2 * r}" ${st}/>`;
   if (shape === "diamond") return `<path d="M${x} ${y - r * 1.3}L${x + r * 1.3} ${y}L${x} ${y + r * 1.3}L${x - r * 1.3} ${y}Z" ${st}/>`;
   if (shape === "triangle") return `<path d="M${x} ${y - r * 1.3}L${x + r * 1.2} ${y + r}L${x - r * 1.2} ${y + r}Z" ${st}/>`;
@@ -347,7 +349,7 @@ function drawWorld() {
     const last = s[s.length - 1];
     if (D(last.d) < t1) h += `<line x1="${x(D(last.d))}" y1="${y(val(last))}" x2="${x(t1)}" y2="${y(val(last))}" class="hwline" style="stroke:${col}" stroke-dasharray="1 4" opacity=".6"/>`;
     s.forEach(pt => {
-      h += `<g>${marker(SHAPE[r], x(D(pt.d)), y(val(pt)), 4.5, col)}<title>${DATA.regions[r].label} · ${dayLabel(pt.d)} · ${local(pt.amt, pt.cur)} = ${money(val(pt))}${S.tax === "ex" && pt.tax === "incl" ? " without VAT" : ""} · ${pt.basis}</title></g>`;
+      h += `<g>${marker(SHAPE[r], x(D(pt.d)), y(val(pt)), 4.5, col, !pt.ok)}<title>${DATA.regions[r].label} · ${dayLabel(pt.d)} · ${local(pt.amt, pt.cur)} = ${money(val(pt))}${S.tax === "ex" && pt.tax === "incl" ? " without VAT" : ""} · ${pt.basis}${pt.ok ? "" : " · availability not verified"}</title></g>`;
     });
     labels.push({ y: y(val(s[s.length - 1])), r, v: val(s[s.length - 1]) });
   });
@@ -360,19 +362,26 @@ function drawWorld() {
   // both prices are the same kind (list vs street) and were observed within 90 days of each
   // other: an official list price set against a street price, or a 2025 price against a
   // 2026 one, would be a false comparison.
-  const latest = REG.map(r => p.points.filter(pt => pt.r === r).sort((a, b) => D(a.d) - D(b.d)).pop()).filter(Boolean);
+  /* the latest buy-now (verified) price per market; an unverified price only where no verified one exists */
+  const latest = REG.map(r => { const all = p.points.filter(pt => pt.r === r).sort((a, b) => D(a.d) - D(b.d));
+    return all.filter(pt => pt.ok).pop() || all.pop(); }).filter(Boolean);
+  const un = p.unavailable || {};
+  const outNow = r => un[r] && !latest.find(pt => pt.r === r && pt.ok && D(pt.d) > D(un[r].date));
   const us = latest.find(pt => pt.r === "US");
   const kind = pt => /launch|msrp|official|list|price rise|configurator|announced|marketplace/i.test(pt.basis) ? "list" : "street";
   const comparable = pt => us && pt.r !== "US" && kind(pt) === kind(us) && Math.abs(D(pt.d) - D(us.d)) <= 90 * 864e5;
   tbl.innerHTML = `<thead><tr><th>Market</th><th class="n">Local price</th><th class="n">In US$</th><th class="n hide-m">Without tax</th><th class="n">vs US</th><th>Date · basis</th></tr></thead><tbody>` +
-    latest.map(pt => {
+    REG.filter(r => outNow(r)).map(r => `<tr class="oosrow"><td>${keyMarker(r)}${DATA.regions[r].label}<small>${DATA.regions[r].note}</small></td>
+        <td class="n" colspan="4"><b>${un[r].kind === "unverifiable" ? "no verifiable buy-now price" : "nothing in stock"}</b><small>${esc(un[r].note)}</small></td>
+        <td>${dayLabel(un[r].date)} · checked <a class="src" href="${esc(un[r].src)}">source</a>${latest.find(pt => pt.r === r) ? `<small>last price shown on the chart</small>` : ""}</td></tr>`).join("") +
+    latest.filter(pt => !outNow(pt.r)).map(pt => {
       const vs = comparable(pt) && val(us) ? (val(pt) - val(us)) / val(us) * 100 : null;
       return `<tr><td>${keyMarker(pt.r)}${DATA.regions[pt.r].label}<small>${DATA.regions[pt.r].note}</small></td><td class="n">${local(pt.amt, pt.cur)}</td>
         <td class="n">${money(pt.usd)}</td><td class="n hide-m">${money(pt.usd_ex)}</td>
         <td class="n ${vs == null ? "" : vs > 0 ? "up" : "down"}">${vs == null ? (pt.r === "US" ? "—" : `<small title="different kind of price or more than 90 days apart">not comparable</small>`) : (vs > 0 ? "+" : "") + vs.toFixed(0) + "%"}</td>
-        <td>${dayLabel(pt.d)} · ${esc(pt.basis)} ${pt.src ? `<a class="src" href="${esc(pt.src)}">source</a>` : ""}</td></tr>`;
+        <td>${dayLabel(pt.d)} · ${esc(pt.basis)} ${pt.src ? `<a class="src" href="${esc(pt.src)}">source</a>` : ""}${pt.ok ? "" : `<small class="unv">availability not verified</small>`}</td></tr>`;
     }).join("") + `</tbody>`;
-  const missing = REG.filter(r => !latest.find(pt => pt.r === r)).map(r => DATA.regions[r].label);
+  const missing = REG.filter(r => !latest.find(pt => pt.r === r) && !un[r]).map(r => DATA.regions[r].label);
   const first = p.points.filter(pt => pt.r === "US").sort((a, b) => D(a.d) - D(b.d))[0];
   const pool = latest.filter(pt => pt.usd_ex != null && (pt.r === "US" || comparable(pt)));
   const cheapest = pool.length > 1 ? pool.sort((a, b) => a.usd_ex - b.usd_ex)[0] : null;
@@ -381,7 +390,8 @@ function drawWorld() {
     (first && us && first !== us ? ` · US price <b class="${us.usd > first.usd ? "up" : "down"}">${us.usd > first.usd ? "+" : ""}${((us.usd - first.usd) / first.usd * 100).toFixed(0)}%</b> since ${dayLabel(first.d)}` : "") +
     (cheapest ? ` · cheapest before tax: <b>${DATA.regions[cheapest.r].label}</b>` : "");
   $("wnote").innerHTML = (missing.length ? `Not yet tracked here: ${missing.join(", ")}. The monthly check adds a dated price for every market it can verify, so these lines fill in over time. ` : "") +
-    `Each point is converted at the exchange rate of its own date, so a line can move because the currency moved, not only the price. Dashed: a long gap between observations.`;
+    `Filled markers are buy-now prices: a new unit verified in stock at that price on that day. Hollow markers are advertised, list or launch prices whose availability was not verified. `
+    + `Each point is converted at the exchange rate of its own date, so a line can move because the currency moved, not only the price. Dashed: a long gap between observations.`;
 }
 
 /* ---------------- launch -> today (US) ---------------- */

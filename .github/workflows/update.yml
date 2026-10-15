@@ -53,6 +53,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}   # raises the GitHub API rate limit for release dates and stars
         run: |
           python3 pipeline/fetch_gpuprix.py    || echo "::warning::GPUPrix fetch failed; using the committed file"
+          # buy-now card prices (cheapest board in stock) into the hardware price history
+          python3 pipeline/sync_card_prices.py || echo "::warning::card price sync failed"
           python3 pipeline/fetch_harnesses.py  || echo "::warning::harness fetch failed; using the committed file"
 
       - name: Rebuild the page
@@ -72,7 +74,7 @@ jobs:
           CHANGED=$(python3 scripts/data_changed.py "$RUNNER_TEMP/prev.json")
           # a new week of GPU rental prices is news too (the file carries no timestamp), and so
           # is a new day of world GPU prices or harness statistics (each written once a day)
-          for f in data/gpu_rental.json data/gpu_world.json data/harness_stats.json; do
+          for f in data/gpu_rental.json data/gpu_world.json data/harness_stats.json build/hardware.json; do
             if ! git diff --quiet -- "$f" 2>/dev/null || [ -n "$(git ls-files --others -- "$f")" ]; then
               CHANGED=true
             fi
@@ -84,7 +86,7 @@ jobs:
             exit 0
           fi
 
-          git add data
+          git add data build/hardware.json
           git commit -m "data: refresh $(date -u +'%Y-%m-%d %H:%M UTC')" || exit 0
 
           # The schedule and a human push can land together. Rebase and retry, and

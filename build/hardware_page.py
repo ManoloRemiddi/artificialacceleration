@@ -4,7 +4,7 @@
 Every price is converted to US dollars here, at the exchange rate of its own date, and
 handed to the page as JSON; the page only draws and filters.
 """
-import calendar, json, pathlib
+import calendar, json, pathlib, re
 from datetime import date
 
 import hwdata
@@ -34,13 +34,14 @@ def payload(hw, rental, as_of):
             if u is None:
                 continue
             row = {"d": pt["date"], "r": pt["region"], "cur": pt["currency"], "amt": pt["amount"], "tax": pt.get("tax", "excl"),
-                   "basis": pt.get("basis", ""), "src": pt.get("src"), "usd": round(u, 2), "usd_ex": round(ux, 2)}
+                   "basis": pt.get("basis", ""), "src": pt.get("src"), "usd": round(u, 2), "usd_ex": round(ux, 2),
+                   "ok": pt.get("stock") == "in"}           # verified buy-now: a new unit in stock at that price that day
             if pt.get("high"):
                 row["high_usd"] = round(rates.to_usd(pt["high"], pt["currency"], pt["date"] if len(pt["date"]) > 7 else pt["date"] + "-15"), 2)
             pts.append(row)
         products.append({"id": p["id"], "name": p["name"], "short": short(p["name"]), "vendor": p["vendor"],
                          "segment": p["segment"], "mem_gb": p.get("mem_gb"), "bw_gbps": p.get("bw_gbps"), "note": p.get("note"),
-                         "regions": len({q["r"] for q in pts}), "points": pts})
+                         "regions": len({q["r"] for q in pts}), "points": pts, "unavailable": p.get("unavailable", {})})
     S = rental.get("series", {})
     accels = []
     for a in hw["accelerators"]:
