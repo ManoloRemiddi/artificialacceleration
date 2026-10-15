@@ -127,6 +127,7 @@
   .mr.ref .nm{font-weight:700}
   .mr .v{text-align:right;font:700 12.5px var(--mono);font-variant-numeric:tabular-nums}
   .mr .v small{display:block;font-weight:400;font-size:10.5px}
+  .mr.out .nm{color:var(--faint)} .mr .oos{font:11px var(--mono);color:var(--faint)}
   .mr svg{display:block;width:100%;height:18px;overflow:visible}
   .mr .rng{stroke:var(--line);stroke-width:4;stroke-linecap:round}
   .mr .med{stroke:var(--dim);stroke-width:2}
@@ -164,9 +165,10 @@
 
   <section id="map">
     <h2>Graphics cards around the world</h2>
-    <p class="sub">One card, 17 countries, in US dollars at today&rsquo;s exchange rate, coloured by how much more (red) or less (blue) it costs than in
-    the United States. The list beside the map re-sorts from cheapest to dearest as you change card, measure or tax; the bar under each country
-    runs from its 12-month low to its highest recent price, with a tick at the 12-month median.</p>
+    <p class="sub">What a card costs if you buy it today: the cheapest board <b>actually in stock</b> in each of 17 countries, in US dollars at
+    today&rsquo;s rate, coloured by how much more (red) or less (blue) it costs than in the United States. Advertised prices for boards that are
+    out of stock are not prices and are left out; hatched countries have nothing in stock. The list re-sorts from cheapest to dearest; its bar
+    runs from the cheapest board in stock to the typical (median) one.</p>
     <div class="panel">
       <div class="tabs" id="mtabs" role="tablist" aria-label="Graphics card"></div>
       <select class="psel" id="msel" aria-label="Graphics card"></select>
@@ -174,7 +176,7 @@
         <p class="kick" id="mkick"></p>
         <div class="ctls">
           <div class="seg" id="mmetric" role="group" aria-label="Measure">
-            <button data-v="med" aria-pressed="true">Typical (12-month median)</button><button data-v="cur" aria-pressed="false">Lowest today</button></div>
+            <button data-v="cur" aria-pressed="true">Cheapest in stock</button><button data-v="med" aria-pressed="false">Typical in stock</button></div>
           <div class="seg" id="mtax" role="group" aria-label="Tax">
             <button data-v="ex" aria-pressed="true">Without sales tax</button><button data-v="sold" aria-pressed="false">As sold</button></div>
           <div class="seg" id="mzoom" role="group" aria-label="Zoom">
@@ -434,13 +436,13 @@ const EU = ["germany", "france", "italy", "spain", "netherlands", "belgium", "ir
 const CODE = { us: "US", germany: "DE", uk: "UK", japan: "JP", france: "FR", italy: "IT", spain: "ES", netherlands: "NL", belgium: "BE",
   ireland: "IE", portugal: "PT", sweden: "SE", australia: "AU", india: "IN", singapore: "SG", uae: "AE", brazil: "BR" };
 const NUDGE = { belgium: [0, 9], netherlands: [0, -5], portugal: [-3, 0], ireland: [-2, 0], uae: [-26, 4], india: [10, 0], singapore: [10, 3] };
-const M = { p: null, metric: "med", tax: "ex", zoom: "world", sortCol: null, vb: null };
+const M = { p: null, metric: "cur", tax: "ex", zoom: "world", sortCol: null, vb: null };
 const CAP = 40;
 /* the market's price in dollars under the current measure and tax; flags when it had to fall back */
 function mval(p, c, which = M.metric) {
-  const r = p.prices[c]; if (!r) return null;
-  let v = which === "cur" ? (r.cur ?? r.med) : (r.med ?? r.cur);
-  const fell = which === "cur" ? r.cur == null : r.med == null;
+  const r = p.prices[c]; if (!r || r.out || r.cur == null) return null;
+  let v = which === "cur" ? r.cur : (r.med ?? r.cur);
+  const fell = false;
   const vat = W0.markets[c].vat;
   const div = M.tax === "ex" && vat ? 1 + vat : 1;
   return { v: v / div, low: r.low != null ? r.low / div : null, med: r.med != null ? r.med / div : null, cur: r.cur != null ? r.cur / div : null,
@@ -490,7 +492,7 @@ function initMap() {
   Object.keys(W0.markets).filter(c => !m.countries[W0.markets[c].iso]).forEach(c => {
     const [x, y] = m.points[c]; g += `<circle class="dot" data-c="${c}" cx="${x}" cy="${y}" r="4"/>`;
   });
-  g += `<g id="mlabels"></g>`;
+  g += `<defs><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="var(--nodata)"/><line x1="0" y1="0" x2="0" y2="4" stroke="var(--faint)" stroke-width="1.6"/></pattern></defs><g id="mlabels"></g>`;
   svg.innerHTML = g;
   svg.setAttribute("viewBox", `0 0 ${m.width} ${m.height}`);
   M.vb = [0, 0, m.width, m.height];
@@ -502,12 +504,15 @@ function initMap() {
 }
 function mtip(c) {
   const p = W0.products.find(x => x.id === M.p), a = mval(p, c), mk = W0.markets[c];
-  if (!a) return `<b>${esc(mk.name)}</b><br>no price for this card`;
+  const r = p.prices[c];
+  if (r && r.out) return `<span class="t">${esc(pshort(p))}</span><b>${esc(mk.name)}</b><br>none of the ${r.of} boards tracked is in stock`
+    + (r.listed ? `<br>advertised from ${money(r.listed)}, but not buyable` : "");
+  if (!a) return `<b>${esc(mk.name)}</b><br>not tracked for this card`;
   const pc = pctVsUS(p, c), loc = a.local != null ? VIZ.fmt.money(a.local, mk.currency) : "";
-  return `<span class="t">${esc(pshort(p))}</span><b>${esc(mk.name)}</b><br>${M.metric === "cur" && !a.fell ? "lowest today" : "12-month median"}: <b>${money(a.v)}</b>${loc && mk.currency !== "USD" ? ` (${loc} as sold)` : ""}<br>`
+  return `<span class="t">${esc(pshort(p))}</span><b>${esc(mk.name)}</b><br>${M.metric === "cur" ? "cheapest in stock" : "typical in stock"}: <b>${money(a.v)}</b>${loc && mk.currency !== "USD" ? ` (${loc} as sold)` : ""}<br>`
     + (c === "us" ? "the reference market" : `<b class="${pc > 0 ? "up" : "down"}">${VIZ.fmt.pct(pc)}</b> against the US`)
-    + (a.med != null ? `<br>12-month median ${money(a.med)}` : "") + (a.low != null ? ` · low ${money(a.low)}` : "")
-    + (a.fell ? `<br><i>${M.metric === "cur" ? "today's lowest failed the plausibility check: median shown" : "no median published: today's price shown"}</i>` : "")
+    + `<br>${r.n} of ${r.of} boards in stock${r.board ? `; cheapest: ${esc(r.board)}` : ""}`
+    + (r.listed && r.listed < r.cur * 0.9 ? `<br><i>advertised from ${money(r.listed)}, but that board is not in stock</i>` : "")
     + (a.taxed ? `<br><i>includes Brazil's stacked taxes (no single rate to remove)</i>` : "")
     + (M.tax === "ex" && mk.vat ? `<br><span class="t">VAT of ${Math.round(mk.vat * 100)}% removed</span>` : "");
 }
@@ -519,7 +524,7 @@ function mhot(c) {
 function drawMapTabs() {
   const ps = mprods();
   if (!ps.find(p => p.id === M.p)) M.p = (ps.find(p => p.id === "rtx-5090") || ps[0] || {}).id || null;
-  $("mtabs").innerHTML = ps.map(p => `<button class="tab" role="tab" data-id="${p.id}" aria-pressed="${p.id === M.p}">${esc(pshort(p))}<small>${Object.keys(p.prices).length}</small></button>`).join("");
+  $("mtabs").innerHTML = ps.map(p => `<button class="tab" role="tab" data-id="${p.id}" aria-pressed="${p.id === M.p}">${esc(pshort(p))}<small>${Object.values(p.prices).filter(r => !r.out).length}</small></button>`).join("");
   $("mtabs").querySelectorAll(".tab").forEach(b => b.onclick = () => { M.p = b.dataset.id; drawMapTabs(); drawMap(); drawMatrix(); });
   $("msel").innerHTML = ps.map(p => `<option value="${p.id}"${p.id === M.p ? " selected" : ""}>${esc(p.name)}</option>`).join("");
   $("msel").onchange = e => { M.p = e.target.value; drawMapTabs(); drawMap(); drawMatrix(); };
@@ -533,18 +538,19 @@ function drawMap() {
   /* colour every market; the US is the grey reference */
   svg.querySelectorAll("[data-c]").forEach(el => {
     const c = el.dataset.c, pc = c === "us" ? 0 : pctVsUS(p, c);
-    el.style.fill = mval(p, c) ? VIZ.diverging(pc, CAP) : "";
+    el.style.fill = mval(p, c) ? VIZ.diverging(pc, CAP) : (p.prices[c] && p.prices[c].out ? "url(#hatch)" : "");
     el.classList.toggle("ref", c === "us");
   });
   /* labels: everything when zoomed into Europe; outside Europe only on the world view */
   const shown = Object.keys(p.prices).filter(c => M.zoom === "europe" ? EU.includes(c) : !EU.includes(c));
   $("mlabels").innerHTML = shown.map(c => {
     const [x, y] = W0.map.points[c], pc = pctVsUS(p, c);
-    return `<text class="ml" data-c="${c}" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle"><tspan class="cc">${CODE[c]}</tspan> ${c === "us" ? money(mval(p, c).v) : VIZ.fmt.pct(pc)}</text>`;
+    return `<text class="ml" data-c="${c}" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle"><tspan class="cc">${CODE[c]}</tspan> ${p.prices[c].out ? "none" : c === "us" ? money(mval(p, c).v) : VIZ.fmt.pct(pc)}</text>`;
   }).join("") + (M.zoom === "world" ? `<text class="ml" data-c="eu-hint" x="${W0.map.points.germany[0]}" y="${W0.map.points.sweden[1] - 22}" text-anchor="middle"><tspan class="cc">Europe: 10 markets, zoom in</tspan></text>` : "");
   labelSize(M.vb[2]);
   /* the ranked list, cheapest first; re-sorts with FLIP */
   const rows = Object.keys(p.prices).map(c => ({ c, a: mval(p, c), pc: c === "us" ? 0 : pctVsUS(p, c) })).filter(r => r.a).sort((a, b) => a.a.v - b.a.v);
+  const outs = Object.keys(p.prices).filter(c => p.prices[c].out);
   const all = rows.flatMap(r => [r.a.v, r.a.low, r.a.med, r.a.cur].filter(v => v != null));
   const lo = Math.min(...all) * .96, hi = Math.max(...all) * 1.02, X = v => ((v - lo) / (hi - lo) * 100).toFixed(2);
   VIZ.flip($("mlist"), () => {
@@ -554,11 +560,14 @@ function drawMap() {
         <svg viewBox="0 0 100 18" preserveAspectRatio="none"><line class="rng" x1="${X(r0)}" x2="${X(r1)}" y1="9" y2="9" vector-effect="non-scaling-stroke"/>
         ${a.med != null ? `<line class="med" x1="${X(a.med)}" x2="${X(a.med)}" y1="3" y2="15" vector-effect="non-scaling-stroke"/>` : ""}</svg>
         <span class="v">${money(a.v)}${a.fell || a.taxed ? "*" : ""}<small class="${c === "us" ? "" : pc > 0 ? "up" : "down"}">${c === "us" ? "reference" : VIZ.fmt.pct(pc)}</small></span></div>`;
-    }).join("");
+    }).join("") + outs.map(c => `<div class="mr out" data-key="${c}"><span class="nm">${esc(mk[c].name.replace("United Arab Emirates", "UAE").replace("United Kingdom", "UK"))}</span>
+        <span class="oos">nothing in stock (${p.prices[c].of} boards tracked)</span><span class="v">—</span></div>`).join("");
   });
   /* the dot for "this measure" drawn as HTML over the bar so it stays round at any width */
   $("mlist").querySelectorAll(".mr").forEach(el => {
+    el.onmouseenter = () => mhot(el.dataset.key); el.onmouseleave = () => mhot(null);
     const r = rows.find(x => x.c === el.dataset.key), sv = el.querySelector("svg");
+    if (!r || !sv) return;
     const d = document.createElement("i");
     d.style.cssText = `position:absolute;left:calc(${X(r.a.v)}% - 6px);top:3px;width:12px;height:12px;border-radius:50%;background:${r.c === "us" ? "var(--mid)" : VIZ.diverging(r.pc, CAP)};border:2px solid var(--ink);box-sizing:border-box;transition:left 420ms cubic-bezier(.2,.7,.3,1)`;
     const wrap = document.createElement("div"); wrap.style.position = "relative";
@@ -566,13 +575,16 @@ function drawMap() {
     el.onmouseenter = () => mhot(el.dataset.key); el.onmouseleave = () => mhot(null);
   });
   const cheap = rows[0], dear = rows[rows.length - 1];
-  $("mkick").innerHTML = `<b>${esc(pshort(p))}</b>: cheapest in <b>${esc(mk[cheap.c].name)}</b> at ${money(cheap.a.v)}, dearest in <b>${esc(mk[dear.c].name)}</b> at ${money(dear.a.v)}: `
-    + `<b>${(dear.a.v / cheap.a.v).toFixed(2)}×</b> apart.`;
+  const usr = p.prices.us;
+  $("mkick").innerHTML = `<b>${esc(pshort(p))}</b>, in stock today: cheapest in <b>${esc(mk[cheap.c].name)}</b> at ${money(cheap.a.v)}, dearest in <b>${esc(mk[dear.c].name)}</b> at ${money(dear.a.v)}.`
+    + (outs.length ? ` Nothing in stock in ${outs.map(c => esc(mk[c].name)).join(", ")}.` : "")
+    + (usr && usr.listed && usr.cur && usr.listed < usr.cur * 0.9 ? ` In the US it is advertised from ${money(usr.listed)}; the cheapest you can buy is ${money(usr.cur)}.` : "");
   $("mleg").innerHTML = `<span>cheaper than the US</span><span class="ramp"></span><span>dearer</span><span>(scale ±${CAP}%)</span>`
-    + `<span><i class="sw" style="background:var(--mid);outline:1px solid var(--ink)"></i>US, the reference</span><span><i class="sw" style="background:var(--nodata)"></i>not tracked</span>`;
-  $("mnote").innerHTML = `Prices from <a href="${W0.url}">GPUPrix</a>, which follows retailers in each country, read ${W0.fetched ? dayLabel(W0.fetched) : ""}; converted at today&rsquo;s ECB rate. `
-    + `&ldquo;Lowest today&rdquo; is the cheapest new listing; when it is implausible against that country&rsquo;s 12-month median (more than 1.6&times; or under 0.6&times;: usually a bundle, a prebuilt PC or an accessory) the median is shown instead (*). `
-    + `US prices exclude sales tax, so &ldquo;without sales tax&rdquo; is the like-for-like view; Brazil keeps its taxes in both (*).`;
+    + `<span><i class="sw" style="background:var(--mid);outline:1px solid var(--ink)"></i>US, the reference</span><span><i class="sw" style="background:repeating-linear-gradient(45deg,var(--faint) 0 1.5px,var(--nodata) 1.5px 4px)"></i>nothing in stock</span><span><i class="sw" style="background:var(--nodata)"></i>not tracked</span>`;
+  $("mnote").innerHTML = `Offers and stock status from <a href="${W0.url}">GPUPrix</a>, which follows retailers in each country, read ${W0.fetched ? dayLabel(W0.fetched) : ""}; converted at today&rsquo;s ECB rate. `
+    + `Only new boards marked in stock count; advertised prices of boards that are out of stock (often far lower) are not used. `
+    + `US prices exclude sales tax, so &ldquo;without sales tax&rdquo; is the like-for-like view; Brazil keeps its taxes in both (*). `
+    + (W0.no_stock_data && W0.no_stock_data.length ? `Not on the map, because their pages do not report stock: ${W0.no_stock_data.map(esc).join(", ")}.` : "");
 }
 /* one row per card, one dot per country, by % against the US: the whole table in a glance */
 function drawStrip() {
@@ -619,6 +631,7 @@ function drawMatrix() {
   const cell = (p, c) => {
     if (c === "us") { const a = mval(p, "us"); return `<td class="us" title="${esc(pshort(p))} in the US">${a ? money(a.v) : "—"}</td>`; }
     const pc = pctVsUS(p, c);
+    if (p.prices[c] && p.prices[c].out) return `<td class="na" title="nothing in stock">none</td>`;
     if (pc == null) return `<td class="na">·</td>`;
     const k = Math.min(1, Math.abs(pc) / CAP), hue = pc < 0 ? "var(--cool)" : "var(--warm)";
     return `<td style="background:color-mix(in oklab, ${hue} ${Math.round(10 + k * 62)}%, transparent)" data-c="${c}" data-p="${p.id}">${VIZ.fmt.pct(pc)}</td>`;
@@ -634,7 +647,7 @@ function drawMatrix() {
     td.onmousemove = ev => { const keep = M.p; M.p = td.dataset.p; VIZ.tip(mtip(td.dataset.c), ev); M.p = keep; };
     td.onmouseleave = () => VIZ.tip(null);
   });
-  $("mxnote").textContent = `Same measure and tax setting as the map (${M.metric === "cur" ? "lowest today" : "12-month median"}, ${M.tax === "ex" ? "without sales tax" : "as sold"}). Countries run from cheapest on average (left) to dearest (right); the US column is the dollar price itself.`;
+  $("mxnote").textContent = `Same measure and tax setting as the map (${M.metric === "cur" ? "cheapest in stock" : "typical in stock"}, ${M.tax === "ex" ? "without sales tax" : "as sold"}); "none" means nothing in stock. Countries run from cheapest on average (left) to dearest (right); the US column is the dollar price itself.`;
 }
 function mseg(id, key, after) {
   $(id).querySelectorAll("button").forEach(b => b.onclick = () => {

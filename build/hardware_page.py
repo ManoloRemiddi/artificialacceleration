@@ -83,52 +83,44 @@ ANCHORS = {"us": (-98, 39), "germany": (10.4, 51.1), "uk": (-1.8, 52.8), "japan"
 def world(hw, as_of):
     """Graphics-card prices in 17 countries (data/gpu_world.json, from GPUPrix) for the map.
 
-    GPUPrix publishes three numbers per country: the lowest price today, the 12-month low and the
-    12-month median. The median is robust; the other two sometimes catch an accessory or a
-    marketplace listing (an RTX 5090 'from 22,176 yen'), so each is kept only when it is
-    plausible against the median: today's low within 0.6-1.6x, the 12-month low above 0.45x.
-    A country with no median is kept only when its price is plausible against the other
-    countries' median for the same card. All amounts in US dollars at today's rate."""
+    Only a price you can pay now counts: the cheapest board IN STOCK in that country, and the
+    median of the boards in stock. GPUPrix's headline "current low" mixes in out-of-stock
+    offers (an RTX 5090 "from $2,869" in the US when nothing under $7,200 can be bought), so it
+    is passed along only as the advertised figure, for contrast. Countries where boards are
+    tracked but none is in stock are marked as such. Cards whose pages report no stock at all
+    (the workstation cards) are left off the map and named in the note. USD at today's rate."""
     gp = R / "data" / "gpu_world.json"
     if not gp.exists():
         return None
     g = json.loads(gp.read_text())
+    if g.get("format") != 2:
+        return None
     rates = hwdata.Rates()
     names = {p["id"]: (short(p["name"]), p["vendor"]) for p in hw["products"]}
     iso_day = as_of.isoformat()
-    products = []
+    products, no_stock_data = [], []
     for pid, by_c in g["latest"].items():
-        rows = {}
-        for c, o in by_c.items():
-            m = g["countries"].get(c)
-            if not m:
-                continue
-            k = lambda v: None if v is None else rates.to_usd(v, m["currency"], iso_day)
-            rows[c] = {"cur": k(o.get("current")), "med": k(o.get("median12")), "low": k(o.get("low12")),
-                       "local": o.get("current"), "local_med": o.get("median12"), "date": o.get("date")}
-        meds = sorted(r["med"] for r in rows.values() if r["med"])
-        ref = meds[len(meds) // 2] if meds else None
-        out = {}
-        for c, r in rows.items():
-            if r["cur"] is None:
-                continue
-            base = r["med"] or ref
-            if not base or not (0.6 <= r["cur"] / base <= 1.6):
-                r["cur"] = None
-            if r["low"] and r["med"] and r["low"] < 0.45 * r["med"]:
-                r["low"] = None
-            if r["cur"] is None and r["med"] is None:
-                continue
-            out[c] = {key: (round(v, 2) if isinstance(v, float) else v) for key, v in r.items()}
-        if len(out) < 3:
-            continue
         name, vendor = names.get(pid, (pid.replace("-", " ").upper(), ""))
         if not vendor:
             vendor = "AMD" if pid.startswith("amd") else ("Intel" if pid.startswith("arc") else "NVIDIA")
+        out = {}
+        for c, o in by_c.items():
+            m = g["countries"].get(c)
+            if not m or not o.get("stock_reported"):
+                continue
+            k = lambda v: None if v is None else round(rates.to_usd(v, m["currency"], iso_day) or 0, 2) or None
+            out[c] = {"cur": k(o.get("buy")), "med": k(o.get("buy_median")), "low": None,
+                      "local": o.get("buy"), "local_med": o.get("buy_median"), "out": not o.get("buy"),
+                      "n": o.get("in_stock", 0), "of": o.get("offers", 0), "board": o.get("buy_board"),
+                      "listed": k(o.get("listed_low")), "date": o.get("date")}
+        if sum(1 for r in out.values() if not r["out"]) < 3:
+            no_stock_data.append(name)
+            continue
         products.append({"id": pid, "name": name, "vendor": vendor, "prices": out})
     used = {g["countries"][c]["iso"] for p in products for c in p["prices"]}
     return {"source": g.get("source"), "url": g.get("url"), "fetched": g.get("fetched"),
-            "markets": g["countries"], "products": products, "used": sorted(used), "map": worldmap.paths(points=ANCHORS)}
+            "markets": g["countries"], "products": products, "no_stock_data": no_stock_data,
+            "used": sorted(used), "map": worldmap.paths(points=ANCHORS)}
 
 
 def write(site, as_of=None):

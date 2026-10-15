@@ -83,8 +83,10 @@ def _hardware(as_of):
     if gw.exists():
         g = json.loads(gw.read_text())
         us = g.get("latest", {}).get("rtx-5090", {}).get("us", {})
-        if us.get("median12"):
-            line += " An RTX 5090 typically sells for <b>%s</b> in the US; see 17 countries on the map." % HS.money(us["median12"])
+        if g.get("format") == 2 and us.get("buy"):
+            line += (" The cheapest RTX 5090 <i>in stock</i> in the US costs <b>%s</b>%s; see 17 countries on the map."
+                     % (HS.money(us["buy"]), (" (advertised from %s)" % HS.money(us["listed_low"]))
+                        if us.get("listed_low") and us["listed_low"] < us["buy"] * 0.9 else ""))
     return {"k": "Hardware", "n": "02", "href": "hardware/", "cta": "Prices around the world",
             "big": big, "unit": unit, "line": line, "spark": sp, "cap": "H100 median $/GPU-hour, 12 months"}
 

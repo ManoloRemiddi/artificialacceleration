@@ -254,6 +254,33 @@ def numbers(text):
     return out
 
 
+# A price only counts when the item can be bought at it now. Advertised lows for boards that are
+# out of stock are lures (Oct 2026: RTX 5090 "from $2,869" in the US, nothing under $7,200 in
+# stock). The model must quote the page's own words showing availability; the code checks them.
+IN_STOCK = re.compile(r"in stock|add to (cart|basket)|buy now|available to order|ships (in|within|today)|in den warenkorb|auf lager|"
+                      r"sofort lieferbar|lieferbar|en stock|有货|现货|在售|加入购物车|立即购买|在庫あり|在庫有|カートに入れる|即納|お取り寄せ", re.I)
+NOT_BUYABLE = re.compile(r"out of stock|sold out|pre-?order|notify me|coming soon|currently unavailable|not available|backorder|"
+                         r"nicht (auf lager|lieferbar|verfügbar)|ausverkauft|vorbestell|缺货|无货|售罄|到货通知|预售|預約|"
+                         r"在庫切れ|在庫なし|売り切れ|完売|予約|入荷待ち|refurbished|renewed|used|gebraucht|中古", re.I)
+GPUPRIX = "gpuprix.com"
+
+
+def gpuprix_offer(url, text):
+    """A GPUPrix page read without the model: the cheapest new board marked In stock.
+    (ans, why); (None, None) when the page has no offer table (then it is not used at all)."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from fetch_gpuprix import offers
+    rows = offers(re.sub(r"\s+", " ", text))
+    if not rows:
+        return None, None
+    stocked = sorted((r for r in rows if r[2] and r[1]), key=lambda r: r[1])
+    if not stocked:
+        return None, f"nothing in stock at {url} ({len(rows)} boards tracked, all out of stock)"
+    board, amount, _, raw = stocked[0]
+    return {"amount": amount, "basis": "lowest in stock", "source": url, "quote": raw, "stock": "In stock",
+            "confidence": "high"}, None
+
+
 CURRENCY_MARKS = {"USD": ("$", "usd", "us$"), "EUR": ("€", "eur", "euro"), "GBP": ("£", "gbp"),
                   "CNY": ("¥", "￥", "元", "cny", "rmb", "yuan"), "JPY": ("¥", "￥", "円", "jpy", "yen")}
 
@@ -275,6 +302,14 @@ def verify(ans, pages, keys, currency=None):
             return f"the quote does not contain {k} = {v}"
     if currency and not any(m in quote for m in CURRENCY_MARKS.get(currency, ())):
         return f"the quote does not show the price in {currency}"
+    if "stock" in ans:                                   # products: proof that it can be bought now
+        stock = norm(ans.get("stock"))
+        if not stock or stock not in norm(pages[src]):
+            return "no proof on the page that it is in stock"
+        if NOT_BUYABLE.search(stock) or NOT_BUYABLE.search(quote):
+            return "the page shows it is not buyable now (out of stock, pre-order or used)"
+        if not IN_STOCK.search(stock):
+            return f"'{ans.get('stock')[:40]}' does not show that it is in stock"
     return None
 
 
@@ -310,8 +345,12 @@ def tasks(hw):
                    "want": ("amount",),
                    "ask": (f'the current price of {pr["name"]} ({pr["mem_gb"]} GB) in market {reg}: '
                            f'{mk["lang"] or "US retail price in USD before sales tax (official store or lowest new retail)"}. '
-                           f'Return {{"amount": number in {cur} or null, "basis": "official store | MSRP | lowest retail | used", '
+                           f'ONLY a price at which a NEW unit can be bought right now counts: the page must show it in stock or '
+                           f'available to order (add to cart, in stock, ships in...). Ignore out-of-stock, sold-out, pre-order and '
+                           f'"notify me" offers, "from" prices, used or refurbished units and price-comparison headline lows. '
+                           f'Return {{"amount": number in {cur} or null, "basis": "official store | lowest in stock", '
                            f'"source": "URL", "quote": "exact sentence from that page that states the price", '
+                           f'"stock": "the exact words on that page showing it is in stock / can be ordered now", '
                            f'"confidence": "high|medium|low"}}. The amount must be in {cur}, as written on the page.')}
     for a in hw["accelerators"]:
         if not a.get("buy"):
@@ -373,6 +412,23 @@ def read_pages(t, urls):
 
 def judge(t, pages, blocks):
     """Ask the model, verify the answer. Returns (ans, reason): reason None = verified."""
+    if t["kind"] == "product":
+        nothing = None
+        for url in list(pages):
+            if GPUPRIX in url:
+                ans, why = gpuprix_offer(url, pages[url])
+                if ans:
+                    bad = verify(ans, pages, ["amount"], t["currency"])
+                    if not bad:
+                        ans["_currency"] = t["currency"]
+                        return ans, None
+                nothing = why or nothing
+                # a GPUPrix page is never handed to the model: its headline "current low"
+                # includes out-of-stock offers
+                pages.pop(url)
+                blocks = [b for b in blocks if f"URL: {url}\n" not in b]
+        if not blocks:
+            return None, nothing or "no readable pages with prices"
     if not blocks:
         return None, "no readable pages with prices"
     prompt = (f"Find {t['ask']}\nToday is {date.today():%d %B %Y}. Use only these pages; prefer the most recent "
@@ -430,8 +486,11 @@ def check(t, rates, reg):
                     log(f"  search failed for {q!r}: {e}")
         p2, b2 = read_pages(t, [u for u in dict.fromkeys(found) if u not in pages])
         if b2:
+            first_why = why
             ans, why = judge(t, p2, b2)
             via = "search"
+            if why and first_why and first_why.startswith("nothing in stock"):
+                why = first_why                 # the more useful finding: a monitor says nothing can be bought
     if ans and ans.get("source"):
         row.update(now=float(ans.get("amount") if t["kind"] == "product" else ans.get("low") or 0) or None,
                    source=ans.get("source"), quote=ans.get("quote"), via=via)
@@ -500,7 +559,7 @@ def report(rows, checked):
            f"Model `{LLM_MODEL}` via `{urllib.parse.urlparse(LLM_BASE).netloc}`, search `{SEARCH}`. "
            f"**{n['updated']} updated, {n['new market']} new markets, {n['confirmed']} confirmed**, "
            f"{n['held'] + n['rejected']} for review, {n['no data']} without data.\n",
-           "Every accepted price was checked in code: the quoted sentence is on the cited page and contains the number. "
+           "Every accepted price was checked in code: the quoted sentence is on the cited page and contains the number, and the page shows the item IN STOCK (advertised prices for out-of-stock, pre-order or used units are refused). "
            "Each one is added as a new dated point, so the history grows; nothing is overwritten. Moves beyond ±30% "
            "against the last point, and first prices far from the US price, are held for you.\n",
            "| Item | Market | Last | Found | Status | Evidence |", "|---|---|---|---|---|---|"]
