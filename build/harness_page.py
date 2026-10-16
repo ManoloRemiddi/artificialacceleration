@@ -94,7 +94,7 @@ def payload(as_of):
             "license": g.get("license"), "status": status,
             "weekly": series, "downloads": last, "growth": growth, "spikes": sorted(bad),
             "dl_source": h.get("dl_note") or ("npm" if h.get("npm") else ("PyPI" if h.get("pypi") else None)),
-            "repo_note": h.get("repo_note"),
+            "repo_note": h.get("repo_note"), "dl_partial": h.get("downloads_partial"),
             "stars": g.get("stars"),
             "installs": ((vs[-1][1] if vs else 0) + (ovsx[-1][1] if ovsx else 0)) or None,
             "inst_vscode": vs[-1][1] if vs else None, "inst_openvsx": ovsx[-1][1] if ovsx else None,

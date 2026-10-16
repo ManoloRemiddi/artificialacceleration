@@ -125,17 +125,27 @@ def cards(rows, labs, as_of):
 
 def section(as_of, num_label="05"):
     p = harness_page.payload(as_of)
-    hs = [h for h in p["harnesses"] if h["downloads"]]
-    hs.sort(key=lambda h: -h["downloads"])
-    top = hs[:8]
-    mx = max(h["downloads"] for h in top) if top else 1
+    # the same "across all measures" standing as the harness page: average position over the
+    # adoption measures where a harness has complete data (partial download counts left out)
+    hs_all = [h for h in p["harnesses"] if h["status"] == "active"]
+    measures = {"downloads": lambda h: None if h.get("dl_partial") else h["downloads"], "stars": lambda h: h["stars"],
+                "editor installs": lambda h: h["installs"], "app/Docker": lambda h: h["selfhost"], "OpenRouter": lambda h: h["or_tokens"]}
+    stand = {}
+    for m, val in measures.items():
+        ranked = sorted((h for h in hs_all if val(h)), key=lambda h: -val(h))
+        if len(ranked) < 3:
+            continue
+        for i, h in enumerate(ranked):
+            stand.setdefault(h["id"], []).append((m, i + 1, 100 * (1 - i / (len(ranked) - 1))))
+    score = {k: sum(x[2] for x in v) / len(v) for k, v in stand.items() if len(v) >= 2}
+    top = sorted((h for h in hs_all if h["id"] in score), key=lambda h: -score[h["id"]])[:8]
     col = {"claude-code": "anthropic", "codex": "openai", "gemini-cli": "google", "qwen-code": "qwen", "kimi-code": "kimi", "deepseek-harness": "deepseek"}
     bars = "".join(
         '<div class="hb"><span class="hn">%s<small>%s</small></span><span class="ht"><i style="width:%.1f%%;background:%s"></i></span>'
-        '<span class="hv">%s<small class="%s">%s</small></span></div>'
-        % (esc(h["name"]), esc(h["vendor"]), max(1, h["downloads"] / mx * 100),
-           "var(--lab-%s)" % col[h["id"]] if h["id"] in col else "var(--p-harnesses)", num(h["downloads"]),
-           "up" if (h["growth"] or 0) >= 0 else "down", ("%+.0f%% in 12 wk" % h["growth"]) if h["growth"] is not None else "")
+        '<span class="hv">%d/100<small>%s</small></span></div>'
+        % (esc(h["name"]), esc(h["vendor"]), max(1, score[h["id"]]),
+           "var(--lab-%s)" % col[h["id"]] if h["id"] in col else "var(--p-harnesses)", round(score[h["id"]]),
+           esc(" · ".join("#%d %s" % (r, m) for m, r, _ in sorted(stand[h["id"]], key=lambda x: x[1])[:2])))
         for h in top)
     rows = p["tbench"]["rows"][:8]
     tmax = max((r["accuracy"] for r in rows), default=1)
@@ -153,12 +163,13 @@ def section(as_of, num_label="05"):
         '<span class="sub">A harness turns a model into an agent: it reads the files, runs the tools, checks the work. Which ones '
         'people use, and how much each adds to the same model.</span></div>'
         '<div class="panel pad hz"><div class="hzgrid">'
-        '<div><h3 class="hwh">Weekly downloads, latest full week</h3>%s'
-        '<p class="note">npm and PyPI downloads: a proxy for use, inflated by continuous integration and blind to native installers. '
-        'Tokens per day through OpenRouter tell a different story: %s.</p></div>'
+        '<div><h3 class="hwh">Most used, across all measures</h3>%s'
+        '<p class="note">Average position across downloads, GitHub stars, editor installs, app and Docker installs, and tokens '
+        'through OpenRouter (100 = first on all). No single count is fair to every harness: Hermes Agent installs from GitHub '
+        'and Claude Code through its own installer, which download counts miss. Most tokens through OpenRouter: %s.</p></div>'
         '<div><h3 class="hwh">%s: harness &times; model</h3>%s'
         '<p class="note">Share of terminal tasks solved, with the 95%% confidence interval; colour is the model&rsquo;s lab. '
         'The same harness with a different model, or the same model in a different harness, can move the score by ten points.</p></div>'
-        '</div><p class="hwmore"><a href="harnesses/">Open the harness tracker &rarr;</a> %d agents ranked five ways, adoption '
+        '</div><p class="hwmore"><a href="harnesses/">Open the harness tracker &rarr;</a> %d agents ranked seven ways, adoption '
         'since 2025, release rhythm and the full benchmark.</p></div></section>'
         % (num_label, bars, or_line, esc(p["tbench"]["title"]), bench, len(p["harnesses"])))

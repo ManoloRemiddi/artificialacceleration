@@ -59,7 +59,8 @@
    },
    "status": "active",
    "aka": [],
-   "repo_note": "docs and issues repository (source is closed)"
+   "repo_note": "docs and issues repository (source is closed)",
+   "downloads_partial": "most installs now use Anthropic's native installer, which npm does not count"
   },
   {
    "id": "codex",
@@ -473,7 +474,8 @@
     "checked": "2026-10-15"
    },
    "status": "active",
-   "aka": []
+   "aka": [],
+   "downloads_partial": "the official installer clones the code from GitHub; only the side channel on PyPI is counted"
   },
   {
    "id": "pi",

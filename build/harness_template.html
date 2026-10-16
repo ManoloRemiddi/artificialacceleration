@@ -65,6 +65,7 @@
   .rr .val{font:700 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
   .rr .val small{display:block;font:400 11px var(--mono);color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rr.nodata .nm,.rr.nodata .val{opacity:.45}
+  .rr .fill.part{background:repeating-linear-gradient(45deg,var(--c) 0 4px,transparent 4px 7px);border:1px solid var(--c)}
   .rr.inactive .nm{text-decoration:line-through;text-decoration-color:var(--faint)}
   .badge{display:inline-block;font:10px var(--mono);border:1px solid var(--line);border-radius:999px;padding:0 6px;margin-left:6px;color:var(--faint);vertical-align:2px}
   .up{color:var(--good)} .down{color:var(--alert)}
@@ -159,11 +160,12 @@
 
   <section id="race">
     <h2>Who is winning, by which measure</h2>
-    <p class="sub">The same harnesses ranked six ways. Switch the measure and watch them re-sort: popularity among developers (stars), real use
+    <p class="sub">The same harnesses ranked seven ways: first across all measures, then one measure at a time. Switch the measure and watch them re-sort: popularity among developers (stars), real use
     (downloads, editor installs, tokens through OpenRouter) and how fast they ship are different races, with different leaders.</p>
     <div class="panel">
       <div class="row"><div class="seg" id="metric">
-        <button data-m="downloads" aria-pressed="true">Weekly downloads</button>
+        <button data-m="overall" aria-pressed="true">Across all measures</button>
+        <button data-m="downloads" aria-pressed="false">Weekly downloads</button>
         <button data-m="stars" aria-pressed="false">GitHub stars</button>
         <button data-m="installs" aria-pressed="false">Editor installs</button>
         <button data-m="selfhost" aria-pressed="false">App &amp; Docker installs</button>
@@ -220,7 +222,7 @@
 const DATA = __DATA__;
 const $ = id => document.getElementById(id);
 const { flip, tip, fmt, spark } = VIZ;
-const S = { scale: "lin", kind: "all", open: "all", models: "all", active: "all", metric: "downloads", bview: "dots", focus: null };
+const S = { scale: "lin", kind: "all", open: "all", models: "all", active: "all", metric: "overall", bview: "dots", focus: null };
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const CAT = { "cli-agent": ["coding", "Terminal agent"], "ide-extension": ["coding", "Editor extension"], "ide": ["coding", "AI editor"],
   "cloud-agent": ["coding", "Cloud agent"], "general-agent": ["general", "General agent"], "local-ai-app": ["local", "Local AI app"],
@@ -297,8 +299,26 @@ const colorOf = h => HCOL[h.id] ? `var(--lab-${HCOL[h.id]})` : "var(--accent)";
 })();
 
 /* ---------------- the race: one list, five orders ---------------- */
+/* "across all measures": a harness's average position (100 = top) over the adoption measures
+   where it has complete data. Download counts flagged as partial are left out of it. */
+const ADOPTION = { downloads: "downloads", stars: "stars", installs: "editor installs", selfhost: "app/Docker", or_tokens: "OpenRouter" };
+function standings() {
+  const hs = visible(), out = {};
+  Object.keys(ADOPTION).forEach(m => {
+    const val = h => m === "downloads" && h.dl_partial ? null : METRIC[m].val(h);
+    const ranked = hs.filter(h => val(h)).sort((a, b) => val(b) - val(a));
+    if (ranked.length < 3) return;
+    ranked.forEach((h, i) => { (out[h.id] = out[h.id] || []).push({ m, rank: i + 1, n: ranked.length, pct: 100 * (1 - i / (ranked.length - 1)) }); });
+  });
+  return out;
+}
+let STAND = {};
 const METRIC = {
-  downloads: { label: "weekly downloads", val: h => h.downloads, fmt: fmt.num, sub: h => h.dl_source ? `${h.dl_source}${h.growth != null ? ` · <span class="${h.growth >= 0 ? "up" : "down"}">${fmt.pct(h.growth)} in 12 wk</span>` : ""}` : "not on npm/PyPI",
+  overall: { label: "average position across measures", val: h => { const s = STAND[h.id]; return s && s.length >= 2 ? s.reduce((a, x) => a + x.pct, 0) / s.length : null; },
+             fmt: v => Math.round(v) + "/100",
+             sub: h => (STAND[h.id] || []).slice().sort((a, b) => a.rank - b.rank).map(x => `#${x.rank} ${ADOPTION[x.m]}`).join(" · ") || "too few measures",
+             note: "Each harness's average position across the adoption measures where it has complete data: downloads, GitHub stars, editor installs, app and Docker installs, and tokens through OpenRouter (100 = first on every one). No single measure is fair to all: downloads miss native installers, stars measure attention, OpenRouter only sees its own traffic. Harnesses with fewer than two measures are not ranked." },
+  downloads: { label: "weekly downloads", val: h => h.downloads, fmt: v => fmt.num(v), sub: h => h.dl_partial ? `<span title="${esc(h.dl_partial)}">partial: ${esc(h.dl_partial)}</span>` : h.dl_source ? `${h.dl_source}${h.growth != null ? ` · <span class="${h.growth >= 0 ? "up" : "down"}">${fmt.pct(h.growth)} in 12 wk</span>` : ""}` : "not on npm/PyPI",
                note: "Package downloads in the latest complete week (npm for JavaScript harnesses, PyPI for Python ones). A proxy for use: continuous integration inflates it; native installers hide it." },
   stars: { label: "GitHub stars", val: h => h.stars, fmt: fmt.num, sub: h => h.repo ? (h.repo_note || h.repo) : "closed source",
            note: "Stars measure developer attention, not use: OpenClaw is the most-starred repository on all of GitHub." },
@@ -314,6 +334,7 @@ const METRIC = {
          note: "Stable (non-pre-release) GitHub releases in the last 90 days: the pace at which each harness ships." },
 };
 function drawRace() {
+  STAND = standings();
   const M = METRIC[S.metric];
   const hs = visible().slice().sort((a, b) => (M.val(b) ?? -1) - (M.val(a) ?? -1));
   const max = Math.max(1, ...hs.map(h => M.val(h) || 0));
@@ -325,7 +346,7 @@ function drawRace() {
       const v = M.val(h);
       return `<div class="rr${v == null ? " nodata" : ""}${h.status !== "active" ? " inactive" : ""}" data-key="${h.id}" data-id="${h.id}">
         <div class="nm">${esc(h.name)}${licChip(h)}${h.status !== "active" ? `<span class="badge">${h.status}</span>` : ""}<small>${esc(h.vendor)}</small></div>
-        <div class="track"><div class="fill" style="width:${len(v)}%;--c:${colorOf(h)}"></div></div>
+        <div class="track"><div class="fill${S.metric === "downloads" && h.dl_partial ? " part" : ""}" style="width:${len(v)}%;--c:${colorOf(h)}"></div></div>
         <div class="val">${v == null ? "—" : M.fmt(v)}<small>${M.sub(h)}</small></div></div>`;
     }).join("");
   });
@@ -465,6 +486,7 @@ const XL = { proprietary: "Proprietary", "source-available": "Source-available",
 const YL = { any: "Any model", "own-plus": "Own + a few", curated: "Curated set", own: "Own models only" };
 const CATCOL = { coding: "var(--accent)", general: "#c084fc", local: "#34d399", editor: "#f2a93b" };
 function drawLand() {
+  STAND = standings();
   const hs = visible(), M = METRIC[S.metric];
   const vals = hs.map(h => M.val(h) || 0), max = Math.max(1, ...vals);
   const size = h => { const v = M.val(h); return v ? Math.round(11 + 32 * Math.sqrt(v / max)) : 9; };
