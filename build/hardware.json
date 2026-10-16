@@ -97,14 +97,24 @@
      "stock": "in",
      "src": "https://gpuprix.com/uk/gpus/geforce-rtx-3090",
      "quote": "MSI Ventus GeForce RTX 3090 Ventus: 1,704 GBP, In stock (4 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-16",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1720.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-3090",
+     "quote": "MSI Ventus GeForce RTX 3090 Ventus: 1,720 USD, In stock (8 of 9 boards in stock)"
     }
    ],
    "unavailable": {
     "JP": {
-     "date": "2026-10-15",
+     "date": "2026-10-16",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-3090",
-     "note": "none of the 9 boards tracked is in stock",
-     "kind": "out"
+     "note": "none of the 9 boards tracked is in stock"
     }
    }
   },
@@ -174,10 +184,9 @@
    ],
    "unavailable": {
     "JP": {
-     "date": "2026-10-15",
+     "date": "2026-10-16",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-4090",
-     "note": "none of the 9 boards tracked is in stock",
-     "kind": "out"
+     "note": "none of the 9 boards tracked is in stock"
     }
    }
   },
@@ -403,15 +412,36 @@
      "stock": "in",
      "src": "https://gpuprix.com/uk/gpus/geforce-rtx-5090",
      "quote": "ASUS ROG Astral GeForce RTX 5090 ROG Astral: 4,278 GBP, In stock (18 of 24 boards in stock)"
+    },
+    {
+     "date": "2026-10-16",
+     "region": "US",
+     "currency": "USD",
+     "amount": 7489.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-5090",
+     "quote": "GIGABYTE AORUS GeForce RTX 5090 AORUS: 7,489 USD, In stock (10 of 24 boards in stock)"
+    },
+    {
+     "date": "2026-10-16",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 5900.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-5090",
+     "quote": "PALIT GameRock GeForce RTX 5090 GameRock: 5,900 GBP, In stock (15 of 24 boards in stock)"
     }
    ],
    "note": "NVIDIA's own Founders Edition nominally stays at $1,999 / €2,099 but is rarely in stock; the lines track the cheapest card actually on sale. Reported end-of-life in Oct 2026",
    "unavailable": {
     "JP": {
-     "date": "2026-10-15",
+     "date": "2026-10-16",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-5090",
-     "note": "none of the 24 boards tracked is in stock",
-     "kind": "out"
+     "note": "none of the 24 boards tracked is in stock"
     },
     "CN": {
      "date": "2026-10-15",
@@ -1306,6 +1336,28 @@
      "stock": "in",
      "src": "https://gpuprix.com/japan/gpus/radeon-rx-9070-xt",
      "quote": "ASUS Prime White Radeon RX 9070 XT Prime: 133,601 JPY, In stock (9 of 18 boards in stock)"
+    },
+    {
+     "date": "2026-10-16",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 694.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/radeon-rx-9070-xt",
+     "quote": "ASUS Prime Radeon RX 9070 XT Prime: 694 EUR, In stock (7 of 18 boards in stock)"
+    },
+    {
+     "date": "2026-10-16",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 739.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/radeon-rx-9070-xt",
+     "quote": "POWERCOLOR Hellhound Radeon RX 9070 XT Hellhound: 739 GBP, In stock (14 of 18 boards in stock)"
     }
    ],
    "unavailable": {
@@ -1783,22 +1835,19 @@
    ],
    "unavailable": {
     "EU": {
-     "date": "2026-10-15",
+     "date": "2026-10-16",
      "src": "https://gpuprix.com/germany/gpus/arc-b580",
-     "note": "none of the 2 boards tracked is in stock",
-     "kind": "out"
+     "note": "none of the 2 boards tracked is in stock"
     },
     "UK": {
-     "date": "2026-10-15",
+     "date": "2026-10-16",
      "src": "https://gpuprix.com/uk/gpus/arc-b580",
-     "note": "none of the 2 boards tracked is in stock",
-     "kind": "out"
+     "note": "none of the 2 boards tracked is in stock"
     },
     "JP": {
-     "date": "2026-10-15",
+     "date": "2026-10-16",
      "src": "https://gpuprix.com/japan/gpus/arc-b580",
-     "note": "none of the 2 boards tracked is in stock",
-     "kind": "out"
+     "note": "none of the 2 boards tracked is in stock"
     },
     "CN": {
      "date": "2026-10-15",
