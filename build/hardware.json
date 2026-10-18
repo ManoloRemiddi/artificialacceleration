@@ -112,7 +112,7 @@
    ],
    "unavailable": {
     "JP": {
-     "date": "2026-10-17",
+     "date": "2026-10-18",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-3090",
      "note": "none of the 9 boards tracked is in stock"
     }
@@ -184,7 +184,7 @@
    ],
    "unavailable": {
     "JP": {
-     "date": "2026-10-17",
+     "date": "2026-10-18",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-4090",
      "note": "none of the 9 boards tracked is in stock"
     }
@@ -439,7 +439,7 @@
    "note": "NVIDIA's own Founders Edition nominally stays at $1,999 / €2,099 but is rarely in stock; the lines track the cheapest card actually on sale. Reported end-of-life in Oct 2026",
    "unavailable": {
     "JP": {
-     "date": "2026-10-17",
+     "date": "2026-10-18",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-5090",
      "note": "none of the 24 boards tracked is in stock"
     },
@@ -1868,17 +1868,17 @@
    ],
    "unavailable": {
     "EU": {
-     "date": "2026-10-17",
+     "date": "2026-10-18",
      "src": "https://gpuprix.com/germany/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     },
     "UK": {
-     "date": "2026-10-17",
+     "date": "2026-10-18",
      "src": "https://gpuprix.com/uk/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     },
     "JP": {
-     "date": "2026-10-17",
+     "date": "2026-10-18",
      "src": "https://gpuprix.com/japan/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     },
