@@ -141,11 +141,22 @@
      "stock": "in",
      "src": "https://gpuprix.com/uk/gpus/geforce-rtx-3090",
      "quote": "MSI Ventus GeForce RTX 3090 Ventus: 1,842 GBP, In stock (4 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 2363.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-3090",
+     "quote": "ASUS TUF Gaming GeForce RTX 3090 TUF Gaming: 2,363 EUR, In stock (5 of 9 boards in stock)"
     }
    ],
    "unavailable": {
     "JP": {
-     "date": "2026-10-21",
+     "date": "2026-10-22",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-3090",
      "note": "none of the 9 boards tracked is in stock"
     }
@@ -213,17 +224,45 @@
      "stock": "in",
      "src": "https://gpuprix.com/uk/gpus/geforce-rtx-4090",
      "quote": "MSI Gaming Trio GeForce RTX 4090 Gaming Trio: 4,541 GBP, In stock (2 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "US",
+     "currency": "USD",
+     "amount": 4490.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-4090",
+     "quote": "MSI Gaming Trio GeForce RTX 4090 Gaming Trio: 4,490 USD, In stock (4 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 4990.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-4090",
+     "quote": "NVIDIA Founders Edition GeForce RTX 4090 Founders Edition: 4,990 EUR, In stock (1 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 4578.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-4090",
+     "quote": "MSI Gaming Trio GeForce RTX 4090 Gaming Trio: 4,578 GBP, In stock (2 of 9 boards in stock)"
     }
    ],
    "unavailable": {
     "JP": {
-     "date": "2026-10-21",
+     "date": "2026-10-22",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-4090",
-     "note": "none of the 9 boards tracked is in stock"
-    },
-    "EU": {
-     "date": "2026-10-21",
-     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-4090",
      "note": "none of the 9 boards tracked is in stock"
     }
    }
@@ -494,12 +533,34 @@
      "stock": "in",
      "src": "https://gpuprix.com/uk/gpus/geforce-rtx-5090",
      "quote": "MSI Ventus GeForce RTX 5090 Ventus: 4,600 GBP, In stock (15 of 24 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "US",
+     "currency": "USD",
+     "amount": 7199.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-5090",
+     "quote": "ASUS ROG Astral GeForce RTX 5090 ROG Astral: 7,199 USD, In stock (4 of 24 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 9129.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-5090",
+     "quote": "ASUS TUF Gaming GeForce RTX 5090 TUF Gaming: 9,129 EUR, In stock (3 of 24 boards in stock)"
     }
    ],
    "note": "NVIDIA's own Founders Edition nominally stays at $1,999 / €2,099 but is rarely in stock; the lines track the cheapest card actually on sale. Reported end-of-life in Oct 2026",
    "unavailable": {
     "JP": {
-     "date": "2026-10-21",
+     "date": "2026-10-22",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-5090",
      "note": "none of the 24 boards tracked is in stock"
     },
@@ -703,6 +764,39 @@
      "stock": "in",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-5080",
      "quote": "MSI Ventus GeForce RTX 5080 Ventus: 295,799 JPY, In stock (10 of 28 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "US",
+     "currency": "USD",
+     "amount": 1779.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/geforce-rtx-5080",
+     "quote": "MSI Ventus GeForce RTX 5080 Ventus: 1,779 USD, In stock (15 of 28 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1459.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-5080",
+     "quote": "MSI Gaming Trio GeForce RTX 5080 Gaming Trio: 1,459 EUR, In stock (9 of 28 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1430.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-5080",
+     "quote": "GIGABYTE Gaming OC GeForce RTX 5080 Gaming OC: 1,430 GBP, In stock (19 of 28 boards in stock)"
     }
    ],
    "unavailable": {
@@ -890,6 +984,17 @@
      "stock": "in",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-5070-ti",
      "quote": "GIGABYTE Windforce GeForce RTX 5070 Ti Windforce: 206,481 JPY, In stock (9 of 26 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1246.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-5070-ti",
+     "quote": "MSI Ventus GeForce RTX 5070 Ti Ventus: 1,246 EUR, In stock (9 of 26 boards in stock)"
     }
    ],
    "unavailable": {
@@ -1484,6 +1589,28 @@
      "stock": "in",
      "src": "https://gpuprix.com/germany/gpus/radeon-rx-9070-xt",
      "quote": "GIGABYTE Gaming OC Radeon RX 9070 XT Gaming OC: 715 EUR, In stock (7 of 18 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "US",
+     "currency": "USD",
+     "amount": 830.0,
+     "tax": "excl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/us/gpus/radeon-rx-9070-xt",
+     "quote": "GIGABYTE Gaming OC Radeon RX 9070 XT Gaming OC: 830 USD, In stock (8 of 18 boards in stock)"
+    },
+    {
+     "date": "2026-10-22",
+     "region": "JP",
+     "currency": "JPY",
+     "amount": 133419.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/japan/gpus/radeon-rx-9070-xt",
+     "quote": "GIGABYTE Gaming OC ICE Radeon RX 9070 XT Gaming OC: 133,419 JPY, In stock (10 of 18 boards in stock)"
     }
    ],
    "unavailable": {
@@ -1961,17 +2088,17 @@
    ],
    "unavailable": {
     "EU": {
-     "date": "2026-10-21",
+     "date": "2026-10-22",
      "src": "https://gpuprix.com/germany/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     },
     "UK": {
-     "date": "2026-10-21",
+     "date": "2026-10-22",
      "src": "https://gpuprix.com/uk/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     },
     "JP": {
-     "date": "2026-10-21",
+     "date": "2026-10-22",
      "src": "https://gpuprix.com/japan/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     },
@@ -1982,7 +2109,7 @@
      "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
     },
     "US": {
-     "date": "2026-10-21",
+     "date": "2026-10-22",
      "src": "https://gpuprix.com/us/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     }
