@@ -207,6 +207,17 @@
      "stock": "in",
      "src": "https://gpuprix.com/japan/gpus/geforce-rtx-3090",
      "quote": "NVIDIA Founders Edition GeForce RTX 3090 Founders Edition: 495,556 JPY, In stock (1 of 9 boards in stock)"
+    },
+    {
+     "date": "2026-10-31",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1733.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-3090",
+     "quote": "MSI Ventus GeForce RTX 3090 Ventus: 1,733 GBP, In stock (4 of 9 boards in stock)"
     }
    ]
   },
@@ -1350,6 +1361,28 @@
      "stock": "in",
      "src": "https://gpuprix.com/us/gpus/geforce-rtx-5070-ti",
      "quote": "ASUS TUF Gaming GeForce RTX 5070 Ti TUF Gaming: 1,390 USD, In stock (9 of 26 boards in stock)"
+    },
+    {
+     "date": "2026-10-31",
+     "region": "EU",
+     "currency": "EUR",
+     "amount": 1081.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/germany/gpus/geforce-rtx-5070-ti",
+     "quote": "GIGABYTE Windforce GeForce RTX 5070 Ti Windforce: 1,081 EUR, In stock (10 of 26 boards in stock)"
+    },
+    {
+     "date": "2026-10-31",
+     "region": "UK",
+     "currency": "GBP",
+     "amount": 1100.0,
+     "tax": "incl",
+     "basis": "cheapest new board in stock",
+     "stock": "in",
+     "src": "https://gpuprix.com/uk/gpus/geforce-rtx-5070-ti",
+     "quote": "ASUS Prime GeForce RTX 5070 Ti Prime: 1,100 GBP, In stock (16 of 26 boards in stock)"
     }
    ],
    "unavailable": {
@@ -2542,17 +2575,17 @@
    ],
    "unavailable": {
     "EU": {
-     "date": "2026-10-30",
+     "date": "2026-10-31",
      "src": "https://gpuprix.com/germany/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     },
     "UK": {
-     "date": "2026-10-30",
+     "date": "2026-10-31",
      "src": "https://gpuprix.com/uk/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     },
     "JP": {
-     "date": "2026-10-30",
+     "date": "2026-10-31",
      "src": "https://gpuprix.com/japan/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     },
@@ -2563,7 +2596,7 @@
      "note": "China's main shops can't be checked automatically: JD.com requires a login and Tmall forbids automated access"
     },
     "US": {
-     "date": "2026-10-30",
+     "date": "2026-10-31",
      "src": "https://gpuprix.com/us/gpus/arc-b580",
      "note": "none of the 2 boards tracked is in stock"
     }
